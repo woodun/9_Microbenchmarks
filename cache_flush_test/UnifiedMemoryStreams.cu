@@ -234,6 +234,7 @@ int main(int argc, char **argv)
 		
 	///////////CPU timer
 	
+	
 		
     cudaEvent_t start, stop;////////events timer is not accurate.
 	cudaEventCreate(&start);
