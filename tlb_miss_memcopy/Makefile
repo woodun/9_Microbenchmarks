@@ -34,7 +34,7 @@
 ################################################################################
 
 # Location of the CUDA Toolkit
-CUDA_PATH ?= "/home/wang448/space/toolkit_cuda90"
+CUDA_PATH ?= "$space/toolkit_cuda90"
 
 ##############################
 # start deprecated interface #

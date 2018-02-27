@@ -34,7 +34,7 @@
 ################################################################################
 
 # Location of the CUDA Toolkit
-CUDA_PATH ?= "/home/wang448/space/toolkit_cuda90"
+CUDA_PATH ?= "$space/toolkit_cuda90"
 
 ##############################
 # start deprecated interface #
@@ -207,7 +207,7 @@ endif
 
 # Debug build flags
 ifeq ($(dbg),1)
-      NVCCFLAGS += -g -G
+      NVCCFLAGS += -g -G -O0 ######NVCCFLAGS += -g -G
       BUILD_TYPE := debug
 else
       BUILD_TYPE := release
@@ -218,6 +218,7 @@ ALL_CCFLAGS += $(NVCCFLAGS)
 ALL_CCFLAGS += $(EXTRA_NVCCFLAGS)
 ALL_CCFLAGS += $(addprefix -Xcompiler ,$(CCFLAGS))
 ALL_CCFLAGS += $(addprefix -Xcompiler ,$(EXTRA_CCFLAGS))
+ALL_CCFLAGS += -keep
 
 UBUNTU = $(shell lsb_release -i -s 2>/dev/null | grep -i ubuntu)
 
