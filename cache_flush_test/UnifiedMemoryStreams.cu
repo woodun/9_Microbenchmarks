@@ -233,9 +233,9 @@ int main(int argc, char **argv)
 	cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
 	//////////////GPU data end
 				
-    cudaEvent_t start, stop;////////events timer is not accurate.
-	cudaEventCreate(&start);
-	cudaEventCreate(&stop);	
+    //cudaEvent_t start, stop;////////events timer is not accurate.
+	//cudaEventCreate(&start);
+	//cudaEventCreate(&stop);	
 
 	//////////////kernel begin
 	cudaEventRecord(start);	
@@ -256,14 +256,14 @@ int main(int argc, char **argv)
 	
 	//cudaMemcpy(CPU_data_out, GPU_data_out, sizeof(int) * data_size, cudaMemcpyDeviceToHost);
 	
-    cudaDeviceSynchronize();
+    //cudaDeviceSynchronize();
 	
 	///////////CPU timer
 	printf("CPU clock: %fms\n", (double)(ts_end.tv_nsec - ts_start.tv_nsec) / 1000000);///////////CPU timer
 	
-	float milliseconds = 0;
-	cudaEventElapsedTime(&milliseconds, start, stop);
-    printf("out kernel:%f %f\n", milliseconds, milliseconds / iterations);
+	//float milliseconds = 0;
+	//cudaEventElapsedTime(&milliseconds, start, stop);
+    //printf("out kernel:%fms %fms\n", milliseconds, milliseconds / iterations);
 	
     exit(EXIT_SUCCESS);
 }
