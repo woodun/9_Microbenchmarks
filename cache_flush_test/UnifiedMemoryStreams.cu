@@ -17,27 +17,24 @@ void init_cpu_data(int* A, int size, int stride){
 
 //////////min page size 4kb = 4096b = 32 * 128.
 __device__ void tlb_warmup(int *A, int iterations, int *B, float clock_rate){
-	
-	long long int start_time = 0;
-	long long int end_time = 0;
-	
-	start_time = clock64();
-	
+		
 	//iterations = 8;///////should not saturate the tlb
 	
 	int j = 31;/////make them in the same page, but far in cache lines
+	
+	long long int start_time = 0;//////clock
+	long long int end_time = 0;//////clock
+	start_time = clock64();//////clock
 	
 	for (int it =0; it < iterations; it ++){
 		j = A[j];
 	}	
 	
-	B[0] = j;
+	end_time=clock64();//////clock
+	long long int total_time = end_time - start_time;//////clock
+	printf("inside:%fms\n", total_time / (float)clock_rate);//////clock
 	
-	end_time=clock64();
-	long long int total_time = end_time - start_time;
-	printf("inside:%lld\n", total_time);
-	printf("inside:%fms\n", total_time / (float)clock_rate);
-
+	B[0] = j;	
 }
 
 /*
@@ -60,9 +57,17 @@ __device__ void cache_miss_1(int *A, int iterations, int *B){//////////////shoul
 	
 	int j = 0;/////make them in the same page, but far in cache lines
 	
+	long long int start_time = 0;//////clock
+	long long int end_time = 0;//////clock
+	start_time = clock64();//////clock
+	
 	for (int it =0; it < iterations; it ++){
 		j = A[j];
 	}
+	
+	end_time=clock64();//////clock
+	long long int total_time = end_time - start_time;//////clock
+	printf("inside:%fms\n", total_time / (float)clock_rate);//////clock
 	
 	B[0] = j;
 }
@@ -187,7 +192,7 @@ int main(int argc, char **argv)
 	checkCudaErrors(cudaDeviceGetAttribute(&peak_clk, cudaDevAttrClockRate, dev_id));
 	float clock_rate = (float) peak_clk;
 	
-	printf("clock_rate_out_kernel:%f\n", clock_rate);
+	//printf("clock_rate_out_kernel:%f\n", clock_rate);
 
     if (!device_prop.managedMemory) { 
         // This samples requires being run on a device that supports Unified Memory
@@ -240,14 +245,14 @@ int main(int argc, char **argv)
 	//cudaEventRecord(start);////////events timer
 	//cudaEventSynchronize(start);
 	
-	///////////CPU timer
-	struct timespec ts_start, ts_end;
-	clock_gettime(CLOCK_REALTIME, &ts_start);///////////CPU timer
+	///////////CPU timer also becomes inaccurate when events timer is not used.
+	//struct timespec ts_start, ts_end;
+	//clock_gettime(CLOCK_REALTIME, &ts_start);///////////CPU timer
 	
 	tlb_latency_test<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here
 	
 	///////////CPU timer
-	clock_gettime(CLOCK_REALTIME, &ts_end);///////////CPU timer
+	//clock_gettime(CLOCK_REALTIME, &ts_end);///////////CPU timer
 	
 	//cudaEventRecord(stop);////////events timer
 	//cudaEventSynchronize(stop);
@@ -257,7 +262,7 @@ int main(int argc, char **argv)
     cudaDeviceSynchronize();
 	
 	///////////CPU timer
-	printf("CPU clock: %fms\n", (double)(ts_end.tv_nsec - ts_start.tv_nsec) / 1000000);///////////CPU timer
+	//printf("CPU clock: %fms\n", (double)(ts_end.tv_nsec - ts_start.tv_nsec) / 1000000);///////////CPU timer
 	
 	//float milliseconds = 0;
 	//cudaEventElapsedTime(&milliseconds, start, stop);
