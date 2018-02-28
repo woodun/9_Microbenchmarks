@@ -5,6 +5,7 @@
 #include <stdlib.h>
 // utilities
 #include <helper_cuda.h>
+#include <time.h>
 
 //////////cache flush test: can I test multiple kernels in the same run? will they cause cache hits? then I can launch different strides to figure out if the tlb and cache miss or not.
 
@@ -231,11 +232,7 @@ int main(int argc, char **argv)
 	
 	cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
 	//////////////GPU data end
-		
-	///////////CPU timer
-	
-	
-		
+				
     cudaEvent_t start, stop;////////events timer is not accurate.
 	cudaEventCreate(&start);
 	cudaEventCreate(&stop);	
@@ -243,16 +240,26 @@ int main(int argc, char **argv)
 	//////////////kernel begin
 	cudaEventRecord(start);	
 	cudaEventSynchronize(start);
+	
+	///////////CPU timer
+	struct timespec ts_start, ts_end;
+	clock_gettime(CLOCK_REALTIME, ts_start);///////////CPU timer
+	
 	tlb_latency_test<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate);
+	
+	///////////CPU timer
+	clock_gettime(CLOCK_REALTIME, ts_end);///////////CPU timer
 	
 	cudaEventRecord(stop);
 	cudaEventSynchronize(stop);
 	//////////////kernel end
 	
-	
 	//cudaMemcpy(CPU_data_out, GPU_data_out, sizeof(int) * data_size, cudaMemcpyDeviceToHost);
 	
     cudaDeviceSynchronize();
+	
+	///////////CPU timer
+	printf("CPU clock: %lu\n", ts_end.tv_nsec - ts_start.tv_nsec);///////////CPU timer
 	
 	float milliseconds = 0;
 	cudaEventElapsedTime(&milliseconds, start, stop);
