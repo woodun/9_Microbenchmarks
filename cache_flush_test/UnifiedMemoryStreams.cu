@@ -254,7 +254,7 @@ int main(int argc, char **argv)
 	
 	//cudaMemcpy(CPU_data_out, GPU_data_out, sizeof(int) * data_size, cudaMemcpyDeviceToHost);
 	
-    //cudaDeviceSynchronize();
+    cudaDeviceSynchronize();
 	
 	///////////CPU timer
 	printf("CPU clock: %fms\n", (double)(ts_end.tv_nsec - ts_start.tv_nsec) / 1000000);///////////CPU timer
