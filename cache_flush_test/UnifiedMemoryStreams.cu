@@ -259,7 +259,7 @@ int main(int argc, char **argv)
     cudaDeviceSynchronize();
 	
 	///////////CPU timer
-	printf("CPU clock: %lu\n", ts_end.tv_nsec - ts_start.tv_nsec);///////////CPU timer
+	printf("CPU clock: %fms\n", (double)(ts_end.tv_nsec - ts_start.tv_nsec) / 1000000);///////////CPU timer
 	
 	float milliseconds = 0;
 	cudaEventElapsedTime(&milliseconds, start, stop);
