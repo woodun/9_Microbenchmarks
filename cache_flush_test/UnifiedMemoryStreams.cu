@@ -196,12 +196,12 @@ __global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rat
 	long long int end_time = 0;///////////clock	
 	start_time = clock64();///////////clock
 	tlb_warmup(A, 8, B, clock_rate);	
-	cache_miss_1(A, 8, B);
-	cache_miss_2(A, 8, B);
-	cache_miss_3(A, 8, B);
-	cache_miss_4(A, 8, B);
-	cache_miss_5(A, 8, B);
-	cache_miss_6(A, 8, B);	
+	cache_miss_1(A, 8, B, clock_rate);
+	cache_miss_2(A, 8, B, clock_rate);
+	cache_miss_3(A, 8, B, clock_rate);
+	cache_miss_4(A, 8, B, clock_rate);
+	cache_miss_5(A, 8, B, clock_rate);
+	cache_miss_6(A, 8, B, clock_rate);	
 	end_time=clock64();///////////clock
 		
 	long long int total_time = end_time - start_time;///////////clock
