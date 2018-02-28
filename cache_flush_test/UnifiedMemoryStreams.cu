@@ -243,12 +243,12 @@ int main(int argc, char **argv)
 	
 	///////////CPU timer
 	struct timespec ts_start, ts_end;
-	clock_gettime(CLOCK_REALTIME, ts_start);///////////CPU timer
+	clock_gettime(CLOCK_REALTIME, &ts_start);///////////CPU timer
 	
 	tlb_latency_test<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate);
 	
 	///////////CPU timer
-	clock_gettime(CLOCK_REALTIME, ts_end);///////////CPU timer
+	clock_gettime(CLOCK_REALTIME, &ts_end);///////////CPU timer
 	
 	cudaEventRecord(stop);
 	cudaEventSynchronize(stop);
