@@ -237,22 +237,20 @@ int main(int argc, char **argv)
 	//cudaEventCreate(&start);
 	//cudaEventCreate(&stop);	
 
-	//////////////kernel begin
-	cudaEventRecord(start);	
-	cudaEventSynchronize(start);
+	//cudaEventRecord(start);////////events timer
+	//cudaEventSynchronize(start);
 	
 	///////////CPU timer
 	struct timespec ts_start, ts_end;
 	clock_gettime(CLOCK_REALTIME, &ts_start);///////////CPU timer
 	
-	tlb_latency_test<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate);
+	tlb_latency_test<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here
 	
 	///////////CPU timer
 	clock_gettime(CLOCK_REALTIME, &ts_end);///////////CPU timer
 	
-	cudaEventRecord(stop);
-	cudaEventSynchronize(stop);
-	//////////////kernel end
+	//cudaEventRecord(stop);////////events timer
+	//cudaEventSynchronize(stop);
 	
 	//cudaMemcpy(CPU_data_out, GPU_data_out, sizeof(int) * data_size, cudaMemcpyDeviceToHost);
 	
