@@ -33,7 +33,7 @@ __device__ void tlb_warmup(int *A, int iterations, int *B, float clock_rate){
 		
 	//iterations = 8;///////should not saturate the tlb
 	
-	int j = 31 * 32;/////make them in the same page, and hit in cache lines
+	int j = 0 * 32;/////make them in the same page, and hit in cache lines
 	
 	long long int start_time = 0;//////clock
 	long long int end_time = 0;//////clock
@@ -55,7 +55,7 @@ __device__ void cache_miss_1(int *A, int iterations, int *B, float clock_rate){/
 	
 	//iterations = 8;///////should not saturate the tlb
 	
-	int j = 31 * 32;/////make them in the same page, and hit in cache lines
+	int j = 0 * 32 + 1;/////make them in the same page, and hit near in cache lines
 	
 	long long int start_time = 0;//////clock
 	long long int end_time = 0;//////clock
@@ -77,7 +77,7 @@ __device__ void cache_miss_2(int *A, int iterations, int *B, float clock_rate){/
 	
 	//iterations = 8;///////should not saturate the tlb
 	
-	int j = 31 * 32;/////make them in the same page, and hit in cache lines
+	int j = 0 * 32 + 2;/////make them in the same page, and hit near in cache lines
 	
 	long long int start_time = 0;//////clock
 	long long int end_time = 0;//////clock
@@ -99,7 +99,7 @@ __device__ void cache_miss_3(int *A, int iterations, int *B, float clock_rate){/
 	
 	//iterations = 8;///////should not saturate the tlb
 	
-	int j = 31 * 32;/////make them in the same page, and hit in cache lines
+	int j = 0 * 32 + 3;/////make them in the same page, and hit near in cache lines
 	
 	long long int start_time = 0;//////clock
 	long long int end_time = 0;//////clock
@@ -116,13 +116,78 @@ __device__ void cache_miss_3(int *A, int iterations, int *B, float clock_rate){/
 	B[0] = j;
 }
 
+//////////min page size 4kb = 4096b = 32 * 128.
+__device__ void cache_miss_10(int *A, int iterations, int *B, float clock_rate){//////////////should hit in the tlb, but miss in the cache, to prove tlb hit exists.
+	
+	//iterations = 8;///////should not saturate the tlb
+	
+	int j = 0 * 32 + 8;/////make them in the same page, and hit far in cache lines
+	
+	long long int start_time = 0;//////clock
+	long long int end_time = 0;//////clock
+	start_time = clock64();//////clock
+	
+	for (int it =0; it < iterations; it ++){
+		j = A[j];
+	}
+	
+	end_time=clock64();//////clock
+	long long int total_time = end_time - start_time;//////clock
+	printf("inside10:%fms\n", total_time / (float)clock_rate);//////clock
+	
+	B[0] = j;
+}
+
+//////////min page size 4kb = 4096b = 32 * 128.
+__device__ void cache_miss_11(int *A, int iterations, int *B, float clock_rate){//////////////should hit in the tlb, but miss in the cache, to prove tlb hit exists.
+	
+	//iterations = 8;///////should not saturate the tlb
+	
+	int j = 0 * 32 + 16;/////make them in the same page, and hit far in cache lines
+	
+	long long int start_time = 0;//////clock
+	long long int end_time = 0;//////clock
+	start_time = clock64();//////clock
+	
+	for (int it =0; it < iterations; it ++){
+		j = A[j];
+	}
+	
+	end_time=clock64();//////clock
+	long long int total_time = end_time - start_time;//////clock
+	printf("inside11:%fms\n", total_time / (float)clock_rate);//////clock
+	
+	B[0] = j;
+}
+
+//////////min page size 4kb = 4096b = 32 * 128.
+__device__ void cache_miss_12(int *A, int iterations, int *B, float clock_rate){//////////////should hit in the tlb, but miss in the cache, to prove tlb hit exists.
+	
+	//iterations = 8;///////should not saturate the tlb
+	
+	int j = 0 * 32 + 24;/////make them in the same page, and hit far in cache lines
+	
+	long long int start_time = 0;//////clock
+	long long int end_time = 0;//////clock
+	start_time = clock64();//////clock
+	
+	for (int it =0; it < iterations; it ++){
+		j = A[j];
+	}
+	
+	end_time=clock64();//////clock
+	long long int total_time = end_time - start_time;//////clock
+	printf("inside12:%fms\n", total_time / (float)clock_rate);//////clock
+	
+	B[0] = j;
+}
 
 //////////min page size 4kb = 4096b = 32 * 128.
 __device__ void cache_miss_4(int *A, int iterations, int *B, float clock_rate){//////////////should not hit in the tlb, and should also miss in the cache, to see the time difference.
 	
 	//iterations = 8;///////should not saturate the tlb
 	
-	int j = 31 * 32;/////make them in the same page, and miss near in cache lines
+	int j = 1 * 32;/////make them in the same page, and miss near in cache lines
 	
 	long long int start_time = 0;//////clock
 	long long int end_time = 0;//////clock
@@ -144,7 +209,7 @@ __device__ void cache_miss_5(int *A, int iterations, int *B, float clock_rate){/
 	
 	//iterations = 8;///////should not saturate the tlb
 	
-	int j = 524288 * 64;/////make them in the different page, 524288 = 2mb. The 65th page.
+	int j = 2 * 32;/////make them in the same page, and miss near in cache lines
 	
 	long long int start_time = 0;//////clock
 	long long int end_time = 0;//////clock
@@ -166,7 +231,7 @@ __device__ void cache_miss_6(int *A, int iterations, int *B, float clock_rate){/
 	
 	//iterations = 8;///////should not saturate the tlb
 	
-	int j = 524288 * 96;/////make them in the different page, 524288 = 2mb. The 97th page.
+	int j = 3 * 32;/////make them in the same page, and miss near in cache lines
 	
 	long long int start_time = 0;//////clock
 	long long int end_time = 0;//////clock
@@ -183,6 +248,71 @@ __device__ void cache_miss_6(int *A, int iterations, int *B, float clock_rate){/
 	B[0] = j;
 }
 
+//////////min page size 4kb = 4096b = 32 * 128.
+__device__ void cache_miss_7(int *A, int iterations, int *B, float clock_rate){//////////////should not hit in the tlb, and should also miss in the cache, to see the time difference.
+	
+	//iterations = 8;///////should not saturate the tlb
+	
+	int j = 8 * 32;/////make them in the same page, and miss far in cache lines
+	
+	long long int start_time = 0;//////clock
+	long long int end_time = 0;//////clock
+	start_time = clock64();//////clock
+	
+	for (int it =0; it < iterations; it ++){
+		j = A[j];
+	}
+	
+	end_time=clock64();//////clock
+	long long int total_time = end_time - start_time;//////clock
+	printf("inside7:%fms\n", total_time / (float)clock_rate);//////clock
+	
+	B[0] = j;
+}
+
+//////////min page size 4kb = 4096b = 32 * 128.
+__device__ void cache_miss_8(int *A, int iterations, int *B, float clock_rate){//////////////should not hit in the tlb, and should also miss in the cache, to see the time difference.
+	
+	//iterations = 8;///////should not saturate the tlb
+	
+	int j = 16 * 32;/////make them in the same page, and miss far in cache lines
+	
+	long long int start_time = 0;//////clock
+	long long int end_time = 0;//////clock
+	start_time = clock64();//////clock
+	
+	for (int it =0; it < iterations; it ++){
+		j = A[j];
+	}
+	
+	end_time=clock64();//////clock
+	long long int total_time = end_time - start_time;//////clock
+	printf("inside8:%fms\n", total_time / (float)clock_rate);//////clock
+	
+	B[0] = j;
+}
+
+//////////min page size 4kb = 4096b = 32 * 128.
+__device__ void cache_miss_9(int *A, int iterations, int *B, float clock_rate){//////////////should not hit in the tlb, and should also miss in the cache, to see the time difference.
+	
+	//iterations = 8;///////should not saturate the tlb
+	
+	int j = 24 * 32;/////make them in the same page, and miss far in cache lines
+	
+	long long int start_time = 0;//////clock
+	long long int end_time = 0;//////clock
+	start_time = clock64();//////clock
+	
+	for (int it =0; it < iterations; it ++){
+		j = A[j];
+	}
+	
+	end_time=clock64();//////clock
+	long long int total_time = end_time - start_time;//////clock
+	printf("inside9:%fms\n", total_time / (float)clock_rate);//////clock
+	
+	B[0] = j;
+}
 
 __global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rate){
 	
@@ -199,9 +329,15 @@ __global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rat
 	cache_miss_1(A, 16, B, clock_rate);
 	cache_miss_2(A, 16, B, clock_rate);
 	cache_miss_3(A, 16, B, clock_rate);
+	cache_miss_10(A, 16, B, clock_rate);
+	cache_miss_11(A, 16, B, clock_rate);
+	cache_miss_12(A, 16, B, clock_rate);
 	cache_miss_4(A, 16, B, clock_rate);
 	cache_miss_5(A, 16, B, clock_rate);
-	cache_miss_6(A, 16, B, clock_rate);	
+	cache_miss_6(A, 16, B, clock_rate);
+	cache_miss_7(A, 16, B, clock_rate);
+	cache_miss_8(A, 16, B, clock_rate);
+	cache_miss_9(A, 16, B, clock_rate);
 	end_time=clock64();///////////clock
 		
 	long long int total_time = end_time - start_time;///////////clock
