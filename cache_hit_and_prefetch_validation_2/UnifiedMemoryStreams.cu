@@ -65,6 +65,9 @@ __global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rat
 	P_chasing(10, A, 16, B, 8 * 32, clock_rate);//////////////make them in the same page, and miss near in cache lines
 	P_chasing(11, A, 16, B, 16 * 32, clock_rate);/////////////make them in the same page, and miss near in cache lines
 	P_chasing(12, A, 16, B, 24 * 32, clock_rate);/////////////make them in the same page, and miss near in cache lines
+	P_chasing(13, A, 16, B, 16 * 524288, clock_rate);//////////////TLB miss, 17th page
+	P_chasing(14, A, 16, B, 32 * 524288, clock_rate);/////////////TLB miss, 33rd page
+	P_chasing(15, A, 16, B, 48 * 32, clock_rate);/////////////TLB miss, 49th page
 	
 	end_time=clock64();///////////clock
 		
@@ -103,12 +106,12 @@ int main(int argc, char **argv)
         exit(EXIT_WAIVED);
     }
 		
-	///////////////////////////////////////////////////////////////////CPU data begin
-	////////size(int) = 4, 256 = 1kb, 262144 = 1mb, 524288 = 2mb.
+	///////////////////////////////////////////////////////////////////CPU data begin	
 	int iterations = 100;
+	////////size(int) = 4, 32 = 128b, 256 = 1kb, 32 * 32 = 1024 = 4kb, 262144 = 1mb, 524288 = 2mb.
 	int data_stride = 524288;/////2mb. Pointing to the next page.
 	//int data_size = 524288000;/////1000 * 2mb. ##### size = iteration * stride. ##### This can support 1000 iteration. The 1001st iteration starts from head again.
-	int data_size = iterations * data_stride;/////size = iteration * stride = 1000 pages.
+	int data_size = iterations * data_stride;/////size = iteration * stride = 100 2mb pages.
 	
 	int *CPU_data_in;	
 	CPU_data_in = (int*)malloc(sizeof(int) * data_size);
