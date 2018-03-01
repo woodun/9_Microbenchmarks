@@ -49,7 +49,7 @@ __device__ void P_chasing(int mark, int *A, int iterations, int *B, int starting
 __global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rate){	
 
 	long long int start_time = 0;///////////clock
-	long long int end_time = 0;///////////clock	
+	long long int end_time = 0;///////////clock
 	start_time = clock64();///////////clock
 	
 	P_chasing(0, A, 16, B, 0 * 32, clock_rate);/////TLB warmup
