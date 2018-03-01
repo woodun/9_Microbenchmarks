@@ -58,11 +58,11 @@ __global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rat
 	start_time = clock64();///////////clock
 	
 	P_chasing(0, A, 1, B, 31 * 32, clock_rate);/////TLB warmup
-	P_chasing(0, A, 16, B, 0 * 32, clock_rate);/////cache warmup	
+	P_chasing(0, A, 8, B, 0 * 32, clock_rate);/////cache warmup	
 	for(index = 1; index <= 32; index++){
-		P_chasing(index, A, 16, B, 0 * 32 + index, clock_rate);/////make them in the same page, and hit near in cache lines	
+		P_chasing(index, A, 8, B, 0 * 32 + index, clock_rate);/////make them in the same page, and hit near in cache lines	
 	}
-	P_chasing(0, A, 16, B,  16384 * 32, clock_rate);/////TLB miss
+	P_chasing(0, A, 8, B,  16384 * 32, clock_rate);/////TLB miss, cache miss
 	
 	end_time=clock64();///////////clock
 		
