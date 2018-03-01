@@ -27,7 +27,7 @@ __device__ void cache_warmup(int *A, int iterations, int *B){
 */
 
 //////////min page size 4kb = 4096b = 32 * 128.
-__device__ void P_chasing(int mark, int *A, int iterations, int *B, int starting_index, float clock_rate){//////////////should not hit in the tlb, and should also miss in the cache, to see the time difference.
+__device__ void P_chasing(int mark, int *A, int iterations, int *B, int starting_index, float clock_rate){
 	
 	int j = starting_index;/////make them in the same page, and miss near in cache lines
 	
@@ -52,12 +52,12 @@ __global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rat
 	long long int end_time = 0;///////////clock	
 	start_time = clock64();///////////clock
 	
-	P_chasing(0, A, 16, B, 0 * 32, clock_rate);/////TLB warmup
-	P_chasing(1, A, 16, B, 0 * 32 + 5, clock_rate);/////make them in the same page, and hit near in cache lines
-	P_chasing(2, A, 16, B, 0 * 32 + 6, clock_rate);/////make them in the same page, and hit near in cache lines
-	P_chasing(3, A, 16, B, 0 * 32 + 7, clock_rate);/////make them in the same page, and hit near in cache lines
+	P_chasing(0, A, 16, B, 0 * 32, clock_rate);/////TLB and cache warmup
+	P_chasing(1, A, 16, B, 0 * 32 + 1, clock_rate);/////make them in the same page, and hit near in cache lines
+	P_chasing(2, A, 16, B, 0 * 32 + 2, clock_rate);/////make them in the same page, and hit near in cache lines
+	P_chasing(3, A, 16, B, 0 * 32 + 3, clock_rate);/////make them in the same page, and hit near in cache lines
 	P_chasing(4, A, 16, B, 0 * 32 + 8, clock_rate);/////////////make them in the same page, and hit far in cache lines
-	//P_chasing(5, A, 16, B, 0 * 32 + 16, clock_rate);////////////make them in the same page, and hit far in cache lines
+	P_chasing(5, A, 16, B, 0 * 32 + 16, clock_rate);////////////make them in the same page, and hit far in cache lines
 	P_chasing(6, A, 16, B, 0 * 32 + 24, clock_rate);////////////make them in the same page, and hit far in cache lines
 	P_chasing(7, A, 16, B, 1 * 32, clock_rate);/////make them in the same page, and miss near in cache lines
 	P_chasing(8, A, 16, B, 2 * 32, clock_rate);/////make them in the same page, and miss near in cache lines
@@ -104,16 +104,16 @@ int main(int argc, char **argv)
     }
 		
 	///////////////////////////////////////////////////////////////////CPU data begin
-	////////size(int) = 4, 256 = 1kb, 262144 = 1mb, 524288 = 2mb.
-	int iterations = 100;
-	int data_stride = 524288;/////2mb. Pointing to the next page.
+	int iterations = 32;
+	////////size(int) = 4, 32 = 128b, 256 = 1kb, 262144 = 1mb, 524288 = 2mb.
+	int data_stride = 32;/////128b. Pointing to the next page.
 	//int data_size = 524288000;/////1000 * 2mb. ##### size = iteration * stride. ##### This can support 1000 iteration. The 1001st iteration starts from head again.
-	int data_size = iterations * data_stride;/////size = iteration * stride = 1000 pages.
+	int data_size = iterations * data_stride;/////size = iteration * stride = 1 page.
 	
 	int *CPU_data_in;	
 	CPU_data_in = (int*)malloc(sizeof(int) * data_size);
-	int *CPU_data_out;
-	CPU_data_out = (int*)malloc(data_size * sizeof(int));
+	//int *CPU_data_out;
+	//CPU_data_out = (int*)malloc(data_size * sizeof(int));
 	
 	init_cpu_data(CPU_data_in, data_size, data_stride);
 	///////////////////////////////////////////////////////////////////CPU data end
@@ -131,7 +131,7 @@ int main(int argc, char **argv)
 		
 	tlb_latency_test<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here
 	
-	cudaMemcpy(CPU_data_out, GPU_data_out, sizeof(int) * data_size, cudaMemcpyDeviceToHost);
+	//cudaMemcpy(CPU_data_out, GPU_data_out, sizeof(int) * data_size, cudaMemcpyDeviceToHost);
 	
     cudaDeviceSynchronize();	
 	
