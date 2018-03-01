@@ -67,7 +67,7 @@ __global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rat
 	P_chasing(12, A, 4, B, 24 * 32, clock_rate);/////////////make them in the same page, and miss near in cache lines
 	P_chasing(13, A, 4, B, 16 * 524288, clock_rate);//////////////TLB miss, 17th page
 	P_chasing(14, A, 4, B, 32 * 524288, clock_rate);/////////////TLB miss, 33rd page
-	P_chasing(15, A, 4, B, 48 * 32, clock_rate);/////////////TLB miss, 49th page
+	P_chasing(15, A, 4, B, 48 * 524288, clock_rate);/////////////TLB miss, 49th page
 	
 	end_time=clock64();///////////clock
 		
