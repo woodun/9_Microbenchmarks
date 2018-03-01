@@ -51,14 +51,17 @@ __device__ void P_chasing(int mark, int *A, int iterations, int *B, int starting
 
 __global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rate){	
 
+	int index = 0;
+	
 	long long int start_time = 0;///////////clock
 	long long int end_time = 0;///////////clock	
 	start_time = clock64();///////////clock
 	
 	P_chasing(0, A, 1, B, 31 * 32, clock_rate);/////TLB warmup
-	P_chasing(1, A, 8, B, 0 * 32, clock_rate);/////cache warmup	
-	P_chasing(2, A, 8, B, 0 * 32 + 15, clock_rate);/////make them in the same page, and hit near in cache lines	
-	P_chasing(3, A, 8, B, 0 * 32 + 16, clock_rate);/////make them in the same page, and hit far in cache lines
+	P_chasing(0, A, 8, B, 0 * 32, clock_rate);/////cache warmup	
+	for(index = 1; index <= 32; index++){
+		P_chasing(index, A, 8, B, 0 * 32 + index, clock_rate);/////make them in the same page, and hit near in cache lines	
+	}
 	
 	end_time=clock64();///////////clock
 		
