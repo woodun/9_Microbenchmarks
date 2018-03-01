@@ -28,12 +28,12 @@ __device__ void cache_warmup(int *A, int iterations, int *B){
 }
 */
 
-//////////min page size 4kb = 4096b = 32 * 128.
+//////////min page size 4kb = 4096b = 32 * 128 = 32 * 4 * 32.
 __device__ void tlb_warmup(int *A, int iterations, int *B, float clock_rate){
 		
 	//iterations = 8;///////should not saturate the tlb
 	
-	int j = 31;/////make them in the same page, but far in cache lines
+	int j = 31 * 32;/////make them in the same page, but far in cache lines
 	
 	long long int start_time = 0;//////clock
 	long long int end_time = 0;//////clock
@@ -77,7 +77,7 @@ __device__ void cache_miss_2(int *A, int iterations, int *B, float clock_rate){/
 	
 	//iterations = 8;///////should not saturate the tlb
 	
-	int j = 8;/////make them in the same page, but far in cache lines
+	int j = 8 * 32;/////make them in the same page, but far in cache lines
 	
 	long long int start_time = 0;//////clock
 	long long int end_time = 0;//////clock
@@ -99,7 +99,7 @@ __device__ void cache_miss_3(int *A, int iterations, int *B, float clock_rate){/
 	
 	//iterations = 8;///////should not saturate the tlb
 	
-	int j = 16;/////make them in the same page, but far in cache lines
+	int j = 16 * 32;/////make them in the same page, but far in cache lines
 	
 	long long int start_time = 0;//////clock
 	long long int end_time = 0;//////clock
@@ -122,7 +122,7 @@ __device__ void cache_miss_4(int *A, int iterations, int *B, float clock_rate){/
 	
 	//iterations = 8;///////should not saturate the tlb
 	
-	int j = 8388608;/////make them in the different page, 524288 * 16 = 8388608. 2m * 16. The 17th page.
+	int j = 524288 * 32;/////make them in the different page, 524288 = 2mb. The 33th page.
 	
 	long long int start_time = 0;//////clock
 	long long int end_time = 0;//////clock
@@ -144,7 +144,7 @@ __device__ void cache_miss_5(int *A, int iterations, int *B, float clock_rate){/
 	
 	//iterations = 8;///////should not saturate the tlb
 	
-	int j = 16777216;/////make them in the different page, 524288 * 32 = 8388608. 2m * 32. The 33rd page.
+	int j = 524288 * 64;/////make them in the different page, 524288 = 2mb. The 65th page.
 	
 	long long int start_time = 0;//////clock
 	long long int end_time = 0;//////clock
@@ -166,7 +166,7 @@ __device__ void cache_miss_6(int *A, int iterations, int *B, float clock_rate){/
 	
 	//iterations = 8;///////should not saturate the tlb
 	
-	int j = 16777216;/////make them in the different page, 524288 * 48 = 25165824. 2m * 48. The 49th page.
+	int j = 524288 * 96;/////make them in the different page, 524288 = 2mb. The 97th page.
 	
 	long long int start_time = 0;//////clock
 	long long int end_time = 0;//////clock
@@ -195,13 +195,13 @@ __global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rat
 	long long int start_time = 0;///////////clock
 	long long int end_time = 0;///////////clock	
 	start_time = clock64();///////////clock
-	tlb_warmup(A, 8, B, clock_rate);	
-	cache_miss_1(A, 8, B, clock_rate);
-	cache_miss_2(A, 8, B, clock_rate);
-	cache_miss_3(A, 8, B, clock_rate);
-	cache_miss_4(A, 8, B, clock_rate);
-	cache_miss_5(A, 8, B, clock_rate);
-	cache_miss_6(A, 8, B, clock_rate);	
+	tlb_warmup(A, 16, B, clock_rate);	
+	cache_miss_1(A, 16, B, clock_rate);
+	cache_miss_2(A, 16, B, clock_rate);
+	cache_miss_3(A, 16, B, clock_rate);
+	cache_miss_4(A, 16, B, clock_rate);
+	cache_miss_5(A, 16, B, clock_rate);
+	cache_miss_6(A, 16, B, clock_rate);	
 	end_time=clock64();///////////clock
 		
 	long long int total_time = end_time - start_time;///////////clock
@@ -210,6 +210,7 @@ __global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rat
 
 int main(int argc, char **argv)
 {
+	printf("\n");//////clock
 	
     // set device
     cudaDeviceProp device_prop;
@@ -244,9 +245,9 @@ int main(int argc, char **argv)
 	//////////////CPU data begin
 	////////size(int) = 4, 256 = 1kb, 262144 = 1mb, 524288 = 2mb.
 	int iterations = 1000;
-	int data_stride = 524288;/////2mb.
+	int data_stride = 524288;/////2mb. Pointing to the next page.
 	//int data_size = 524288000;/////1000 * 2mb. ##### size = iteration * stride. ##### This can support 1000 iteration. The 1001st iteration starts from head again.
-	int data_size = iterations * data_stride;/////size = iteration * stride.
+	int data_size = iterations * data_stride;/////size = iteration * stride = 1000 pages.
 	
 	int *CPU_data_in;	
 	CPU_data_in = (int*)malloc(sizeof(int) * data_size);
