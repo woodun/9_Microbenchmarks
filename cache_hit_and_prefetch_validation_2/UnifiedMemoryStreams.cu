@@ -53,11 +53,11 @@ __global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rat
 	start_time = clock64();///////////clock
 	
 	cache_miss(0, A, 16, B, 0 * 32, clock_rate);/////TLB warmup
-	cache_miss(1, A, 16, B, 0 * 32 + 1, clock_rate);/////make them in the same page, and hit near in cache lines
-	cache_miss(2, A, 16, B, 0 * 32 + 2, clock_rate);/////make them in the same page, and hit near in cache lines
-	cache_miss(3, A, 16, B, 0 * 32 + 3, clock_rate);/////make them in the same page, and hit near in cache lines
+	cache_miss(1, A, 16, B, 0 * 32 + 5, clock_rate);/////make them in the same page, and hit near in cache lines
+	cache_miss(2, A, 16, B, 0 * 32 + 6, clock_rate);/////make them in the same page, and hit near in cache lines
+	cache_miss(3, A, 16, B, 0 * 32 + 7, clock_rate);/////make them in the same page, and hit near in cache lines
 	cache_miss(4, A, 16, B, 0 * 32 + 8, clock_rate);/////////////make them in the same page, and hit far in cache lines
-	cache_miss(5, A, 16, B, 0 * 32 + 16, clock_rate);////////////make them in the same page, and hit far in cache lines
+	//cache_miss(5, A, 16, B, 0 * 32 + 16, clock_rate);////////////make them in the same page, and hit far in cache lines
 	cache_miss(6, A, 16, B, 0 * 32 + 24, clock_rate);////////////make them in the same page, and hit far in cache lines
 	cache_miss(7, A, 16, B, 1 * 32, clock_rate);/////make them in the same page, and miss near in cache lines
 	cache_miss(8, A, 16, B, 2 * 32, clock_rate);/////make them in the same page, and miss near in cache lines
