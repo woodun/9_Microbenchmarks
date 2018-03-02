@@ -7,8 +7,7 @@
 #include <helper_cuda.h>
 #include <time.h>
 
-/////////////////////////////prefetch test for dense accesses.
-
+/////////////////////////////L1 size test
 
 void init_cpu_data(int* A, int size, int stride){
 	for (int i = 0; i < size; ++i){
