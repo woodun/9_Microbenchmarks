@@ -48,27 +48,27 @@ __device__ void P_chasing(int mark, int *A, int iterations, int *B, int starting
 
 __global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rate){	
 
-	int iterations = 4;
+	int i = 4;
 	long long int start_time = 0;///////////clock
 	long long int end_time = 0;///////////clock
 	start_time = clock64();///////////clock
 	
-	P_chasing(0, A, iterations, B, 0 * 32, clock_rate);/////TLB and cache warmup
-	P_chasing(1, A, iterations, B, 0 * 32 + 6, clock_rate);/////make them in the same page, and hit near in cache lines
-	P_chasing(2, A, iterations, B, 0 * 32 + 7, clock_rate);/////make them in the same page, and hit near in cache lines
-	P_chasing(3, A, iterations, B, 0 * 32 + 8, clock_rate);/////make them in the same page, and hit near in cache lines
-	P_chasing(4, A, iterations, B, 0 * 32 + 14, clock_rate);/////////////make them in the same page, and hit far in cache lines
-	P_chasing(5, A, iterations, B, 0 * 32 + 15, clock_rate);////////////make them in the same page, and hit far in cache lines
-	P_chasing(6, A, iterations, B, 0 * 32 + 16, clock_rate);////////////make them in the same page, and hit far in cache lines
-	P_chasing(7, A, iterations, B, 1 * 32, clock_rate);/////make them in the same page, and miss near in cache lines
-	P_chasing(8, A, iterations, B, 2 * 32, clock_rate);/////make them in the same page, and miss near in cache lines
-	P_chasing(9, A, iterations, B, 3 * 32, clock_rate);/////make them in the same page, and miss near in cache lines
-	P_chasing(10, A, iterations, B, 8 * 32, clock_rate);//////////////make them in the same page, and miss far in cache lines
-	P_chasing(11, A, iterations, B, 16 * 32, clock_rate);/////////////make them in the same page, and miss far in cache lines
-	P_chasing(12, A, iterations, B, 24 * 32, clock_rate);/////////////make them in the same page, and miss far in cache lines
-	P_chasing(13, A, iterations, B, 16 * 524288, clock_rate);//////////////TLB miss, 17th page
-	P_chasing(14, A, iterations, B, 32 * 524288, clock_rate);/////////////TLB miss, 33rd page
-	P_chasing(15, A, iterations, B, 48 * 524288, clock_rate);/////////////TLB miss, 49th page
+	P_chasing(0, A, i, B, 0 * 32, clock_rate);/////TLB and cache warmup
+	P_chasing(1, A, i, B, 0 * 32 + 6, clock_rate);/////make them in the same page, and hit near in cache lines
+	P_chasing(2, A, i, B, 0 * 32 + 7, clock_rate);/////make them in the same page, and hit near in cache lines
+	P_chasing(3, A, i, B, 0 * 32 + 8, clock_rate);/////make them in the same page, and hit near in cache lines
+	P_chasing(4, A, i, B, 0 * 32 + 14, clock_rate);/////////////make them in the same page, and hit far in cache lines
+	P_chasing(5, A, i, B, 0 * 32 + 15, clock_rate);////////////make them in the same page, and hit far in cache lines
+	P_chasing(6, A, i, B, 0 * 32 + 16, clock_rate);////////////make them in the same page, and hit far in cache lines
+	P_chasing(7, A, i, B, 1 * 32, clock_rate);/////make them in the same page, and miss near in cache lines
+	P_chasing(8, A, i, B, 2 * 32, clock_rate);/////make them in the same page, and miss near in cache lines
+	P_chasing(9, A, i, B, 3 * 32, clock_rate);/////make them in the same page, and miss near in cache lines
+	P_chasing(10, A, i, B, 8 * 32, clock_rate);//////////////make them in the same page, and miss far in cache lines
+	P_chasing(11, A, i, B, 16 * 32, clock_rate);/////////////make them in the same page, and miss far in cache lines
+	P_chasing(12, A, i, B, 24 * 32, clock_rate);/////////////make them in the same page, and miss far in cache lines
+	P_chasing(13, A, i, B, 16 * 524288, clock_rate);//////////////TLB miss, 17th page
+	P_chasing(14, A, i, B, 32 * 524288, clock_rate);/////////////TLB miss, 33rd page
+	P_chasing(15, A, i, B, 48 * 524288, clock_rate);/////////////TLB miss, 49th page
 	
 	end_time=clock64();///////////clock
 		
