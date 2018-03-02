@@ -57,8 +57,8 @@ __global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rat
 	long long int end_time = 0;///////////clock	
 	start_time = clock64();///////////clock
 		
-	//////////////////////////////////////////////////////32 * 32 * 32 = 128kb
-	for(index = 2 * 4 * 32 * 32 - 256; index <= 3 * 4 * 32 * 32; index++){
+	//////////////////////////////////////////////////////4 * (8) * 32 * 32 = 128kb ///////////////////48 * 128kb = 6144kb
+	for(index = 48 * 4 * 32 * 32 - 256; index <= 48 * 4 * 32 * 32 + 256; index++){
 		P_chasing(index, A, index, B, 0, clock_rate);/////warmup cache and TLB
 		P_chasing(index, A, index, B, 0, clock_rate);/////try to generate hits	
 	}
