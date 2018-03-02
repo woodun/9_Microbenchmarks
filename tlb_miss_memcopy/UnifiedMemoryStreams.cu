@@ -94,6 +94,12 @@ int main(int argc, char **argv)
 	cudaEventElapsedTime(&milliseconds, start, stop);
 
     cudaDeviceSynchronize();
+	
+	checkCudaErrors(cudaFree(GPU_data_in));
+	checkCudaErrors(cudaFree(GPU_data_out));
+	
+	free(CPU_data_in);
+	//free(CPU_data_out);
 
     printf("%f %f\n", milliseconds, milliseconds / 1000);
     exit(EXIT_SUCCESS);

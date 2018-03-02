@@ -65,7 +65,7 @@ __global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rat
 	end_time=clock64();///////////clock
 		
 	long long int total_time = end_time - start_time;///////////clock
-	printf("outside1:%fms\n", total_time / (float)clock_rate);///////////clock
+	//printf("outside1:%fms\n", total_time / (float)clock_rate);///////////clock
 }
 
 //////////////////////////////////////////////////////4 * (8) * 32 * 32 = 128kb ///////////////////48 * 128kb = 6144kb ///////////12 * 128kb = 1536kb
@@ -78,13 +78,13 @@ __global__ void tlb_latency_test_2(int *A, int iterations, int *B, float clock_r
 	start_time = clock64();///////////clock
 		
 	//P_chasing(0, A, 1, B, 31 * 32, clock_rate);/////warmup TLB
-	//P_chasing(0, A, 16, B, 0, clock_rate);/////warmup cache
-	P_chasing(1, A, 16, B, 0, clock_rate);/////try to generate hits	
+	P_chasing(1, A, 16, B, 524288, clock_rate);/////warmup GPU
+	P_chasing(3, A, 16, B, 0, clock_rate);/////try to generate hits	
 	
 	end_time=clock64();///////////clock
 		
 	long long int total_time = end_time - start_time;///////////clock
-	printf("outside1:%fms\n", total_time / (float)clock_rate);///////////clock
+	//printf("outside1:%fms\n", total_time / (float)clock_rate);///////////clock
 }
 
 int main(int argc, char **argv)

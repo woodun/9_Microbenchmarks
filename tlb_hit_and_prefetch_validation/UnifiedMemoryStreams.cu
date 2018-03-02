@@ -298,5 +298,11 @@ int main(int argc, char **argv)
 	//cudaEventElapsedTime(&milliseconds, start, stop);
     //printf("out kernel:%fms %fms\n", milliseconds, milliseconds / iterations);
 	
+	checkCudaErrors(cudaFree(GPU_data_in));
+	checkCudaErrors(cudaFree(GPU_data_out));
+	
+	free(CPU_data_in);
+	//free(CPU_data_out);
+		
     exit(EXIT_SUCCESS);
 }

@@ -132,5 +132,11 @@ int main(int argc, char **argv)
 	
     cudaDeviceSynchronize();	
 	
+	checkCudaErrors(cudaFree(GPU_data_in));
+	checkCudaErrors(cudaFree(GPU_data_out));
+	
+	free(CPU_data_in);
+	//free(CPU_data_out);
+	
     exit(EXIT_SUCCESS);
 }
