@@ -62,7 +62,7 @@ __global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rat
 	for(index = 1; index <= 32; index++){
 		P_chasing(index, A, 8, B, index * 32, clock_rate);/////make them in the same page, and hit near in cache lines	
 	}
-	P_chasing(0, A, 8, B,  16384 * 32, clock_rate);/////TLB miss, cache miss
+	P_chasing(0, A, 8, B,  2 * 16384 * 32, clock_rate);/////TLB miss, cache miss
 	
 	end_time=clock64();///////////clock
 		
@@ -102,7 +102,7 @@ int main(int argc, char **argv)
     }
 		
 	///////////////////////////////////////////////////////////////////CPU data begin
-	int iterations = 64;
+	int iterations = 16384 * 2;
 	////////size(int) = 4, 32 = 128b, 256 = 1kb, 32 * 32 = 1024 = 4kb, 262144 = 1mb, 16384 * 32 = 512 * 1024 = 524288 = 2mb.
 	int data_stride = 32;/////128b. Pointing to the next cacheline.
 	//int data_size = 524288000;/////1000 * 2mb. ##### size = iteration * stride. ##### This can support 1000 iteration. The 1001st iteration starts from head again.
