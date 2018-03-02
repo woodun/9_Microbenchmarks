@@ -49,6 +49,7 @@ __device__ void P_chasing(int mark, int *A, int iterations, int *B, int starting
 	B[0] = j;
 }
 
+//////////////////////////////////////////////////////4 * (8) * 32 * 32 = 128kb ///////////////////48 * 128kb = 6144kb ///////////12 * 128kb = 1536kb
 __global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rate){	
 
 	int index = 0;
@@ -57,11 +58,28 @@ __global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rat
 	long long int end_time = 0;///////////clock	
 	start_time = clock64();///////////clock
 		
-	//////////////////////////////////////////////////////4 * (8) * 32 * 32 = 128kb ///////////////////48 * 128kb = 6144kb ///////////12 * 128kb = 1536kb
-	for(index = 48 * 4 * 32 * 32 + 256; index >= 48 * 4 * 32 * 32 - 256; index--){
-		P_chasing(index, A, index, B, 0, clock_rate);/////warmup cache and TLB
-		P_chasing(index, A, index, B, 0, clock_rate);/////try to generate hits	
-	}
+	P_chasing(0, A, 1, B, 31 * 32, clock_rate);/////warmup TLB
+	P_chasing(0, A, 16, B, 0, clock_rate);/////warmup cache
+	P_chasing(0, A, 16, B, 0, clock_rate);/////try to generate hits	
+	
+	end_time=clock64();///////////clock
+		
+	long long int total_time = end_time - start_time;///////////clock
+	printf("outside1:%fms\n", total_time / (float)clock_rate);///////////clock
+}
+
+//////////////////////////////////////////////////////4 * (8) * 32 * 32 = 128kb ///////////////////48 * 128kb = 6144kb ///////////12 * 128kb = 1536kb
+__global__ void tlb_latency_test_2(int *A, int iterations, int *B, float clock_rate){	
+
+	int index = 0;
+	
+	long long int start_time = 0;///////////clock
+	long long int end_time = 0;///////////clock	
+	start_time = clock64();///////////clock
+		
+	//P_chasing(0, A, 1, B, 31 * 32, clock_rate);/////warmup TLB
+	//P_chasing(0, A, 16, B, 0, clock_rate);/////warmup cache
+	P_chasing(1, A, 16, B, 0, clock_rate);/////try to generate hits	
 	
 	end_time=clock64();///////////clock
 		
@@ -101,9 +119,9 @@ int main(int argc, char **argv)
     }
 		
 	///////////////////////////////////////////////////////////////////CPU data begin
-	int iterations = 4 * 16384 * 100;
+	int iterations = 16384 * 100;
 	////////size(int) = 4, 32 = 128b, 256 = 1kb, 32 * 32 = 1024 = 4kb, 262144 = 1mb, 16384 * 32 = 512 * 1024 = 524288 = 2mb.
-	int data_stride = 8;/////128b. Pointing to the next cacheline.
+	int data_stride = 32;/////128b. Pointing to the next cacheline.
 	//int data_size = 524288000;/////1000 * 2mb. ##### size = iteration * stride. ##### This can support 1000 iteration. The 1001st iteration starts from head again.
 	int data_size = iterations * data_stride;/////size = iteration * stride = 100 2mb pages.
 	
@@ -123,14 +141,26 @@ int main(int argc, char **argv)
 	int *GPU_data_out;
 	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(int) * 1));
 	
-	cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
+	checkCudaErrors(cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice));
 	///////////////////////////////////////////////////////////////////GPU data end				  
 		
 	tlb_latency_test<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here
 	
-	//cudaMemcpy(CPU_data_out, GPU_data_out, sizeof(int) * data_size, cudaMemcpyDeviceToHost);
+	//cudaMemcpy(CPU_data_out, GPU_data_out, sizeof(int) * data_size, cudaMemcpyDeviceToHost);	
+    cudaDeviceSynchronize();
 	
-    cudaDeviceSynchronize();	
+	tlb_latency_test_2<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here
+	cudaDeviceSynchronize();
+	tlb_latency_test_2<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here
+	cudaDeviceSynchronize();
+	tlb_latency_test_2<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here
+	cudaDeviceSynchronize();
+	
+	checkCudaErrors(cudaFree(GPU_data_in));
+	checkCudaErrors(cudaFree(GPU_data_out));
+	
+	free(CPU_data_in);
+	//free(CPU_data_out);
 	
     exit(EXIT_SUCCESS);
 }
