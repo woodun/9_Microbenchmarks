@@ -7,7 +7,7 @@
 #include <helper_cuda.h>
 #include <time.h>
 
-/////////////////////////////prefetch test for dense accesses.
+/////////////////////////////check if L1 and L2 flush between kernels.
 
 
 void init_cpu_data(int* A, int size, int stride){
@@ -87,6 +87,33 @@ __global__ void tlb_latency_test_2(int *A, int iterations, int *B, float clock_r
 	//printf("outside1:%fms\n", total_time / (float)clock_rate);///////////clock
 }
 
+//////////////////////////////////////////////////////4 * (8) * 32 * 32 = 128kb ///////////////////48 * 128kb = 6144kb ///////////12 * 128kb = 1536kb
+__global__ void tlb_latency_test_3(int *A, int iterations, int *B, float clock_rate){	
+
+	int index = 0;
+	
+	long long int start_time = 0;///////////clock
+	long long int end_time = 0;///////////clock	
+	start_time = clock64();///////////clock
+		
+	//P_chasing(0, A, 1, B, 31 * 32, clock_rate);/////warmup TLB
+	P_chasing(7, A, 16, B, 2 * 524288, clock_rate);/////warmup GPU
+	P_chasing(9, A, 16, B, 0, clock_rate);/////try to generate hits	
+	
+	end_time=clock64();///////////clock
+		
+	long long int total_time = end_time - start_time;///////////clock
+	//printf("outside1:%fms\n", total_time / (float)clock_rate);///////////clock
+}
+
+//////////////////////////////////////////////////////4 * (8) * 32 * 32 = 128kb ///////////////////48 * 128kb = 6144kb ///////////12 * 128kb = 1536kb
+__global__ void tlb_latency_test_4(int *A, int iterations, int *B, float clock_rate){	
+
+	//P_chasing(0, A, 1, B, 31 * 32, clock_rate);/////warmup TLB
+	P_chasing(12, A, 16, B, 524288, clock_rate);/////warmup GPU
+	P_chasing(14, A, 16, B, 0, clock_rate);/////try to generate hits
+}
+
 int main(int argc, char **argv)
 {
 	printf("\n");
@@ -136,12 +163,11 @@ int main(int argc, char **argv)
 	///////////////////////////////////////////////////////////////////GPU data begin
 	int *GPU_data_in;
 	//////checkCudaErrors(cudaMallocManaged(&data, sizeof(int) * data_size));
-	checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));
+	checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));	
+	checkCudaErrors(cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice));
 	
 	int *GPU_data_out;
-	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(int) * 1));
-	
-	checkCudaErrors(cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice));
+	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(int) * 1));	
 	///////////////////////////////////////////////////////////////////GPU data end				  
 		
 	tlb_latency_test<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here
@@ -155,12 +181,30 @@ int main(int argc, char **argv)
 	cudaDeviceSynchronize();
 	tlb_latency_test_2<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here
 	cudaDeviceSynchronize();
+	tlb_latency_test_3<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here
+	cudaDeviceSynchronize();
+	tlb_latency_test_3<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here
+	cudaDeviceSynchronize();
+	tlb_latency_test_3<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here
+	cudaDeviceSynchronize();	
 	
 	checkCudaErrors(cudaFree(GPU_data_in));
-	checkCudaErrors(cudaFree(GPU_data_out));
 	
+	
+	/////////////check between copies
+	int *GPU_data_in_2;	
+	checkCudaErrors(cudaMalloc(&GPU_data_in_2, sizeof(int) * data_size));
+	checkCudaErrors(cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice));
+	
+	tlb_latency_test_4<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here
+	cudaDeviceSynchronize();
+	
+	checkCudaErrors(cudaFree(GPU_data_in_2));
+	/////////////check between copies
+	
+	checkCudaErrors(cudaFree(GPU_data_out));
 	free(CPU_data_in);
 	//free(CPU_data_out);
-	
+		
     exit(EXIT_SUCCESS);
 }
