@@ -58,6 +58,7 @@ __global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rat
 	long long int end_time = 0;///////////clock	
 	start_time = clock64();///////////clock
 		
+	P_chasing(0, A, 16, B, 15 * 524288, clock_rate);/////warmup GPU
 	P_chasing(0, A, 16, B, 16 * 524288, clock_rate);/////warmup GPU
 	P_chasing(0, A, 16, B, 16 * 32, clock_rate);/////warmup TLB
 	P_chasing(0, A, 16, B, 0, clock_rate);/////warmup cache
