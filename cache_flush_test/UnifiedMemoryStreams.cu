@@ -120,6 +120,7 @@ __global__ void tlb_latency_test_4(int *A, int iterations, int *B, float clock_r
 	P_chasing(17, A, 16, B, 524288, clock_rate);/////warmup
 	P_chasing(18, A, 16, B, 0, clock_rate);/////try to generate TLB hit and cache hit
 	P_chasing(19, A, 16, B, 17 * 524288 + 16 * 32, clock_rate);/////try to generate TLB hit and cache miss
+	P_chasing(19, A, 16, B, 17 * 524288 + 16 * 32, clock_rate);/////try to generate TLB miss and cache miss
 }
 
 int main(int argc, char **argv)
@@ -198,13 +199,17 @@ int main(int argc, char **argv)
 	
 	checkCudaErrors(cudaFree(GPU_data_in));
 	
-	
+	tlb_latency_test_4<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here
+	cudaDeviceSynchronize();
 	/////////////check between copies
 	int *GPU_data_in_2;	
 	checkCudaErrors(cudaMalloc(&GPU_data_in_2, sizeof(int) * data_size));
 	checkCudaErrors(cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice));
 	
 	tlb_latency_test_4<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here
+	cudaDeviceSynchronize();
+	
+	tlb_latency_test_4<<<1, 1>>>(GPU_data_in_2, iterations, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here
 	cudaDeviceSynchronize();
 	
 	checkCudaErrors(cudaFree(GPU_data_in_2));
