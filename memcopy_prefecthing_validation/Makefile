@@ -290,7 +290,7 @@ endif
 # Target rules
 all: build
 
-build: UnifiedMemoryStreams
+build: memcopy_prefecthing_validation
 
 check.deps:
 ifeq ($(SAMPLE_ENABLED),0)
@@ -299,19 +299,19 @@ else
 	@echo "Sample is ready - all dependencies have been met"
 endif
 
-UnifiedMemoryStreams.o:UnifiedMemoryStreams.cu
+memcopy_prefecthing_validation.o:memcopy_prefecthing_validation.cu
 	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
-UnifiedMemoryStreams: UnifiedMemoryStreams.o
+memcopy_prefecthing_validation: memcopy_prefecthing_validation.o
 	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
 	$(EXEC) mkdir -p ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 	$(EXEC) cp $@ ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 
 run: build
-	$(EXEC) ./UnifiedMemoryStreams
+	$(EXEC) ./memcopy_prefecthing_validation
 
 clean:
-	rm -f UnifiedMemoryStreams UnifiedMemoryStreams.o
-	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/UnifiedMemoryStreams
+	rm -f memcopy_prefecthing_validation memcopy_prefecthing_validation.o
+	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/memcopy_prefecthing_validation
 
 clobber: clean

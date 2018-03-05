@@ -290,7 +290,7 @@ endif
 # Target rules
 all: build
 
-build: UnifiedMemoryStreams
+build: L1_saturated
 
 check.deps:
 ifeq ($(SAMPLE_ENABLED),0)
@@ -299,19 +299,19 @@ else
 	@echo "Sample is ready - all dependencies have been met"
 endif
 
-UnifiedMemoryStreams.o:UnifiedMemoryStreams.cu
+L1_saturated.o:L1_saturated.cu
 	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
-UnifiedMemoryStreams: UnifiedMemoryStreams.o
+L1_saturated: L1_saturated.o
 	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
 	$(EXEC) mkdir -p ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 	$(EXEC) cp $@ ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 
 run: build
-	$(EXEC) ./UnifiedMemoryStreams
+	$(EXEC) ./L1_saturated
 
 clean:
-	rm -f UnifiedMemoryStreams UnifiedMemoryStreams.o
-	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/UnifiedMemoryStreams
+	rm -f L1_saturated L1_saturated.o
+	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/L1_saturated
 
 clobber: clean

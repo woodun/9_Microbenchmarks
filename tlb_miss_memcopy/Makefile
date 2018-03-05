@@ -290,7 +290,7 @@ endif
 # Target rules
 all: build
 
-build: UnifiedMemoryStreams
+build: tlb_miss_memcopy
 
 check.deps:
 ifeq ($(SAMPLE_ENABLED),0)
@@ -299,19 +299,19 @@ else
 	@echo "Sample is ready - all dependencies have been met"
 endif
 
-UnifiedMemoryStreams.o:UnifiedMemoryStreams.cu
+tlb_miss_memcopy.o:tlb_miss_memcopy.cu
 	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
-UnifiedMemoryStreams: UnifiedMemoryStreams.o
+tlb_miss_memcopy: tlb_miss_memcopy.o
 	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
 	$(EXEC) mkdir -p ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 	$(EXEC) cp $@ ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 
 run: build
-	$(EXEC) ./UnifiedMemoryStreams
+	$(EXEC) ./tlb_miss_memcopy
 
 clean:
-	rm -f UnifiedMemoryStreams UnifiedMemoryStreams.o
-	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/UnifiedMemoryStreams
+	rm -f tlb_miss_memcopy tlb_miss_memcopy.o
+	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/tlb_miss_memcopy
 
 clobber: clean

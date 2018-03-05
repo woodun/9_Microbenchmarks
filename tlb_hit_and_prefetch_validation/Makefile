@@ -290,7 +290,7 @@ endif
 # Target rules
 all: build
 
-build: UnifiedMemoryStreams
+build: tlb_hit_and_prefetch_validation
 
 check.deps:
 ifeq ($(SAMPLE_ENABLED),0)
@@ -299,19 +299,19 @@ else
 	@echo "Sample is ready - all dependencies have been met"
 endif
 
-UnifiedMemoryStreams.o:UnifiedMemoryStreams.cu
+tlb_hit_and_prefetch_validation.o:tlb_hit_and_prefetch_validation.cu
 	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
-UnifiedMemoryStreams: UnifiedMemoryStreams.o
+tlb_hit_and_prefetch_validation: tlb_hit_and_prefetch_validation.o
 	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
 	$(EXEC) mkdir -p ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 	$(EXEC) cp $@ ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 
 run: build
-	$(EXEC) ./UnifiedMemoryStreams
+	$(EXEC) ./tlb_hit_and_prefetch_validation
 
 clean:
-	rm -f UnifiedMemoryStreams UnifiedMemoryStreams.o
-	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/UnifiedMemoryStreams
+	rm -f tlb_hit_and_prefetch_validation tlb_hit_and_prefetch_validation.o
+	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/tlb_hit_and_prefetch_validation
 
 clobber: clean
