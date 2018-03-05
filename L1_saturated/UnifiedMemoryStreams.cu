@@ -30,7 +30,29 @@ __device__ void cache_warmup(int *A, int iterations, int *B){
 */
 
 //////////min page size 4kb = 4096b = 32 * 128.
-__device__ void P_chasing(int mark, int *A, int iterations, int *B, int starting_index, float clock_rate){
+__device__ void P_chasing_1(int mark, int *A, int iterations, int *B, int starting_index, float clock_rate){
+	
+	//int j = starting_index;/////make them in the same page, and miss near in cache lines
+	
+	//long long int start_time = 0;//////clock
+	//long long int end_time = 0;//////clock
+	//start_time = clock64();//////clock
+	
+	for (int j =0; it < 10; j ++){
+		for (int it =0; it < iterations; it ++){
+			j = A[j];
+		}
+	}
+	
+	//end_time=clock64();//////clock
+	//long long int total_time = end_time - start_time;//////clock
+	//printf("inside%d:%fms\n", mark, (total_time / (float)clock_rate) / ((float)iterations * 10));//////clock, average latency
+	
+	B[0] = j;
+}
+
+//////////min page size 4kb = 4096b = 32 * 128.
+__device__ void P_chasing_2(int mark, int *A, int iterations, int *B, int starting_index, float clock_rate){
 	
 	int j = starting_index;/////make them in the same page, and miss near in cache lines
 	
@@ -38,13 +60,15 @@ __device__ void P_chasing(int mark, int *A, int iterations, int *B, int starting
 	long long int end_time = 0;//////clock
 	start_time = clock64();//////clock
 	
-	for (int it =0; it < iterations; it ++){
-		j = A[j];
+	for (int j =0; it < 10; j ++){
+		for (int it =0; it < iterations; it ++){
+			j = A[j];
+		}
 	}
 	
 	end_time=clock64();//////clock
 	long long int total_time = end_time - start_time;//////clock
-	printf("inside%d:%fms\n", mark, (total_time / (float)clock_rate) / (float)iterations);//////clock, average latency
+	printf("inside%d:%fms\n", mark, (total_time / (float)clock_rate) / ((float)iterations * 10));//////clock, average latency
 	
 	B[0] = j;
 }
@@ -58,9 +82,9 @@ __global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rat
 	start_time = clock64();///////////clock
 		
 	//////////////////////////////////////////////////////2 * (16) * 32 * 32 = 128kb ///////////////////48 * 128kb = 6144kb ///////////12 * 128kb = 1536kb
-	for(index = 2 * 32 * 32 + 256; index >= 0; index--){
-		P_chasing(index, A, index, B, 0, clock_rate);/////warmup cache and TLB
-		P_chasing(index, A, index, B, 0, clock_rate);/////try to generate hits	
+	for(index = 2 * 32 * 32 + 256; index > 0; index--){
+		P_chasing_1(index, A, index, B, 0, clock_rate);/////warmup cache and TLB
+		P_chasing_2(index, A, index, B, 0, clock_rate);/////try to generate hits	
 	}
 	
 	end_time=clock64();///////////clock
