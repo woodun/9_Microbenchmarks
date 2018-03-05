@@ -16,18 +16,6 @@ void init_cpu_data(int* A, int size, int stride){
    	}
 }
 
-/*
-__device__ void cache_warmup(int *A, int iterations, int *B){
-	
-	int j = 0;
-	
-	for (int it =0; it < iterations; it ++){
-		j = A[j];
-	}
-	
-	B[0] = j;
-}
-*/
 
 //////////min page size 4kb = 4096b = 32 * 128.
 __device__ void P_chasing(int mark, int *A, int iterations, int *B, int starting_index, float clock_rate){
@@ -50,7 +38,121 @@ __device__ void P_chasing(int mark, int *A, int iterations, int *B, int starting
 }
 
 //////////////////////////////////////////////////////4 * (8) * 32 * 32 = 128kb ///////////////////48 * 128kb = 6144kb ///////////12 * 128kb = 1536kb ////////////// 16 * 64 = 1024 = 4kb
-__global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rate){	
+__global__ void tlb_latency_test_stride1(int *A, int iterations, int *B, float clock_rate){	
+
+	printf("stride1:\n");
+
+	int index = 0;
+	
+	long long int start_time = 0;///////////clock
+	long long int end_time = 0;///////////clock	
+	start_time = clock64();///////////clock
+		
+	P_chasing(15, A, 16, B, 15 * 524288, clock_rate);/////warmup
+	P_chasing(16, A, 16, B, 16 * 524288, clock_rate);/////try to generate TLB miss and cache miss
+	P_chasing(0, A, 1, B, 0 * 524288 + 0 * 1, clock_rate);/////warmup TLB
+	P_chasing(0, A, 16, B, 0 * 524288 + 1 * 1, clock_rate);/////try to generate TLB hit and cache miss ///////(1)
+	P_chasing(0, A, 16, B, 0 * 524288 + 1 * 1, clock_rate);/////try to generate TLB hit and cache hit ///////(1)
+	P_chasing(16, A, 16, B, 16 * 524288 + 16 * 32, clock_rate);/////try to generate TLB hit and cache miss
+	P_chasing(16, A, 16, B, 16 * 524288, clock_rate);/////try to generate TLB hit and cache hit
+	P_chasing(16, A, 16, B, 16 * 524288, clock_rate);/////try to generate TLB hit and cache hit
+	
+	end_time=clock64();///////////clock
+		
+	long long int total_time = end_time - start_time;///////////clock
+	//printf("outside1:%fms\n", total_time / (float)clock_rate);///////////clock
+	printf("\n");
+	
+	__syncthreads();
+}
+
+__global__ void tlb_latency_test_stride2(int *A, int iterations, int *B, float clock_rate){
+	
+	printf("stride2:\n");
+
+	int index = 0;
+	
+	long long int start_time = 0;///////////clock
+	long long int end_time = 0;///////////clock	
+	start_time = clock64();///////////clock
+		
+	P_chasing(15, A, 16, B, 15 * 524288, clock_rate);/////warmup
+	P_chasing(16, A, 16, B, 16 * 524288, clock_rate);/////try to generate TLB miss and cache miss
+	P_chasing(0, A, 1, B, 0 * 524288 + 0 * 2, clock_rate);/////warmup TLB
+	P_chasing(0, A, 16, B, 0 * 524288 + 1 * 2, clock_rate);/////try to generate TLB hit and cache miss ///////(1)
+	P_chasing(0, A, 16, B, 0 * 524288 + 1 * 2, clock_rate);/////try to generate TLB hit and cache hit ///////(1)
+	P_chasing(16, A, 16, B, 16 * 524288 + 16 * 32, clock_rate);/////try to generate TLB hit and cache miss
+	P_chasing(16, A, 16, B, 16 * 524288, clock_rate);/////try to generate TLB hit and cache hit
+	P_chasing(16, A, 16, B, 16 * 524288, clock_rate);/////try to generate TLB hit and cache hit
+	
+	end_time=clock64();///////////clock
+		
+	long long int total_time = end_time - start_time;///////////clock
+	//printf("outside1:%fms\n", total_time / (float)clock_rate);///////////clock
+	printf("\n");
+	
+	__syncthreads();
+}
+
+__global__ void tlb_latency_test_stride4(int *A, int iterations, int *B, float clock_rate){
+	
+	printf("stride4:\n");
+
+	int index = 0;
+	
+	long long int start_time = 0;///////////clock
+	long long int end_time = 0;///////////clock	
+	start_time = clock64();///////////clock
+		
+	P_chasing(15, A, 16, B, 15 * 524288, clock_rate);/////warmup
+	P_chasing(16, A, 16, B, 16 * 524288, clock_rate);/////try to generate TLB miss and cache miss
+	P_chasing(0, A, 1, B, 0 * 524288 + 0 * 4, clock_rate);/////warmup TLB
+	P_chasing(0, A, 16, B, 0 * 524288 + 1 * 4, clock_rate);/////try to generate TLB hit and cache miss ///////(1)
+	P_chasing(0, A, 16, B, 0 * 524288 + 1 * 4, clock_rate);/////try to generate TLB hit and cache hit ///////(1)
+	P_chasing(16, A, 16, B, 16 * 524288 + 16 * 32, clock_rate);/////try to generate TLB hit and cache miss
+	P_chasing(16, A, 16, B, 16 * 524288, clock_rate);/////try to generate TLB hit and cache hit
+	P_chasing(16, A, 16, B, 16 * 524288, clock_rate);/////try to generate TLB hit and cache hit
+	
+	end_time=clock64();///////////clock
+		
+	long long int total_time = end_time - start_time;///////////clock
+	//printf("outside1:%fms\n", total_time / (float)clock_rate);///////////clock
+	printf("\n");
+	
+	__syncthreads();
+}
+
+__global__ void tlb_latency_test_stride8(int *A, int iterations, int *B, float clock_rate){
+	
+	printf("stride8:\n");
+
+	int index = 0;
+	
+	long long int start_time = 0;///////////clock
+	long long int end_time = 0;///////////clock	
+	start_time = clock64();///////////clock
+		
+	P_chasing(15, A, 16, B, 15 * 524288, clock_rate);/////warmup
+	P_chasing(16, A, 16, B, 16 * 524288, clock_rate);/////try to generate TLB miss and cache miss
+	P_chasing(0, A, 1, B, 0 * 524288 + 0 * 8, clock_rate);/////warmup TLB
+	P_chasing(0, A, 16, B, 0 * 524288 + 1 * 8, clock_rate);/////try to generate TLB hit and cache miss ///////(1)
+	P_chasing(0, A, 16, B, 0 * 524288 + 1 * 8, clock_rate);/////try to generate TLB hit and cache hit ///////(1)
+	P_chasing(16, A, 16, B, 16 * 524288 + 16 * 32, clock_rate);/////try to generate TLB hit and cache miss
+	P_chasing(16, A, 16, B, 16 * 524288, clock_rate);/////try to generate TLB hit and cache hit
+	P_chasing(16, A, 16, B, 16 * 524288, clock_rate);/////try to generate TLB hit and cache hit
+	
+	end_time=clock64();///////////clock
+		
+	long long int total_time = end_time - start_time;///////////clock
+	//printf("outside1:%fms\n", total_time / (float)clock_rate);///////////clock
+	printf("\n");
+	
+	__syncthreads();
+}
+
+__global__ void tlb_latency_test_stride16(int *A, int iterations, int *B, float clock_rate){
+	
+	printf("stride16:\n");
 
 	int index = 0;
 	
@@ -63,7 +165,7 @@ __global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rat
 	P_chasing(0, A, 1, B, 0 * 524288 + 0 * 16, clock_rate);/////warmup TLB
 	P_chasing(0, A, 16, B, 0 * 524288 + 1 * 16, clock_rate);/////try to generate TLB hit and cache miss ///////(1)
 	P_chasing(0, A, 16, B, 0 * 524288 + 1 * 16, clock_rate);/////try to generate TLB hit and cache hit ///////(1)
-	P_chasing(16, A, 16, B, 16 * 524288 + 16 * 16, clock_rate);/////try to generate TLB hit and cache miss
+	P_chasing(16, A, 16, B, 16 * 524288 + 16 * 32, clock_rate);/////try to generate TLB hit and cache miss
 	P_chasing(16, A, 16, B, 16 * 524288, clock_rate);/////try to generate TLB hit and cache hit
 	P_chasing(16, A, 16, B, 16 * 524288, clock_rate);/////try to generate TLB hit and cache hit
 	
@@ -72,10 +174,13 @@ __global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rat
 	long long int total_time = end_time - start_time;///////////clock
 	//printf("outside1:%fms\n", total_time / (float)clock_rate);///////////clock
 	printf("\n");
+	
+	__syncthreads();
 }
 
-//////////////////////////////////////////////////////4 * (8) * 32 * 32 = 128kb ///////////////////48 * 128kb = 6144kb ///////////12 * 128kb = 1536kb
-__global__ void tlb_latency_test_2(int *A, int iterations, int *B, float clock_rate){	
+__global__ void tlb_latency_test_stride32(int *A, int iterations, int *B, float clock_rate){
+	
+	printf("stride32:\n");
 
 	int index = 0;
 	
@@ -83,23 +188,27 @@ __global__ void tlb_latency_test_2(int *A, int iterations, int *B, float clock_r
 	long long int end_time = 0;///////////clock	
 	start_time = clock64();///////////clock
 		
-	//P_chasing(0, A, 1, B, 31 * 32, clock_rate);/////warmup TLB
-	P_chasing(1, A, 16, B, 1 * 524288, clock_rate);/////warmup GPU
-	P_chasing(0, A, 16, B, 0 * 524288 + 1 * 16, clock_rate);/////try to generate TLB hit and cache hit ///////(1)
-	P_chasing(0, A, 16, B, 0 * 524288 + 1 * 16, clock_rate);/////try to generate TLB hit and cache hit ///////(1)
-	P_chasing(0, A, 16, B, 0 * 524288 + 0 * 16, clock_rate);/////try to generate TLB hit and cache hit ///////(1)
-	P_chasing(14, A, 16, B, 14 * 524288, clock_rate);/////try to generate TLB miss and cache miss
-	P_chasing(15, A, 16, B, 15 * 524288 + 16 * 16, clock_rate);/////try to generate TLB hit and cache miss	
+	P_chasing(15, A, 16, B, 15 * 524288, clock_rate);/////warmup
+	P_chasing(16, A, 16, B, 16 * 524288, clock_rate);/////try to generate TLB miss and cache miss
+	P_chasing(0, A, 1, B, 0 * 524288 + 0 * 32, clock_rate);/////warmup TLB
+	P_chasing(0, A, 16, B, 0 * 524288 + 1 * 32, clock_rate);/////try to generate TLB hit and cache miss ///////(1)
+	P_chasing(0, A, 16, B, 0 * 524288 + 1 * 32, clock_rate);/////try to generate TLB hit and cache hit ///////(1)
+	P_chasing(16, A, 16, B, 16 * 524288 + 16 * 32, clock_rate);/////try to generate TLB hit and cache miss
+	P_chasing(16, A, 16, B, 16 * 524288, clock_rate);/////try to generate TLB hit and cache hit
+	P_chasing(16, A, 16, B, 16 * 524288, clock_rate);/////try to generate TLB hit and cache hit
 	
 	end_time=clock64();///////////clock
 		
 	long long int total_time = end_time - start_time;///////////clock
 	//printf("outside1:%fms\n", total_time / (float)clock_rate);///////////clock
 	printf("\n");
+	
+	__syncthreads();
 }
 
-//////////////////////////////////////////////////////4 * (8) * 32 * 32 = 128kb ///////////////////48 * 128kb = 6144kb ///////////12 * 128kb = 1536kb
-__global__ void tlb_latency_test_3(int *A, int iterations, int *B, float clock_rate){	
+__global__ void tlb_latency_test_stride64(int *A, int iterations, int *B, float clock_rate){
+	
+	printf("stride64:\n");
 
 	int index = 0;
 	
@@ -107,28 +216,22 @@ __global__ void tlb_latency_test_3(int *A, int iterations, int *B, float clock_r
 	long long int end_time = 0;///////////clock	
 	start_time = clock64();///////////clock
 		
-	//P_chasing(0, A, 1, B, 31 * 32, clock_rate);/////warmup TLB
-	P_chasing(17, A, 16, B, 17 * 524288, clock_rate);/////warmup GPU
-	P_chasing(1, A, 16, B, 1 * 524288, clock_rate);/////try to generate TLB miss and cache miss
-	P_chasing(0, A, 16, B, 0 * 524288, clock_rate);/////try to generate TLB hit and cache hit
-	P_chasing(1, A, 16, B, 1 * 524288 + 16 * 16, clock_rate);/////try to generate TLB hit and cache miss	
+	P_chasing(15, A, 8, B, 15 * 524288, clock_rate);/////warmup
+	P_chasing(16, A, 8, B, 16 * 524288, clock_rate);/////try to generate TLB miss and cache miss
+	P_chasing(0, A, 1, B, 0 * 524288 + 0 * 64, clock_rate);/////warmup TLB
+	P_chasing(0, A, 8, B, 0 * 524288 + 1 * 64, clock_rate);/////try to generate TLB hit and cache miss ///////(1)
+	P_chasing(0, A, 8, B, 0 * 524288 + 1 * 64, clock_rate);/////try to generate TLB hit and cache hit ///////(1)
+	P_chasing(16, A, 8, B, 16 * 524288 + 16 * 32, clock_rate);/////try to generate TLB hit and cache miss
+	P_chasing(16, A, 8, B, 16 * 524288, clock_rate);/////try to generate TLB hit and cache hit
+	P_chasing(16, A, 8, B, 16 * 524288, clock_rate);/////try to generate TLB hit and cache hit
 	
 	end_time=clock64();///////////clock
 		
 	long long int total_time = end_time - start_time;///////////clock
 	//printf("outside1:%fms\n", total_time / (float)clock_rate);///////////clock
 	printf("\n");
-}
-
-//////////////////////////////////////////////////////4 * (8) * 32 * 32 = 128kb ///////////////////48 * 128kb = 6144kb ///////////12 * 128kb = 1536kb
-__global__ void tlb_latency_test_4(int *A, int iterations, int *B, float clock_rate){	
-
-	//P_chasing(0, A, 1, B, 31 * 32, clock_rate);/////warmup TLB
-	P_chasing(1, A, 16, B, 1 * 524288, clock_rate);/////warmup
-	P_chasing(0, A, 16, B, 0 * 524288, clock_rate);/////try to generate TLB hit and cache hit
-	P_chasing(17, A, 16, B, 17 * 524288 + 16 * 16, clock_rate);/////try to generate TLB hit and cache miss
-	P_chasing(18, A, 16, B, 18 * 524288, clock_rate);/////try to generate TLB miss and cache miss
-	printf("\n");
+	
+	__syncthreads();
 }
 
 int main(int argc, char **argv)
@@ -161,71 +264,167 @@ int main(int argc, char **argv)
 
         exit(EXIT_WAIVED);
     }
+	
+	///////////////////////////////////////////////////////////////////GPU output data
+	int *GPU_data_out;
+	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(int) * 1));
 		
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////_stride64
 	///////////////////////////////////////////////////////////////////CPU data begin
-	int iterations = 16 * 16384 * 100;
-	////////size(int) = 4, 32 = 128b, 256 = 1kb, 16 * 64 = 32 * 32 = 1024 = 4kb, 262144 = 1mb, 16384 * 32 = 512 * 1024 = 524288 = 2mb.
-	int data_stride = 2;/////64b. Pointing to the next cacheline.
-	//int data_size = 524288000;/////1000 * 2mb. ##### size = iteration * stride. ##### This can support 1000 iteration. The 1001st iteration starts from head again.
-	int data_size = iterations * data_stride;/////size = iteration * stride = 100 2mb pages.
+	int iterations_stride64 = 16384 * 100 / 2;	
+	int data_stride_stride64 = 64;/////256b. Pointing to the next cacheline.	
+	int data_size_stride64 = iterations_stride64 * data_stride_stride64;/////size = iteration * stride = 100 2mb pages.
 	
-	int *CPU_data_in;	
-	CPU_data_in = (int*)malloc(sizeof(int) * data_size);
-	//int *CPU_data_out;
-	//CPU_data_out = (int*)malloc(data_size * sizeof(int));
-	
-	init_cpu_data(CPU_data_in, data_size, data_stride);
+	int *CPU_data_in_stride64;	
+	CPU_data_in_stride64 = (int*)malloc(sizeof(int) * data_size_stride64);	
+	init_cpu_data(CPU_data_in_stride64, data_size_stride64, data_stride_stride64);
 	///////////////////////////////////////////////////////////////////CPU data end
 	
-	///////////////////////////////////////////////////////////////////GPU data begin
-	int *GPU_data_in;
-	//////checkCudaErrors(cudaMallocManaged(&data, sizeof(int) * data_size));
-	checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));	
-	checkCudaErrors(cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice));
-	
-	int *GPU_data_out;
-	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(int) * 1));	
-	///////////////////////////////////////////////////////////////////GPU data end				  
+	///////////////////////////////////////////////////////////////////GPU input data
+	int *GPU_data_in_stride64;	
+	checkCudaErrors(cudaMalloc(&GPU_data_in_stride64, sizeof(int) * data_size_stride64));	
+	checkCudaErrors(cudaMemcpy(GPU_data_in_stride64, CPU_data_in_stride64, sizeof(int) * data_size_stride64, cudaMemcpyHostToDevice));
 		
-	tlb_latency_test<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here
+	tlb_latency_test_stride64<<<1, 1>>>(GPU_data_in_stride64, iterations_stride64, GPU_data_out_stride64, clock_rate);//////////////////////////////////////////////kernel is here
 	
-	//cudaMemcpy(CPU_data_out, GPU_data_out, sizeof(int) * data_size, cudaMemcpyDeviceToHost);	
-    cudaDeviceSynchronize();
+	checkCudaErrors(cudaFree(GPU_data_in_stride64));	
+	free(CPU_data_in_stride64);
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////_stride64
 	
-	tlb_latency_test_2<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here
-	cudaDeviceSynchronize();
-	tlb_latency_test_2<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here
-	cudaDeviceSynchronize();
-	tlb_latency_test_2<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here
-	cudaDeviceSynchronize();
-	tlb_latency_test_3<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here
-	cudaDeviceSynchronize();
-	tlb_latency_test_3<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here
-	cudaDeviceSynchronize();
-	tlb_latency_test_3<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here
-	cudaDeviceSynchronize();	
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////_stride32
+	///////////////////////////////////////////////////////////////////CPU data begin
+	int iterations_stride32 = 1 * 16384 * 100;	
+	int data_stride_stride32 = 32;/////64b. Pointing to the next cacheline.	
+	int data_size_stride32 = iterations_stride32 * data_stride_stride32;/////size = iteration * stride = 100 2mb pages.
+	
+	int *CPU_data_in_stride32;	
+	CPU_data_in_stride32 = (int*)malloc(sizeof(int) * data_size_stride32);	
+	init_cpu_data(CPU_data_in_stride32, data_size_stride32, data_stride_stride32);
+	///////////////////////////////////////////////////////////////////CPU data end
+	
+	///////////////////////////////////////////////////////////////////GPU input data
+	int *GPU_data_in_stride32;	
+	checkCudaErrors(cudaMalloc(&GPU_data_in_stride32, sizeof(int) * data_size_stride32));	
+	checkCudaErrors(cudaMemcpy(GPU_data_in_stride32, CPU_data_in_stride32, sizeof(int) * data_size_stride32, cudaMemcpyHostToDevice));
 		
+	tlb_latency_test_stride32<<<1, 1>>>(GPU_data_in_stride32, iterations_stride32, GPU_data_out_stride32, clock_rate);//////////////////////////////////////////////kernel is here
 	
-	tlb_latency_test_4<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here
-	cudaDeviceSynchronize();
-	/////////////check between copies
-	int *GPU_data_in_2;	
-	checkCudaErrors(cudaMalloc(&GPU_data_in_2, sizeof(int) * data_size));
-	checkCudaErrors(cudaMemcpy(GPU_data_in_2, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice));
+	checkCudaErrors(cudaFree(GPU_data_in_stride32));	
+	free(CPU_data_in_stride32);
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////_stride32
 	
-	tlb_latency_test_4<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here
-	cudaDeviceSynchronize();
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////_stride16
+	///////////////////////////////////////////////////////////////////CPU data begin
+	int iterations_stride16 = 2 * 16384 * 100;	
+	int data_stride_stride16 = 16;/////64b. Pointing to the next cacheline.	
+	int data_size_stride16 = iterations_stride16 * data_stride_stride16;/////size = iteration * stride = 100 2mb pages.
 	
-	tlb_latency_test_4<<<1, 1>>>(GPU_data_in_2, iterations, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here
-	cudaDeviceSynchronize();
+	int *CPU_data_in_stride16;	
+	CPU_data_in_stride16 = (int*)malloc(sizeof(int) * data_size_stride16);	
+	init_cpu_data(CPU_data_in_stride16, data_size_stride16, data_stride_stride16);
+	///////////////////////////////////////////////////////////////////CPU data end
 	
-	checkCudaErrors(cudaFree(GPU_data_in_2));
-	/////////////check between copies
+	///////////////////////////////////////////////////////////////////GPU input data
+	int *GPU_data_in_stride16;	
+	checkCudaErrors(cudaMalloc(&GPU_data_in_stride16, sizeof(int) * data_size_stride16));	
+	checkCudaErrors(cudaMemcpy(GPU_data_in_stride16, CPU_data_in_stride16, sizeof(int) * data_size_stride16, cudaMemcpyHostToDevice));
+		
+	tlb_latency_test_stride16<<<1, 1>>>(GPU_data_in_stride16, iterations_stride16, GPU_data_out_stride16, clock_rate);//////////////////////////////////////////////kernel is here
 	
-	checkCudaErrors(cudaFree(GPU_data_in));
+	checkCudaErrors(cudaFree(GPU_data_in_stride16));	
+	free(CPU_data_in_stride16);
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////_stride16
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////_stride8
+	///////////////////////////////////////////////////////////////////CPU data begin
+	int iterations_stride8 = 4 * 16384 * 100;	
+	int data_stride_stride8 = 8;/////64b. Pointing to the next cacheline.	
+	int data_size_stride8 = iterations_stride8 * data_stride_stride8;/////size = iteration * stride = 100 2mb pages.
+	
+	int *CPU_data_in_stride8;	
+	CPU_data_in_stride8 = (int*)malloc(sizeof(int) * data_size_stride8);	
+	init_cpu_data(CPU_data_in_stride8, data_size_stride8, data_stride_stride8);
+	///////////////////////////////////////////////////////////////////CPU data end
+	
+	///////////////////////////////////////////////////////////////////GPU input data
+	int *GPU_data_in_stride8;	
+	checkCudaErrors(cudaMalloc(&GPU_data_in_stride8, sizeof(int) * data_size_stride8));	
+	checkCudaErrors(cudaMemcpy(GPU_data_in_stride8, CPU_data_in_stride8, sizeof(int) * data_size_stride8, cudaMemcpyHostToDevice));
+		
+	tlb_latency_test_stride8<<<1, 1>>>(GPU_data_in_stride8, iterations_stride8, GPU_data_out_stride8, clock_rate);//////////////////////////////////////////////kernel is here
+	
+	checkCudaErrors(cudaFree(GPU_data_in_stride8));	
+	free(CPU_data_in_stride8);
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////_stride8
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////_stride4
+	///////////////////////////////////////////////////////////////////CPU data begin
+	int iterations_stride4 = 8 * 16384 * 100;	
+	int data_stride_stride4 = 4;/////64b. Pointing to the next cacheline.	
+	int data_size_stride4 = iterations_stride4 * data_stride_stride4;/////size = iteration * stride = 100 2mb pages.
+	
+	int *CPU_data_in_stride4;	
+	CPU_data_in_stride4 = (int*)malloc(sizeof(int) * data_size_stride4);	
+	init_cpu_data(CPU_data_in_stride4, data_size_stride4, data_stride_stride4);
+	///////////////////////////////////////////////////////////////////CPU data end
+	
+	///////////////////////////////////////////////////////////////////GPU input data
+	int *GPU_data_in_stride4;	
+	checkCudaErrors(cudaMalloc(&GPU_data_in_stride4, sizeof(int) * data_size_stride4));	
+	checkCudaErrors(cudaMemcpy(GPU_data_in_stride4, CPU_data_in_stride4, sizeof(int) * data_size_stride4, cudaMemcpyHostToDevice));
+		
+	tlb_latency_test_stride4<<<1, 1>>>(GPU_data_in_stride4, iterations_stride4, GPU_data_out_stride4, clock_rate);//////////////////////////////////////////////kernel is here
+	
+	checkCudaErrors(cudaFree(GPU_data_in_stride4));	
+	free(CPU_data_in_stride4);
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////_stride4
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////_stride2
+	///////////////////////////////////////////////////////////////////CPU data begin
+	int iterations_stride2 = 16 * 16384 * 100;	
+	int data_stride_stride2 = 2;/////64b. Pointing to the next cacheline.	
+	int data_size_stride2 = iterations_stride2 * data_stride_stride2;/////size = iteration * stride = 100 2mb pages.
+	
+	int *CPU_data_in_stride2;	
+	CPU_data_in_stride2 = (int*)malloc(sizeof(int) * data_size_stride2);	
+	init_cpu_data(CPU_data_in_stride2, data_size_stride2, data_stride_stride2);
+	///////////////////////////////////////////////////////////////////CPU data end
+	
+	///////////////////////////////////////////////////////////////////GPU input data
+	int *GPU_data_in_stride2;	
+	checkCudaErrors(cudaMalloc(&GPU_data_in_stride2, sizeof(int) * data_size_stride2));	
+	checkCudaErrors(cudaMemcpy(GPU_data_in_stride2, CPU_data_in_stride2, sizeof(int) * data_size_stride2, cudaMemcpyHostToDevice));
+		
+	tlb_latency_test_stride2<<<1, 1>>>(GPU_data_in_stride2, iterations_stride2, GPU_data_out_stride2, clock_rate);//////////////////////////////////////////////kernel is here
+	
+	checkCudaErrors(cudaFree(GPU_data_in_stride2));	
+	free(CPU_data_in_stride2);
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////_stride2
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////_stride1
+	///////////////////////////////////////////////////////////////////CPU data begin
+	int iterations_stride1 = 32 * 16384 * 100;	
+	int data_stride_stride1 = 1;/////64b. Pointing to the next cacheline.	
+	int data_size_stride1 = iterations_stride1 * data_stride_stride1;/////size = iteration * stride = 100 2mb pages.
+	
+	int *CPU_data_in_stride1;	
+	CPU_data_in_stride1 = (int*)malloc(sizeof(int) * data_size_stride1);	
+	init_cpu_data(CPU_data_in_stride1, data_size_stride1, data_stride_stride1);
+	///////////////////////////////////////////////////////////////////CPU data end
+	
+	///////////////////////////////////////////////////////////////////GPU input data
+	int *GPU_data_in_stride1;	
+	checkCudaErrors(cudaMalloc(&GPU_data_in_stride1, sizeof(int) * data_size_stride1));	
+	checkCudaErrors(cudaMemcpy(GPU_data_in_stride1, CPU_data_in_stride1, sizeof(int) * data_size_stride1, cudaMemcpyHostToDevice));
+		
+	tlb_latency_test_stride1<<<1, 1>>>(GPU_data_in_stride1, iterations_stride1, GPU_data_out_stride1, clock_rate);//////////////////////////////////////////////kernel is here
+	
+	checkCudaErrors(cudaFree(GPU_data_in_stride1));	
+	free(CPU_data_in_stride1);
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////_stride1
+	
+	
 	checkCudaErrors(cudaFree(GPU_data_out));
-	free(CPU_data_in);
-	//free(CPU_data_out);
 		
     exit(EXIT_SUCCESS);
 }

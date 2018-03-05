@@ -91,6 +91,8 @@ __global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rat
 		
 	long long int total_time = end_time - start_time;///////////clock
 	printf("outside1:%fms\n", total_time / (float)clock_rate);///////////clock
+
+	 __syncthreads();
 }
 
 int main(int argc, char **argv)
