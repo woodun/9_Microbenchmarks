@@ -7,7 +7,8 @@
 #include <helper_cuda.h>
 #include <time.h>
 
-/////////////////////////////saturate L1 with long consecutive data.
+/////////////////////////////memcopy different size of data to see the access latency. Does memcopy goes through the L2 cache? So the data is prefetched into L2,
+///////////////////////////// if the data copied is less than L2 size. Also disable the L1 to see the latency difference.
 
 
 void init_cpu_data(int* A, int size, int stride){
