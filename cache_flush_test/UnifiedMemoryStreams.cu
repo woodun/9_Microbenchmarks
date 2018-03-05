@@ -58,14 +58,14 @@ __global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rat
 	long long int end_time = 0;///////////clock	
 	start_time = clock64();///////////clock
 		
-	P_chasing(-2, A, 16, B, 15 * 524288, clock_rate);/////warmup
-	P_chasing(-1, A, 16, B, 16 * 524288, clock_rate);/////try to generate TLB miss and cache miss
+	P_chasing(15, A, 16, B, 15 * 524288, clock_rate);/////warmup
+	P_chasing(16, A, 16, B, 16 * 524288, clock_rate);/////try to generate TLB miss and cache miss
 	P_chasing(0, A, 1, B, 0 * 524288 + 0 * 32, clock_rate);/////warmup TLB
-	P_chasing(1, A, 16, B, 0 * 524288 + 1 * 32, clock_rate);/////try to generate TLB hit and cache miss
-	P_chasing(2, A, 16, B, 0 * 524288 + 1 * 32, clock_rate);/////try to generate TLB hit and cache hit
-	P_chasing(3, A, 16, B, 16 * 524288 + 16 * 32, clock_rate);/////try to generate TLB hit and cache miss
-	P_chasing(4, A, 16, B, 16 * 524288, clock_rate);/////try to generate TLB hit and cache hit
-	P_chasing(4, A, 16, B, 16 * 524288, clock_rate);/////try to generate TLB hit and cache hit
+	P_chasing(0, A, 16, B, 0 * 524288 + 1 * 32, clock_rate);/////try to generate TLB hit and cache miss ///////(1)
+	P_chasing(0, A, 16, B, 0 * 524288 + 1 * 32, clock_rate);/////try to generate TLB hit and cache hit ///////(1)
+	P_chasing(16, A, 16, B, 16 * 524288 + 16 * 32, clock_rate);/////try to generate TLB hit and cache miss
+	P_chasing(16, A, 16, B, 16 * 524288, clock_rate);/////try to generate TLB hit and cache hit
+	P_chasing(16, A, 16, B, 16 * 524288, clock_rate);/////try to generate TLB hit and cache hit
 	
 	end_time=clock64();///////////clock
 		
@@ -84,12 +84,12 @@ __global__ void tlb_latency_test_2(int *A, int iterations, int *B, float clock_r
 	start_time = clock64();///////////clock
 		
 	//P_chasing(0, A, 1, B, 31 * 32, clock_rate);/////warmup TLB
-	P_chasing(6, A, 16, B, 524288, clock_rate);/////warmup GPU
-	P_chasing(7, A, 16, B, 0 * 524288 + 1 * 32, clock_rate);/////try to generate TLB hit and cache hit	
-	P_chasing(7, A, 16, B, 0 * 524288 + 1 * 32, clock_rate);/////try to generate TLB hit and cache hit
-	P_chasing(7, A, 16, B, 0 * 524288 + 0 * 32, clock_rate);/////try to generate TLB hit and cache hit
-	P_chasing(8, A, 16, B, 14 * 524288, clock_rate);/////try to generate TLB miss and cache miss
-	P_chasing(9, A, 16, B, 15 * 524288 + 16 * 32, clock_rate);/////try to generate TLB hit and cache miss	
+	P_chasing(1, A, 16, B, 1 * 524288, clock_rate);/////warmup GPU
+	P_chasing(0, A, 16, B, 0 * 524288 + 1 * 32, clock_rate);/////try to generate TLB hit and cache hit ///////(1)
+	P_chasing(0, A, 16, B, 0 * 524288 + 1 * 32, clock_rate);/////try to generate TLB hit and cache hit ///////(1)
+	P_chasing(0, A, 16, B, 0 * 524288 + 0 * 32, clock_rate);/////try to generate TLB hit and cache hit ///////(1)
+	P_chasing(14, A, 16, B, 14 * 524288, clock_rate);/////try to generate TLB miss and cache miss
+	P_chasing(15, A, 16, B, 15 * 524288 + 16 * 32, clock_rate);/////try to generate TLB hit and cache miss	
 	
 	end_time=clock64();///////////clock
 		
@@ -108,10 +108,10 @@ __global__ void tlb_latency_test_3(int *A, int iterations, int *B, float clock_r
 	start_time = clock64();///////////clock
 		
 	//P_chasing(0, A, 1, B, 31 * 32, clock_rate);/////warmup TLB
-	P_chasing(11, A, 16, B, 17 * 524288, clock_rate);/////warmup GPU
-	P_chasing(12, A, 16, B, 524288, clock_rate);/////try to generate TLB miss and cache miss
-	P_chasing(13, A, 16, B, 0, clock_rate);/////try to generate TLB hit and cache hit
-	P_chasing(14, A, 16, B, 524288 + 16 * 32, clock_rate);/////try to generate TLB hit and cache miss	
+	P_chasing(17, A, 16, B, 17 * 524288, clock_rate);/////warmup GPU
+	P_chasing(1, A, 16, B, 1 * 524288, clock_rate);/////try to generate TLB miss and cache miss
+	P_chasing(0, A, 16, B, 0 * 524288, clock_rate);/////try to generate TLB hit and cache hit
+	P_chasing(1, A, 16, B, 1 * 524288 + 16 * 32, clock_rate);/////try to generate TLB hit and cache miss	
 	
 	end_time=clock64();///////////clock
 		
@@ -124,10 +124,10 @@ __global__ void tlb_latency_test_3(int *A, int iterations, int *B, float clock_r
 __global__ void tlb_latency_test_4(int *A, int iterations, int *B, float clock_rate){	
 
 	//P_chasing(0, A, 1, B, 31 * 32, clock_rate);/////warmup TLB
-	P_chasing(17, A, 16, B, 524288, clock_rate);/////warmup
-	P_chasing(18, A, 16, B, 0, clock_rate);/////try to generate TLB hit and cache hit
-	P_chasing(19, A, 16, B, 17 * 524288 + 16 * 32, clock_rate);/////try to generate TLB hit and cache miss
-	P_chasing(20, A, 16, B, 18 * 524288, clock_rate);/////try to generate TLB miss and cache miss
+	P_chasing(1, A, 16, B, 1 * 524288, clock_rate);/////warmup
+	P_chasing(0, A, 16, B, 0 * 524288, clock_rate);/////try to generate TLB hit and cache hit
+	P_chasing(17, A, 16, B, 17 * 524288 + 16 * 32, clock_rate);/////try to generate TLB hit and cache miss
+	P_chasing(18, A, 16, B, 18 * 524288, clock_rate);/////try to generate TLB miss and cache miss
 	printf("\n");
 }
 
