@@ -71,6 +71,7 @@ __global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rat
 		
 	long long int total_time = end_time - start_time;///////////clock
 	//printf("outside1:%fms\n", total_time / (float)clock_rate);///////////clock
+	printf("\n");
 }
 
 //////////////////////////////////////////////////////4 * (8) * 32 * 32 = 128kb ///////////////////48 * 128kb = 6144kb ///////////12 * 128kb = 1536kb
@@ -85,6 +86,8 @@ __global__ void tlb_latency_test_2(int *A, int iterations, int *B, float clock_r
 	//P_chasing(0, A, 1, B, 31 * 32, clock_rate);/////warmup TLB
 	P_chasing(6, A, 16, B, 524288, clock_rate);/////warmup GPU
 	P_chasing(7, A, 16, B, 0 * 524288 + 1 * 32, clock_rate);/////try to generate TLB hit and cache hit	
+	P_chasing(7, A, 16, B, 0 * 524288 + 1 * 32, clock_rate);/////try to generate TLB hit and cache hit
+	P_chasing(7, A, 16, B, 0 * 524288 + 0 * 32, clock_rate);/////try to generate TLB hit and cache hit
 	P_chasing(8, A, 16, B, 14 * 524288, clock_rate);/////try to generate TLB miss and cache miss
 	P_chasing(9, A, 16, B, 15 * 524288 + 16 * 32, clock_rate);/////try to generate TLB hit and cache miss	
 	
@@ -92,6 +95,7 @@ __global__ void tlb_latency_test_2(int *A, int iterations, int *B, float clock_r
 		
 	long long int total_time = end_time - start_time;///////////clock
 	//printf("outside1:%fms\n", total_time / (float)clock_rate);///////////clock
+	printf("\n");
 }
 
 //////////////////////////////////////////////////////4 * (8) * 32 * 32 = 128kb ///////////////////48 * 128kb = 6144kb ///////////12 * 128kb = 1536kb
@@ -113,6 +117,7 @@ __global__ void tlb_latency_test_3(int *A, int iterations, int *B, float clock_r
 		
 	long long int total_time = end_time - start_time;///////////clock
 	//printf("outside1:%fms\n", total_time / (float)clock_rate);///////////clock
+	printf("\n");
 }
 
 //////////////////////////////////////////////////////4 * (8) * 32 * 32 = 128kb ///////////////////48 * 128kb = 6144kb ///////////12 * 128kb = 1536kb
@@ -123,6 +128,7 @@ __global__ void tlb_latency_test_4(int *A, int iterations, int *B, float clock_r
 	P_chasing(18, A, 16, B, 0, clock_rate);/////try to generate TLB hit and cache hit
 	P_chasing(19, A, 16, B, 17 * 524288 + 16 * 32, clock_rate);/////try to generate TLB hit and cache miss
 	P_chasing(20, A, 16, B, 18 * 524288, clock_rate);/////try to generate TLB miss and cache miss
+	printf("\n");
 }
 
 int main(int argc, char **argv)
