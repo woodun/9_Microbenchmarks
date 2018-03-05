@@ -290,7 +290,7 @@ endif
 # Target rules
 all: build
 
-build: UnifiedMemoryStreams
+build: cache_flush_test
 
 check.deps:
 ifeq ($(SAMPLE_ENABLED),0)
@@ -299,19 +299,19 @@ else
 	@echo "Sample is ready - all dependencies have been met"
 endif
 
-UnifiedMemoryStreams.o:UnifiedMemoryStreams.cu
+cache_flush_test.o:cache_flush_test.cu
 	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
-UnifiedMemoryStreams: UnifiedMemoryStreams.o
+cache_flush_test: cache_flush_test.o
 	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
 	$(EXEC) mkdir -p ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 	$(EXEC) cp $@ ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 
 run: build
-	$(EXEC) ./UnifiedMemoryStreams
+	$(EXEC) ./cache_flush_test
 
 clean:
-	rm -f UnifiedMemoryStreams UnifiedMemoryStreams.o
-	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/UnifiedMemoryStreams
+	rm -f cache_flush_test cache_flush_test.o
+	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/cache_flush_test
 
 clobber: clean
