@@ -7,7 +7,7 @@
 #include <helper_cuda.h>
 #include <time.h>
 
-/////////////////
+/////////////////access different range of data to check the cacheline size. L1 is likely saturated in this example. L1 can also be disabled to check if it is from L1 or L2.
 
 void init_cpu_data(int* A, int size, int stride){
 	for (int i = 0; i < size; ++i){
@@ -56,17 +56,15 @@ __global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rat
 	
 	P_chasing(0, A, 16, B, 0 * 32, clock_rate);/////TLB warmup
 	P_chasing(1, A, 16, B, 0 * 32 + 1, clock_rate);/////make them in the same page, and hit near in cache lines
-	P_chasing(2, A, 16, B, 0 * 32 + 2, clock_rate);/////make them in the same page, and hit near in cache lines
-	P_chasing(3, A, 16, B, 0 * 32 + 3, clock_rate);/////make them in the same page, and hit near in cache lines
-	P_chasing(4, A, 16, B, 0 * 32 + 8, clock_rate);/////////////make them in the same page, and hit far in cache lines
-	P_chasing(5, A, 16, B, 0 * 32 + 16, clock_rate);////////////make them in the same page, and hit far in cache lines
-	P_chasing(6, A, 16, B, 0 * 32 + 24, clock_rate);////////////make them in the same page, and hit far in cache lines
-	P_chasing(7, A, 16, B, 1 * 32, clock_rate);/////make them in the same page, and miss near in cache lines
-	P_chasing(8, A, 16, B, 2 * 32, clock_rate);/////make them in the same page, and miss near in cache lines
-	P_chasing(9, A, 16, B, 3 * 32, clock_rate);/////make them in the same page, and miss near in cache lines
-	P_chasing(10, A, 16, B, 8 * 32, clock_rate);//////////////make them in the same page, and miss near in cache lines
-	P_chasing(11, A, 16, B, 16 * 32, clock_rate);/////////////make them in the same page, and miss near in cache lines
-	P_chasing(12, A, 16, B, 24 * 32, clock_rate);/////////////make them in the same page, and miss near in cache lines
+	P_chasing(4, A, 16, B, 0 * 32 + 4, clock_rate);/////make them in the same page, and hit near in cache lines	
+	P_chasing(8, A, 16, B, 0 * 32 + 8, clock_rate);/////////////make them in the same page, and hit far in cache lines	
+	P_chasing(16, A, 16, B, 0 * 32 + 16, clock_rate);////////////make them in the same page, and hit far in cache lines
+	P_chasing(24, A, 16, B, 0 * 32 + 24, clock_rate);////////////make them in the same page, and hit far in cache lines
+	P_chasing(1, A, 16, B, 1 * 32, clock_rate);/////make them in the same page, and miss near in cache lines
+	P_chasing(4, A, 16, B, 4 * 32, clock_rate);/////make them in the same page, and miss near in cache lines
+	P_chasing(8, A, 16, B, 8 * 32, clock_rate);//////////////make them in the same page, and miss far in cache lines
+	P_chasing(16, A, 16, B, 16 * 32, clock_rate);/////////////make them in the same page, and miss far in cache lines
+	P_chasing(24, A, 16, B, 24 * 32, clock_rate);/////////////make them in the same page, and miss far in cache lines
 	
 	end_time=clock64();///////////clock
 		
