@@ -285,7 +285,7 @@ int main(int argc, char **argv)
 	checkCudaErrors(cudaMalloc(&GPU_data_in_stride64, sizeof(int) * data_size_stride64));	
 	checkCudaErrors(cudaMemcpy(GPU_data_in_stride64, CPU_data_in_stride64, sizeof(int) * data_size_stride64, cudaMemcpyHostToDevice));
 		
-	tlb_latency_test_stride64<<<1, 1>>>(GPU_data_in_stride64, iterations_stride64, GPU_data_out_stride64, clock_rate);//////////////////////////////////////////////kernel is here
+	tlb_latency_test_stride64<<<1, 1>>>(GPU_data_in_stride64, iterations_stride64, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here
 	
 	checkCudaErrors(cudaFree(GPU_data_in_stride64));	
 	free(CPU_data_in_stride64);
@@ -307,7 +307,7 @@ int main(int argc, char **argv)
 	checkCudaErrors(cudaMalloc(&GPU_data_in_stride32, sizeof(int) * data_size_stride32));	
 	checkCudaErrors(cudaMemcpy(GPU_data_in_stride32, CPU_data_in_stride32, sizeof(int) * data_size_stride32, cudaMemcpyHostToDevice));
 		
-	tlb_latency_test_stride32<<<1, 1>>>(GPU_data_in_stride32, iterations_stride32, GPU_data_out_stride32, clock_rate);//////////////////////////////////////////////kernel is here
+	tlb_latency_test_stride32<<<1, 1>>>(GPU_data_in_stride32, iterations_stride32, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here
 	
 	checkCudaErrors(cudaFree(GPU_data_in_stride32));	
 	free(CPU_data_in_stride32);
@@ -329,7 +329,7 @@ int main(int argc, char **argv)
 	checkCudaErrors(cudaMalloc(&GPU_data_in_stride16, sizeof(int) * data_size_stride16));	
 	checkCudaErrors(cudaMemcpy(GPU_data_in_stride16, CPU_data_in_stride16, sizeof(int) * data_size_stride16, cudaMemcpyHostToDevice));
 		
-	tlb_latency_test_stride16<<<1, 1>>>(GPU_data_in_stride16, iterations_stride16, GPU_data_out_stride16, clock_rate);//////////////////////////////////////////////kernel is here
+	tlb_latency_test_stride16<<<1, 1>>>(GPU_data_in_stride16, iterations_stride16, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here
 	
 	checkCudaErrors(cudaFree(GPU_data_in_stride16));	
 	free(CPU_data_in_stride16);
@@ -351,7 +351,7 @@ int main(int argc, char **argv)
 	checkCudaErrors(cudaMalloc(&GPU_data_in_stride8, sizeof(int) * data_size_stride8));	
 	checkCudaErrors(cudaMemcpy(GPU_data_in_stride8, CPU_data_in_stride8, sizeof(int) * data_size_stride8, cudaMemcpyHostToDevice));
 		
-	tlb_latency_test_stride8<<<1, 1>>>(GPU_data_in_stride8, iterations_stride8, GPU_data_out_stride8, clock_rate);//////////////////////////////////////////////kernel is here
+	tlb_latency_test_stride8<<<1, 1>>>(GPU_data_in_stride8, iterations_stride8, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here
 	
 	checkCudaErrors(cudaFree(GPU_data_in_stride8));	
 	free(CPU_data_in_stride8);
@@ -373,7 +373,7 @@ int main(int argc, char **argv)
 	checkCudaErrors(cudaMalloc(&GPU_data_in_stride4, sizeof(int) * data_size_stride4));	
 	checkCudaErrors(cudaMemcpy(GPU_data_in_stride4, CPU_data_in_stride4, sizeof(int) * data_size_stride4, cudaMemcpyHostToDevice));
 		
-	tlb_latency_test_stride4<<<1, 1>>>(GPU_data_in_stride4, iterations_stride4, GPU_data_out_stride4, clock_rate);//////////////////////////////////////////////kernel is here
+	tlb_latency_test_stride4<<<1, 1>>>(GPU_data_in_stride4, iterations_stride4, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here
 	
 	checkCudaErrors(cudaFree(GPU_data_in_stride4));	
 	free(CPU_data_in_stride4);
@@ -395,7 +395,7 @@ int main(int argc, char **argv)
 	checkCudaErrors(cudaMalloc(&GPU_data_in_stride2, sizeof(int) * data_size_stride2));	
 	checkCudaErrors(cudaMemcpy(GPU_data_in_stride2, CPU_data_in_stride2, sizeof(int) * data_size_stride2, cudaMemcpyHostToDevice));
 		
-	tlb_latency_test_stride2<<<1, 1>>>(GPU_data_in_stride2, iterations_stride2, GPU_data_out_stride2, clock_rate);//////////////////////////////////////////////kernel is here
+	tlb_latency_test_stride2<<<1, 1>>>(GPU_data_in_stride2, iterations_stride2, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here
 	
 	checkCudaErrors(cudaFree(GPU_data_in_stride2));	
 	free(CPU_data_in_stride2);
@@ -417,7 +417,7 @@ int main(int argc, char **argv)
 	checkCudaErrors(cudaMalloc(&GPU_data_in_stride1, sizeof(int) * data_size_stride1));	
 	checkCudaErrors(cudaMemcpy(GPU_data_in_stride1, CPU_data_in_stride1, sizeof(int) * data_size_stride1, cudaMemcpyHostToDevice));
 		
-	tlb_latency_test_stride1<<<1, 1>>>(GPU_data_in_stride1, iterations_stride1, GPU_data_out_stride1, clock_rate);//////////////////////////////////////////////kernel is here
+	tlb_latency_test_stride1<<<1, 1>>>(GPU_data_in_stride1, iterations_stride1, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here
 	
 	checkCudaErrors(cudaFree(GPU_data_in_stride1));	
 	free(CPU_data_in_stride1);
