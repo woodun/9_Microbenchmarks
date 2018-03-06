@@ -61,7 +61,7 @@ __device__ void P_chasing_2(int mark, int *A, int iterations, int *B, int starti
 	for (int k =0; k < 10; k++){
 		j = starting_index;
 		
-		for (int it =0; it < iterations; it ++){
+		for (int it =0; it < iterations; it++){
 			j = A[j];
 		}
 	}
