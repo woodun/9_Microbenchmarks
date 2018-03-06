@@ -104,11 +104,11 @@ int main(int argc, char **argv)
 		int iterations_stride = data_size / data_stride;		
 		int *CPU_data_in;	
 		CPU_data_in = (int*)malloc(sizeof(int) * data_size);	
-		init_cpu_data(CPU_data_in, data_size_stride, data_stride);
+		init_cpu_data(CPU_data_in, data_size, data_stride);
 		
 		///////////////////////////////////////////////////////////////////GPU input data
 		int *GPU_data_in;	
-		checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size_stride));	
+		checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));	
 		checkCudaErrors(cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice));
 		
 		tlb_latency_test_stride<<<1, 1>>>(GPU_data_in, iterations_stride, GPU_data_out, clock_rate, 16, data_stride);//////////////////////////////////////////////kernel is here
