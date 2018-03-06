@@ -48,26 +48,123 @@ __device__ void P_chasing(int mark, int *A, int iterations, int *B, int starting
 	B[0] = j;
 }
 
-__global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rate){	
+__global__ void tlb_latency_test_32(int *A, int iterations, int *B, float clock_rate){	
 
+	int iter = 32;
+		
+	printf("iter:%d\n", iter);
+	
 	long long int start_time = 0;///////////clock
 	long long int end_time = 0;///////////clock	
 	start_time = clock64();///////////clock
 	
-	P_chasing(0, A, 16, B, 0 * 32, clock_rate);/////TLB warmup
-	P_chasing(1, A, 16, B, 0 * 32 + 1, clock_rate);/////make them in the same page, and hit near in cache lines
-	P_chasing(4, A, 16, B, 0 * 32 + 4, clock_rate);/////make them in the same page, and hit near in cache lines	
-	P_chasing(7, A, 16, B, 0 * 32 + 7, clock_rate);/////////////make them in the same page, and hit far in cache lines
-	P_chasing(8, A, 16, B, 0 * 32 + 8, clock_rate);/////////////make them in the same page, and hit far in cache lines
-	P_chasing(9, A, 16, B, 0 * 32 + 9, clock_rate);/////////////make them in the same page, and hit far in cache lines
-	P_chasing(15, A, 16, B, 0 * 32 + 15, clock_rate);////////////make them in the same page, and hit far in cache lines
-	P_chasing(16, A, 16, B, 0 * 32 + 16, clock_rate);////////////make them in the same page, and hit far in cache lines
-	P_chasing(24, A, 16, B, 0 * 32 + 24, clock_rate);////////////make them in the same page, and hit far in cache lines
-	P_chasing(1, A, 16, B, 1 * 32, clock_rate);/////make them in the same page, and miss near in cache lines
-	P_chasing(4, A, 16, B, 4 * 32, clock_rate);/////make them in the same page, and miss near in cache lines
-	P_chasing(8, A, 16, B, 8 * 32, clock_rate);//////////////make them in the same page, and miss far in cache lines
-	P_chasing(16, A, 16, B, 16 * 32, clock_rate);/////////////make them in the same page, and miss far in cache lines
-	P_chasing(24, A, 16, B, 24 * 32, clock_rate);/////////////make them in the same page, and miss far in cache lines
+	P_chasing(0, A, iter, B, 0 * 32, clock_rate);/////TLB warmup
+	P_chasing(1, A, iter, B, 0 * 32 + 1, clock_rate);/////make them in the same page, and hit near in cache lines
+	P_chasing(4, A, iter, B, 0 * 32 + 4, clock_rate);/////make them in the same page, and hit near in cache lines	
+	P_chasing(7, A, iter, B, 0 * 32 + 7, clock_rate);/////////////make them in the same page, and hit far in cache lines
+	P_chasing(8, A, iter, B, 0 * 32 + 8, clock_rate);/////////////make them in the same page, and hit far in cache lines
+	P_chasing(9, A, iter, B, 0 * 32 + 9, clock_rate);/////////////make them in the same page, and hit far in cache lines
+	P_chasing(15, A, iter, B, 0 * 32 + 15, clock_rate);////////////make them in the same page, and hit far in cache lines
+	P_chasing(16, A, iter, B, 0 * 32 + 16, clock_rate);////////////make them in the same page, and hit far in cache lines
+	P_chasing(24, A, iter, B, 0 * 32 + 24, clock_rate);////////////make them in the same page, and hit far in cache lines
+	P_chasing(1, A, iter, B, 1 * 32, clock_rate);/////make them in the same page, and miss near in cache lines
+	P_chasing(4, A, iter, B, 4 * 32, clock_rate);/////make them in the same page, and miss near in cache lines
+	P_chasing(8, A, iter, B, 8 * 32, clock_rate);//////////////make them in the same page, and miss far in cache lines
+	P_chasing(16, A, iter, B, 16 * 32, clock_rate);/////////////make them in the same page, and miss far in cache lines
+	P_chasing(24, A, iter, B, 24 * 32, clock_rate);/////////////make them in the same page, and miss far in cache lines
+	
+	end_time=clock64();///////////clock
+		
+	long long int total_time = end_time - start_time;///////////clock
+	printf("outside1:%fms\n", total_time / (float)clock_rate);///////////clock
+}
+
+__global__ void tlb_latency_test_16(int *A, int iterations, int *B, float clock_rate){	
+
+	int iter = 16;
+		
+	printf("iter:%d\n", iter);
+	
+	long long int start_time = 0;///////////clock
+	long long int end_time = 0;///////////clock	
+	start_time = clock64();///////////clock
+	
+	P_chasing(0, A, iter, B, 0 * 32, clock_rate);/////TLB warmup
+	P_chasing(1, A, iter, B, 0 * 32 + 1, clock_rate);/////make them in the same page, and hit near in cache lines
+	P_chasing(4, A, iter, B, 0 * 32 + 4, clock_rate);/////make them in the same page, and hit near in cache lines	
+	P_chasing(7, A, iter, B, 0 * 32 + 7, clock_rate);/////////////make them in the same page, and hit far in cache lines
+	P_chasing(8, A, iter, B, 0 * 32 + 8, clock_rate);/////////////make them in the same page, and hit far in cache lines
+	P_chasing(9, A, iter, B, 0 * 32 + 9, clock_rate);/////////////make them in the same page, and hit far in cache lines
+	P_chasing(15, A, iter, B, 0 * 32 + 15, clock_rate);////////////make them in the same page, and hit far in cache lines
+	P_chasing(16, A, iter, B, 0 * 32 + 16, clock_rate);////////////make them in the same page, and hit far in cache lines
+	P_chasing(24, A, iter, B, 0 * 32 + 24, clock_rate);////////////make them in the same page, and hit far in cache lines
+	P_chasing(1, A, iter, B, 1 * 32, clock_rate);/////make them in the same page, and miss near in cache lines
+	P_chasing(4, A, iter, B, 4 * 32, clock_rate);/////make them in the same page, and miss near in cache lines
+	P_chasing(8, A, iter, B, 8 * 32, clock_rate);//////////////make them in the same page, and miss far in cache lines
+	P_chasing(16, A, iter, B, 16 * 32, clock_rate);/////////////make them in the same page, and miss far in cache lines
+	P_chasing(24, A, iter, B, 24 * 32, clock_rate);/////////////make them in the same page, and miss far in cache lines
+	
+	end_time=clock64();///////////clock
+		
+	long long int total_time = end_time - start_time;///////////clock
+	printf("outside1:%fms\n", total_time / (float)clock_rate);///////////clock
+}
+
+__global__ void tlb_latency_test_8(int *A, int iterations, int *B, float clock_rate){	
+
+	int iter = 8;
+		
+	printf("iter:%d\n", iter);
+	
+	long long int start_time = 0;///////////clock
+	long long int end_time = 0;///////////clock	
+	start_time = clock64();///////////clock
+	
+	P_chasing(0, A, iter, B, 0 * 32, clock_rate);/////TLB warmup
+	P_chasing(1, A, iter, B, 0 * 32 + 1, clock_rate);/////make them in the same page, and hit near in cache lines
+	P_chasing(4, A, iter, B, 0 * 32 + 4, clock_rate);/////make them in the same page, and hit near in cache lines	
+	P_chasing(7, A, iter, B, 0 * 32 + 7, clock_rate);/////////////make them in the same page, and hit far in cache lines
+	P_chasing(8, A, iter, B, 0 * 32 + 8, clock_rate);/////////////make them in the same page, and hit far in cache lines
+	P_chasing(9, A, iter, B, 0 * 32 + 9, clock_rate);/////////////make them in the same page, and hit far in cache lines
+	P_chasing(15, A, iter, B, 0 * 32 + 15, clock_rate);////////////make them in the same page, and hit far in cache lines
+	P_chasing(16, A, iter, B, 0 * 32 + 16, clock_rate);////////////make them in the same page, and hit far in cache lines
+	P_chasing(24, A, iter, B, 0 * 32 + 24, clock_rate);////////////make them in the same page, and hit far in cache lines
+	P_chasing(1, A, iter, B, 1 * 32, clock_rate);/////make them in the same page, and miss near in cache lines
+	P_chasing(4, A, iter, B, 4 * 32, clock_rate);/////make them in the same page, and miss near in cache lines
+	P_chasing(8, A, iter, B, 8 * 32, clock_rate);//////////////make them in the same page, and miss far in cache lines
+	P_chasing(16, A, iter, B, 16 * 32, clock_rate);/////////////make them in the same page, and miss far in cache lines
+	P_chasing(24, A, iter, B, 24 * 32, clock_rate);/////////////make them in the same page, and miss far in cache lines
+	
+	end_time=clock64();///////////clock
+		
+	long long int total_time = end_time - start_time;///////////clock
+	printf("outside1:%fms\n", total_time / (float)clock_rate);///////////clock
+}
+
+__global__ void tlb_latency_test_4(int *A, int iterations, int *B, float clock_rate){
+	
+	int iter = 4;
+	
+	printf("iter:%d\n", iter);
+	
+	long long int start_time = 0;///////////clock
+	long long int end_time = 0;///////////clock	
+	start_time = clock64();///////////clock
+	
+	P_chasing(0, A, iter, B, 0 * 32, clock_rate);/////TLB warmup
+	P_chasing(1, A, iter, B, 0 * 32 + 1, clock_rate);/////make them in the same page, and hit near in cache lines
+	P_chasing(4, A, iter, B, 0 * 32 + 4, clock_rate);/////make them in the same page, and hit near in cache lines	
+	P_chasing(7, A, iter, B, 0 * 32 + 7, clock_rate);/////////////make them in the same page, and hit far in cache lines
+	P_chasing(8, A, iter, B, 0 * 32 + 8, clock_rate);/////////////make them in the same page, and hit far in cache lines
+	P_chasing(9, A, iter, B, 0 * 32 + 9, clock_rate);/////////////make them in the same page, and hit far in cache lines
+	P_chasing(15, A, iter, B, 0 * 32 + 15, clock_rate);////////////make them in the same page, and hit far in cache lines
+	P_chasing(16, A, iter, B, 0 * 32 + 16, clock_rate);////////////make them in the same page, and hit far in cache lines
+	P_chasing(24, A, iter, B, 0 * 32 + 24, clock_rate);////////////make them in the same page, and hit far in cache lines
+	P_chasing(1, A, iter, B, 1 * 32, clock_rate);/////make them in the same page, and miss near in cache lines
+	P_chasing(4, A, iter, B, 4 * 32, clock_rate);/////make them in the same page, and miss near in cache lines
+	P_chasing(8, A, iter, B, 8 * 32, clock_rate);//////////////make them in the same page, and miss far in cache lines
+	P_chasing(16, A, iter, B, 16 * 32, clock_rate);/////////////make them in the same page, and miss far in cache lines
+	P_chasing(24, A, iter, B, 24 * 32, clock_rate);/////////////make them in the same page, and miss far in cache lines
 	
 	end_time=clock64();///////////clock
 		
@@ -114,35 +211,67 @@ int main(int argc, char **argv)
 	int data_size = iterations * data_stride;/////size = iteration * stride = 1000 pages.
 	
 	int *CPU_data_in;	
-	CPU_data_in = (int*)malloc(sizeof(int) * data_size);
-	//int *CPU_data_out;
-	//CPU_data_out = (int*)malloc(data_size * sizeof(int));
-	
+	CPU_data_in = (int*)malloc(sizeof(int) * data_size);	
 	init_cpu_data(CPU_data_in, data_size, data_stride);
 	///////////////////////////////////////////////////////////////////CPU data end
 	
-	///////////////////////////////////////////////////////////////////GPU data begin
-	int *GPU_data_in;
-	//////checkCudaErrors(cudaMallocManaged(&data, sizeof(int) * data_size));
-	checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));
-	
+	///////////////////////////////////////////////////////////////////GPU data out
 	int *GPU_data_out;
 	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(int) * 1));
 	
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////iter32
+	///////////////////////////////////////////////////////////////////GPU data in
+	int *GPU_data_in;	
+	checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));
 	cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
-	///////////////////////////////////////////////////////////////////GPU data end				  
-		
-	tlb_latency_test<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here
-	
-	//cudaMemcpy(CPU_data_out, GPU_data_out, sizeof(int) * data_size, cudaMemcpyDeviceToHost);
-	
+			
+	tlb_latency_test_32<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here			
     cudaDeviceSynchronize();		
 	
 	checkCudaErrors(cudaFree(GPU_data_in));
-	checkCudaErrors(cudaFree(GPU_data_out));
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////iter32
 	
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////iter16
+	///////////////////////////////////////////////////////////////////GPU data in
+	int *GPU_data_in;	
+	checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));
+	cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
+			
+	tlb_latency_test_16<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here			
+    cudaDeviceSynchronize();		
+	
+	checkCudaErrors(cudaFree(GPU_data_in));
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////iter16
+	
+		
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////iter8
+	///////////////////////////////////////////////////////////////////GPU data in
+	int *GPU_data_in;	
+	checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));
+	cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
+			
+	tlb_latency_test_8<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here			
+    cudaDeviceSynchronize();		
+	
+	checkCudaErrors(cudaFree(GPU_data_in));
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////iter8
+	
+		
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////iter4
+	///////////////////////////////////////////////////////////////////GPU data in
+	int *GPU_data_in;	
+	checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));
+	cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
+			
+	tlb_latency_test_4<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here			
+    cudaDeviceSynchronize();		
+	
+	checkCudaErrors(cudaFree(GPU_data_in));
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////iter4
+	
+	
+	checkCudaErrors(cudaFree(GPU_data_out));	
 	free(CPU_data_in);
-	//free(CPU_data_out);
 	
     exit(EXIT_SUCCESS);
 }
