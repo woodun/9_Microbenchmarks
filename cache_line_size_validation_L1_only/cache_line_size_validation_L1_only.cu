@@ -43,7 +43,7 @@ __global__ void tlb_latency_test_stride(int *A, int iterations, int *B, float cl
 			
 	P_chasing(-7, A, 16, B, 7 * 524288, clock_rate);/////warmup	
 	
-	P_chasing(8, A, 16, B, 8 * 524288, clock_rate);/////try to generate TLB miss and cache miss
+	P_chasing(8, A, 16, B, 8 * 524288, clock_rate);/////try to generate TLB miss and cache miss (the latency is amortized among 16 request here!)
 	P_chasing(8, A, 16, B, 8 * 524288, clock_rate);/////try to generate TLB hit and cache hit
 	P_chasing(8, A, 16, B, 8 * 524288, clock_rate);/////try to generate TLB hit and cache hit
 	P_chasing(8, A, 16, B, 8 * 524288, clock_rate);/////try to generate TLB hit and cache hit
