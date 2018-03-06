@@ -62,6 +62,13 @@ __global__ void tlb_latency_test_stride(int *A, int iterations, int *B, float cl
 	P_chasing(0, A, 16, B, 0 * 524288 + 0 * stride, clock_rate);/////try to generate TLB hit and cache hit ///////(1)
 	P_chasing(0, A, 16, B, 0 * 524288 + 0 * stride, clock_rate);/////try to generate TLB hit and cache hit ///////(1)
 	
+	P_chasing(-32, A, 1, B, 32 * 524288 + 0 * stride, clock_rate);/////warmup TLB
+	P_chasing(-32, A, 1, B, 32 * 524288 + 31 * stride, clock_rate);/////warmup TLB
+	P_chasing(32, A, 16, B, 32 * 524288 + 1 * stride, clock_rate);/////try to generate TLB hit and cache miss ///////
+	P_chasing(32, A, 16, B, 32 * 524288 + 1 * stride, clock_rate);/////try to generate TLB hit and cache hit ///////
+	P_chasing(32, A, 16, B, 32 * 524288 + 0 * stride, clock_rate);/////try to generate TLB hit and cache hit ///////
+	P_chasing(32, A, 16, B, 32 * 524288 + 0 * stride, clock_rate);/////try to generate TLB hit and cache hit ///////
+	
 	printf("\n");	
 	__syncthreads();
 }
