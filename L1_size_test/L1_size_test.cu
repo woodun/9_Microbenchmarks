@@ -33,18 +33,10 @@ __device__ void cache_warmup(int *A, int iterations, int *B){
 __device__ void P_chasing_1(int mark, int *A, int iterations, int *B, int starting_index, float clock_rate){
 	
 	int j = starting_index;/////make them in the same page, and miss near in cache lines
-	
-	//long long int start_time = 0;//////clock
-	//long long int end_time = 0;//////clock
-	//start_time = clock64();//////clock
 		
 	for (int it =0; it < iterations; it ++){
 		j = A[j];
 	}
-	
-	//end_time=clock64();//////clock
-	//long long int total_time = end_time - start_time;//////clock
-	//printf("inside%d:%fms\n", mark, (total_time / (float)clock_rate) / ((float)iterations * 10));//////clock, average latency
 	
 	B[0] = j;
 }
@@ -77,9 +69,9 @@ __global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rat
 
 	int index = 0;
 	
-	long long int start_time = 0;///////////clock
-	long long int end_time = 0;///////////clock	
-	start_time = clock64();///////////clock
+	//long long int start_time = 0;///////////clock
+	//long long int end_time = 0;///////////clock	
+	//start_time = clock64();///////////clock
 		
 	//////////////////////////////////////////////////////16 * (2) * 32 * 32 = 128kb ///////////////////48 * 128kb = 6144kb ///////////12 * 128kb = 1536kb
 	for(index = 16 * 32 * 32 + 256; index > 0; index--){
@@ -87,10 +79,9 @@ __global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rat
 		P_chasing_2(index, A, index, B, 0, clock_rate);/////try to generate hits	
 	}
 	
-	end_time=clock64();///////////clock
-		
-	long long int total_time = end_time - start_time;///////////clock
-	printf("outside1:%fms\n", total_time / (float)clock_rate);///////////clock
+	//end_time=clock64();///////////clock		
+	//long long int total_time = end_time - start_time;///////////clock
+	//printf("outside1:%fms\n", total_time / (float)clock_rate);///////////clock
 
 	 __syncthreads();
 }
@@ -127,11 +118,10 @@ int main(int argc, char **argv)
     }
 		
 	///////////////////////////////////////////////////////////////////CPU data begin
-	int iterations = 16 * 16384 * 100;
+	int data_size = 512 * 1024 * 100;/////size = iteration * stride = 100 2mb pages.	
 	////////size(int) = 4, 32 = 128b, 256 = 1kb, 32 * 32 = 1024 = 4kb, 262144 = 1mb, 16384 * 32 = 512 * 1024 = 524288 = 2mb.
 	int data_stride = 2;/////8b. Pointing to the next cacheline.
-	//int data_size = 524288000;/////1000 * 2mb. ##### size = iteration * stride. ##### This can support 1000 iteration. The 1001st iteration starts from head again.
-	int data_size = iterations * data_stride;/////size = iteration * stride = 100 2mb pages.
+	int iterations = data_size / data_stride;
 	
 	int *CPU_data_in;	
 	CPU_data_in = (int*)malloc(sizeof(int) * data_size);
