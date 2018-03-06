@@ -199,9 +199,9 @@ __global__ void tlb_latency_test_stride32(int *A, int iterations, int *B, float 
 	start_time = clock64();///////////clock
 		
 	P_chasing(15, A, 16, B, 15 * 524288, clock_rate);/////warmup
-	P_chasing(16, A, 16, B, 16 * 524288, clock_rate);/////try to generate TLB miss and cache miss
+	P_chasing(16, A, 16, B, 16 * 524288, clock_rate);/////try to generate TLB miss and cache miss 
 	P_chasing(-1, A, 1, B, 0 * 524288 + 0 * 32, clock_rate);/////warmup TLB
-	P_chasing(0, A, 16, B, 0 * 524288 + 1 * 32, clock_rate);/////try to generate TLB hit and cache miss ///////(1)
+	P_chasing(0, A, 16, B, 0 * 524288 + 1 * 32, clock_rate);/////try to generate TLB hit and cache miss ///////(1) (on volta, change to other pages and see, also check out pascal. currently page 0. even try larger data set to see.)
 	P_chasing(0, A, 16, B, 0 * 524288 + 1 * 32, clock_rate);/////try to generate TLB hit and cache hit ///////(1)
 	P_chasing(0, A, 16, B, 0 * 524288 + 0 * 32, clock_rate);/////try to generate TLB hit and cache hit ///////(1)
 	P_chasing(0, A, 16, B, 0 * 524288 + 0 * 32, clock_rate);/////try to generate TLB hit and cache hit ///////(1)
