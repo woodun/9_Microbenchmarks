@@ -131,7 +131,7 @@ int main(int argc, char **argv)
 	checkCudaErrors(cudaMalloc(&GPU_data_in128, sizeof(int) * data_size));
 	cudaMemcpy(GPU_data_in128, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
 			
-	tlb_latency_test<<<1, 1>>>(GPU_data_in1284, iterations, GPU_data_out, clock_rate, 128);//////////////////////////////////////////////kernel is here			
+	tlb_latency_test<<<1, 1>>>(GPU_data_in128, iterations, GPU_data_out, clock_rate, 128);//////////////////////////////////////////////kernel is here			
     cudaDeviceSynchronize();		
 	
 	checkCudaErrors(cudaFree(GPU_data_in128));
