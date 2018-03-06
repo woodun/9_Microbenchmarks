@@ -63,7 +63,7 @@ __global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rat
 	P_chasing(7, A, iter, B, 0 * 32 + 7, clock_rate);/////////////make them in the same page, and hit far in cache lines
 	P_chasing(8, A, iter, B, 0 * 32 + 8, clock_rate);/////////////make them in the same page, and hit far in cache lines
 	P_chasing(9, A, iter, B, 0 * 32 + 9, clock_rate);/////////////make them in the same page, and hit far in cache lines
-	P_chasing(7, A, iter, B, 0 * 32 + 7, clock_rate);/////////////make them in the same page, and hit far in cache lines
+	//P_chasing(7, A, iter, B, 0 * 32 + 7, clock_rate);/////////////make them in the same page, and hit far in cache lines
 	P_chasing(15, A, iter, B, 0 * 32 + 15, clock_rate);////////////make them in the same page, and hit far in cache lines
 	P_chasing(16, A, iter, B, 0 * 32 + 16, clock_rate);////////////make them in the same page, and hit far in cache lines
 	P_chasing(24, A, iter, B, 0 * 32 + 24, clock_rate);////////////make them in the same page, and hit far in cache lines
@@ -74,7 +74,7 @@ __global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rat
 	P_chasing(16, A, iter, B, 16 * 32, clock_rate);/////////////TLB hit and cache hit
 	P_chasing(24, A, iter, B, 24 * 32, clock_rate);/////////////make them in the same page, and miss far in cache lines
 	P_chasing(24, A, iter, B, 24 * 32, clock_rate);/////////////TLB hit and cache hit
-	P_chasing(7, A, iter, B, 0 * 32 + 7, clock_rate);/////////////is this still there?
+	//P_chasing(7, A, iter, B, 0 * 32 + 7, clock_rate);/////////////is this still there?
 	
 	end_time=clock64();///////////clock
 		
