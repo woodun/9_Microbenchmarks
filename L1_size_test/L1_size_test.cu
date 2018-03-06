@@ -10,24 +10,11 @@
 /////////////////////////////saturate L1 with long consecutive data.
 
 
-void init_cpu_data(int* A, int size, int stride){
+void init_cpu_data(int* A, int size, int stride, int mod){
 	for (int i = 0; i < size; ++i){
-		A[i]=(i + stride) % size;
+		A[i]=(i + stride) % mod;
    	}
 }
-
-/*
-__device__ void cache_warmup(int *A, int iterations, int *B){
-	
-	int j = 0;
-	
-	for (int it =0; it < iterations; it ++){
-		j = A[j];
-	}
-	
-	B[0] = j;
-}
-*/
 
 //////////min page size 4kb = 4096b = 32 * 128.
 __device__ void P_chasing_1(int mark, int *A, int iterations, int *B, int starting_index, float clock_rate){

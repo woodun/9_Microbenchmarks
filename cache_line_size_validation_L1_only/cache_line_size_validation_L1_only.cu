@@ -42,22 +42,25 @@ __global__ void tlb_latency_test_stride(int *A, int iterations, int *B, float cl
 	printf("stride%d:\n", stride);
 			
 	P_chasing(-7, A, 16, B, 7 * 524288, clock_rate);/////warmup	
+	
+	P_chasing(8, A, 16, B, 8 * 524288, clock_rate);/////try to generate TLB miss and cache miss
+	P_chasing(8, A, 16, B, 8 * 524288, clock_rate);/////try to generate TLB hit and cache hit
+	P_chasing(8, A, 16, B, 8 * 524288, clock_rate);/////try to generate TLB hit and cache hit
+	P_chasing(8, A, 16, B, 8 * 524288, clock_rate);/////try to generate TLB hit and cache hit
+	
+	P_chasing(-16, A, 1, B, 16 * 524288 + 0 * stride, clock_rate);/////warmup TLB
+	P_chasing(-16, A, 1, B, 16 * 524288 + 31 * stride, clock_rate);/////warmup TLB
+	P_chasing(16, A, 16, B, 16 * 524288 + 1 * stride, clock_rate);/////try to generate TLB hit and cache miss ///////
+	P_chasing(16, A, 16, B, 16 * 524288 + 1 * stride, clock_rate);/////try to generate TLB hit and cache hit ///////
+	P_chasing(16, A, 16, B, 16 * 524288 + 0 * stride, clock_rate);/////try to generate TLB hit and cache hit ///////
+	P_chasing(16, A, 16, B, 16 * 524288 + 0 * stride, clock_rate);/////try to generate TLB hit and cache hit ///////
+	
 	P_chasing(-1, A, 1, B, 0 * 524288 + 0 * stride, clock_rate);/////warmup TLB
 	P_chasing(-1, A, 1, B, 0 * 524288 + 31 * stride, clock_rate);/////warmup TLB
 	P_chasing(0, A, 16, B, 0 * 524288 + 1 * stride, clock_rate);/////try to generate TLB hit and cache miss ///////(1)
 	P_chasing(0, A, 16, B, 0 * 524288 + 1 * stride, clock_rate);/////try to generate TLB hit and cache hit ///////(1)
 	P_chasing(0, A, 16, B, 0 * 524288 + 0 * stride, clock_rate);/////try to generate TLB hit and cache hit ///////(1)
 	P_chasing(0, A, 16, B, 0 * 524288 + 0 * stride, clock_rate);/////try to generate TLB hit and cache hit ///////(1)
-	P_chasing(8, A, 16, B, 8 * 524288, clock_rate);/////try to generate TLB miss and cache miss
-	P_chasing(8, A, 16, B, 8 * 524288, clock_rate);/////try to generate TLB hit and cache hit
-	P_chasing(8, A, 16, B, 8 * 524288, clock_rate);/////try to generate TLB hit and cache hit
-	P_chasing(8, A, 16, B, 8 * 524288, clock_rate);/////try to generate TLB hit and cache hit
-	P_chasing(-16, A, 1, B, 16 * 524288 + 0 * stride, clock_rate);/////warmup TLB
-	P_chasing(-16, A, 1, B, 16 * 524288 + 31 * stride, clock_rate);/////warmup TLB
-	P_chasing(16, A, 16, B, 16 * 524288 + 1 * stride, clock_rate);/////try to generate TLB hit and cache miss ///////(1)
-	P_chasing(16, A, 16, B, 16 * 524288 + 1 * stride, clock_rate);/////try to generate TLB hit and cache hit ///////(1)
-	P_chasing(16, A, 16, B, 16 * 524288 + 0 * stride, clock_rate);/////try to generate TLB hit and cache hit ///////(1)
-	P_chasing(16, A, 16, B, 16 * 524288 + 0 * stride, clock_rate);/////try to generate TLB hit and cache hit ///////(1)
 	
 	printf("\n");	
 	__syncthreads();
