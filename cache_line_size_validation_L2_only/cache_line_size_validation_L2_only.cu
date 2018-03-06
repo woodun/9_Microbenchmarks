@@ -221,52 +221,52 @@ int main(int argc, char **argv)
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////iter32
 	///////////////////////////////////////////////////////////////////GPU data in
-	int *GPU_data_in;	
-	checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));
-	cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
+	int *GPU_data_in32;	
+	checkCudaErrors(cudaMalloc(&GPU_data_in32, sizeof(int) * data_size));
+	cudaMemcpy(GPU_data_in32, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
 			
-	tlb_latency_test_32<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here			
+	tlb_latency_test_32<<<1, 1>>>(GPU_data_in32, iterations, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here			
     cudaDeviceSynchronize();		
 	
-	checkCudaErrors(cudaFree(GPU_data_in));
+	checkCudaErrors(cudaFree(GPU_data_in32));
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////iter32
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////iter16
 	///////////////////////////////////////////////////////////////////GPU data in
-	int *GPU_data_in;	
-	checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));
-	cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
+	int *GPU_data_in16;	
+	checkCudaErrors(cudaMalloc(&GPU_data_in16, sizeof(int) * data_size));
+	cudaMemcpy(GPU_data_in16, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
 			
-	tlb_latency_test_16<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here			
+	tlb_latency_test_16<<<1, 1>>>(GPU_data_in16, iterations, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here			
     cudaDeviceSynchronize();		
 	
-	checkCudaErrors(cudaFree(GPU_data_in));
+	checkCudaErrors(cudaFree(GPU_data_in16));
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////iter16
 	
 		
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////iter8
 	///////////////////////////////////////////////////////////////////GPU data in
-	int *GPU_data_in;	
-	checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));
-	cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
+	int *GPU_data_in8;	
+	checkCudaErrors(cudaMalloc(&GPU_data_in8, sizeof(int) * data_size));
+	cudaMemcpy(GPU_data_in8, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
 			
-	tlb_latency_test_8<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here			
+	tlb_latency_test_8<<<1, 1>>>(GPU_data_in8, iterations, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here			
     cudaDeviceSynchronize();		
 	
-	checkCudaErrors(cudaFree(GPU_data_in));
+	checkCudaErrors(cudaFree(GPU_data_in8));
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////iter8
 	
 		
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////iter4
 	///////////////////////////////////////////////////////////////////GPU data in
-	int *GPU_data_in;	
-	checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));
-	cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
+	int *GPU_data_in4;	
+	checkCudaErrors(cudaMalloc(&GPU_data_in4, sizeof(int) * data_size));
+	cudaMemcpy(GPU_data_in4, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
 			
-	tlb_latency_test_4<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here			
+	tlb_latency_test_4<<<1, 1>>>(GPU_data_in4, iterations, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here			
     cudaDeviceSynchronize();		
 	
-	checkCudaErrors(cudaFree(GPU_data_in));
+	checkCudaErrors(cudaFree(GPU_data_in4));
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////iter4
 	
 	
