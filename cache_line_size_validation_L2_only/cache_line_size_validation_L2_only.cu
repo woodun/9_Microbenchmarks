@@ -74,9 +74,6 @@ __global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rat
 	P_chasing(16, A, iter, B, 16 * 32, clock_rate);/////////////TLB hit and cache hit /////////(3) (it is beter to apply this in consecutive pattern to use a large amount)
 	P_chasing(24, A, iter, B, 24 * 32, clock_rate);/////////////TLB hit and cache miss /////////(1) (no cache prefetch? no TLB miss? cache way saturated?)
 	P_chasing(24, A, iter, B, 24 * 32, clock_rate);/////////////TLB hit and cache hit /////////(2) (TLB miss and cache hit(hard to make) VS. TLB hit and cache hit) not applied
-	P_chasing(-24, A, 2048, B, 24 * 32, clock_rate);/////////////try to saturate one of them
-	P_chasing(-24, A, 2048, B, 24 * 32, clock_rate);/////////////try to saturate one of them
-	P_chasing(-24, A, 2048, B, 24 * 32, clock_rate);/////////////try to saturate one of them
 	P_chasing(7, A, iter, B, 0 * 32 + 7, clock_rate);/////////////is this still there?
 		
 	//end_time=clock64();///////////clock		
@@ -133,7 +130,7 @@ int main(int argc, char **argv)
 	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(int) * 1));
 	
 
-	for(int iter = 128; iter >0; iter = iter / 2){
+	for(int iter = 2048; iter >0; iter = iter / 2){
 	///////////////////////////////////////////////////////////////////GPU data in
 		int *GPU_data_in2;	
 		checkCudaErrors(cudaMalloc(&GPU_data_in2, sizeof(int) * data_size));
