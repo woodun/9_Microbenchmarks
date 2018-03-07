@@ -81,7 +81,7 @@ int main(int argc, char **argv)
 	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(int) * 1));
 	
 	//for(int mod = 1024 * 256 * 8; mod > 0; mod = mod / 2){/////volta L2 6m
-	for(int mod = 1024 * 256 * 7 ; mod > 1024 * 256 * 6; mod = mod - 1024){/////volta L2 6m
+	for(int mod = 1024 * 256 * 7 ; mod >= 1024 * 256 * 6; mod = mod - 256 * 128){/////volta L2 6m
 		///////////////////////////////////////////////////////////////////CPU data begin
 		int data_size = 512 * 1024 * 300;/////size = iteration * stride = 300 2mb pages.	
 		int data_stride = 8;/////32b. Pointing to the next cacheline.
