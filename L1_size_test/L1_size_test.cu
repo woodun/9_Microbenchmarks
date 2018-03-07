@@ -36,9 +36,9 @@ __device__ void P_chasing(int mark, int *A, int iterations, int *B, int starting
 	B[0] = j;
 }
 
-__global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rate){	
+__global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rate, int mod_size){	
 	
-	P_chasing(1, A, iterations, B, 0, clock_rate);
+	P_chasing(mod_size, A, iterations, B, 0, clock_rate);
 	
 	 __syncthreads();
 }
