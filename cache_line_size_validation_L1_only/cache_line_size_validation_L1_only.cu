@@ -37,7 +37,7 @@ __device__ void P_chasing(int mark, int *A, int iterations, int *B, int starting
 	B[0] = j;
 }
 
-__global__ void tlb_latency_test_stride(int *A, int iterations, int *B, float clock_rate, int iter, int stride){////(try to increase the iter here for more accuracy results.)
+__global__ void tlb_latency_test_stride(int *A, int iterations, int *B, float clock_rate, int iter, int stride){////(try to increase the iter here for more accurate results.)
 	
 	printf("stride%d:\n", stride);
 			
