@@ -7,7 +7,7 @@
 #include <helper_cuda.h>
 #include <time.h>
 
-/////////////////////////////saturate L1 with long consecutive data.
+/////////////////////////////saturate L1 with long consecutive data. this one use the method in the paper which initialize the data multiple times with different mod.
 
 
 void init_cpu_data(int* A, int size, int stride, int mod){
