@@ -56,7 +56,7 @@ __global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rat
 	//long long int end_time = 0;///////////clock	
 	//start_time = clock64();///////////clock
 	
-	P_chasing(0, A, 14, B, 192 * 524288, clock_rate);/////GPU warmup
+	P_chasing(0, A, 7, B, 192 * 524288, clock_rate);/////GPU warmup
 	P_chasing(0, A, iter, B, 0 * 32, clock_rate);/////TLB miss and cache miss /////////(1) (TLB miss and cache miss VS. TLB hit cache miss) applied
 	P_chasing(1, A, iter, B, 0 * 32 + 1, clock_rate);/////make them in the same page, and hit near in cache lines
 	P_chasing(4, A, iter, B, 0 * 32 + 4, clock_rate);/////make them in the same page, and hit near in cache lines	
@@ -77,6 +77,7 @@ __global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rat
 	P_chasing(24, A, iter, B, 24 * 32, clock_rate);/////////////try to saturate one of them
 	P_chasing(7, A, iter, B, 0 * 32 + 7, clock_rate);/////////////is this still there?
 	
+	B[0] = A[524288 * 200 + 128];
 	//end_time=clock64();///////////clock		
 	//long long int total_time = end_time - start_time;///////////clock
 	//printf("outside1:%fms\n", total_time / (float)clock_rate);///////////clock
