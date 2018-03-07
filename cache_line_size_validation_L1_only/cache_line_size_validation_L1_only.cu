@@ -43,7 +43,7 @@ __global__ void tlb_latency_test_stride(int *A, int iterations, int *B, float cl
 			
 	P_chasing(-7, A, 16, B, 7 * 524288, clock_rate);/////warmup	
 	
-	P_chasing(8, A, 16, B, 8 * 524288, clock_rate);/////try to generate TLB miss and cache miss (the latency is amortized among 16 request here!)
+	P_chasing(8, A, 16, B, 8 * 524288, clock_rate);/////try to generate TLB miss and cache miss (TLB latency is amortized among 16 request here!)
 	P_chasing(8, A, 16, B, 8 * 524288, clock_rate);/////try to generate TLB hit and cache hit
 	P_chasing(8, A, 16, B, 8 * 524288, clock_rate);/////try to generate TLB hit and cache hit
 	P_chasing(8, A, 16, B, 8 * 524288, clock_rate);/////try to generate TLB hit and cache hit
@@ -57,10 +57,10 @@ __global__ void tlb_latency_test_stride(int *A, int iterations, int *B, float cl
 	
 	P_chasing(-1, A, 1, B, 0 * 524288 + 0 * stride, clock_rate);/////warmup TLB
 	P_chasing(-1, A, 1, B, 0 * 524288 + 31 * stride, clock_rate);/////warmup TLB
-	P_chasing(0, A, 16, B, 0 * 524288 + 1 * stride, clock_rate);/////try to generate TLB hit and cache miss ///////(1)
-	P_chasing(0, A, 16, B, 0 * 524288 + 1 * stride, clock_rate);/////try to generate TLB hit and cache hit ///////(1)
-	P_chasing(0, A, 16, B, 0 * 524288 + 0 * stride, clock_rate);/////try to generate TLB hit and cache hit ///////(1)
-	P_chasing(0, A, 16, B, 0 * 524288 + 0 * stride, clock_rate);/////try to generate TLB hit and cache hit ///////(1)
+	P_chasing(0, A, 16, B, 0 * 524288 + 1 * stride, clock_rate);/////try to generate TLB hit and cache miss /////////(3) (TLB hit and cache hit VS. TLB hit cache miss) applied
+	P_chasing(0, A, 16, B, 0 * 524288 + 1 * stride, clock_rate);/////try to generate TLB hit and cache hit /////////(3) (under TLB hit, we can make L1 hit VS. L1 and L2 miss)
+	P_chasing(0, A, 16, B, 0 * 524288 + 0 * stride, clock_rate);/////try to generate TLB hit and cache hit /////////(3) (but how to make TLB hit L1 miss and L2 hit?)
+	P_chasing(0, A, 16, B, 0 * 524288 + 0 * stride, clock_rate);/////try to generate TLB hit and cache hit /////////(3) (disable L1?(see latency) saturate L1? use another core?)
 	
 	P_chasing(-32, A, 1, B, 32 * 524288 + 0 * stride, clock_rate);/////warmup TLB
 	P_chasing(-32, A, 1, B, 32 * 524288 + 31 * stride, clock_rate);/////warmup TLB

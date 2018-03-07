@@ -107,7 +107,7 @@ int main(int argc, char **argv)
 	///////////////////////////////////////////////////////////////////CPU data begin
 	int data_size = 512 * 1024 * 100;/////size = iteration * stride = 100 2mb pages.	
 	////////size(int) = 4, 32 = 128b, 256 = 1kb, 32 * 32 = 1024 = 4kb, 262144 = 1mb, 16384 * 32 = 512 * 1024 = 524288 = 2mb.
-	int data_stride = 2;/////8b. Pointing to the next cacheline.
+	int data_stride = 8;/////32b. Pointing to the next cacheline.
 	int iterations = data_size / data_stride;
 	
 	int *CPU_data_in;	

@@ -58,14 +58,17 @@ __global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rat
 	long long int end_time = 0;///////////clock	
 	start_time = clock64();///////////clock
 		
-	P_chasing(15, A, 16, B, 15 * 524288, clock_rate);/////warmup
-	P_chasing(16, A, 16, B, 16 * 524288, clock_rate);/////try to generate TLB miss and cache miss
-	P_chasing(0, A, 1, B, 0 * 524288 + 0 * 16, clock_rate);/////warmup TLB
+	P_chasing(-2, A, 7, B, 2 * 524288, clock_rate);/////warmup GPU
+	
+	P_chasing(-1, A, 1, B, 0 * 524288 + 0 * 16, clock_rate);/////warmup TLB
 	P_chasing(0, A, 16, B, 0 * 524288 + 1 * 16, clock_rate);/////try to generate TLB hit and cache miss ///////(1)
 	P_chasing(0, A, 16, B, 0 * 524288 + 1 * 16, clock_rate);/////try to generate TLB hit and cache hit ///////(1)
-	P_chasing(16, A, 16, B, 16 * 524288 + 16 * 16, clock_rate);/////try to generate TLB hit and cache miss
-	P_chasing(16, A, 16, B, 16 * 524288, clock_rate);/////try to generate TLB hit and cache hit
-	P_chasing(16, A, 16, B, 16 * 524288, clock_rate);/////try to generate TLB hit and cache hit
+	P_chasing(0, A, 16, B, 0 * 524288 + 0 * 16, clock_rate);/////try to generate TLB hit and cache hit ///////(1)
+	
+	P_chasing(3, A, 16, B, 3 * 524288, clock_rate);/////try to generate TLB miss and cache miss
+	P_chasing(3, A, 16, B, 3 * 524288 + 32 * 16, clock_rate);/////try to generate TLB hit and cache miss
+	P_chasing(3, A, 16, B, 3 * 524288, clock_rate);/////try to generate TLB hit and cache hit
+	P_chasing(3, A, 16, B, 3 * 524288, clock_rate);/////try to generate TLB hit and cache hit
 	
 	end_time=clock64();///////////clock
 		
@@ -163,9 +166,9 @@ int main(int argc, char **argv)
     }
 		
 	///////////////////////////////////////////////////////////////////CPU data begin
-	int iterations = 4 * 16384 * 100;
+	int iterations = 2 * 16384 * 100;
 	////////size(int) = 4, 32 = 128b, 256 = 1kb, 16 * 64 = 32 * 32 = 1024 = 4kb, 262144 = 1mb, 16384 * 32 = 512 * 1024 = 524288 = 2mb.
-	int data_stride = 8;/////32b. Pointing to the next cacheline.
+	int data_stride = 16;/////64b.
 	//int data_size = 524288000;/////1000 * 2mb. ##### size = iteration * stride. ##### This can support 1000 iteration. The 1001st iteration starts from head again.
 	int data_size = iterations * data_stride;/////size = iteration * stride = 100 2mb pages.
 	
