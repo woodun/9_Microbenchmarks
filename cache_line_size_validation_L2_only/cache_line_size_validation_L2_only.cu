@@ -48,7 +48,7 @@ __device__ void P_chasing(int mark, int *A, int iterations, int *B, int starting
 	B[0] = j;
 }
 
-__global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rate, int iter){/////////why 128 does not saturate the cache?
+__global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rate, int iter){///why 128 does not saturate the cache? (volta set number might be strange. try with other stride value)
 	
 	printf("iter%d:\n", iter);
 	
