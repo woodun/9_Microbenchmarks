@@ -144,7 +144,6 @@ int main(int argc, char **argv)
 	
 		checkCudaErrors(cudaFree(GPU_data_in2));
 	}
-
 	
 	
 	checkCudaErrors(cudaFree(GPU_data_out));	
