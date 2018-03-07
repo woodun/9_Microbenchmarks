@@ -87,8 +87,7 @@ __global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rat
 		P_chasing_2(index, A, index, B, 0, clock_rate);/////try to generate hits	
 	}
 	
-	end_time=clock64();///////////clock
-		
+	//end_time=clock64();///////////clock		
 	//long long int total_time = end_time - start_time;///////////clock
 	//printf("outside1:%fms\n", total_time / (float)clock_rate);///////////clock
 
