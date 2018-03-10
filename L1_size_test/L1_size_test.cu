@@ -85,7 +85,7 @@ int main(int argc, char **argv)
 	
 	//for(int mod = 1024 * 256 * 8; mod > 0; mod = mod / 2){/////volta L2 6m
 	//for(int mod = 1024 * 256 * 7 ; mod >= 1024 * 256 * 6; mod = mod - 256 * 128){/////volta L2 6m
-	for(int mod = 1024 * 256 * 2; mod > 0; mod = mod / 2){/////kepler L2 1.5m
+	for(int mod = 1024 * 256 * 8; mod > 0; mod = mod / 2){/////kepler L2 1.5m
 		///////////////////////////////////////////////////////////////////CPU data begin
 		int data_size = 512 * 1024 * 300;/////size = iteration * stride = 300 2mb pages.	
 		int data_stride = 4;/////16b. Pointing to the next cacheline.
