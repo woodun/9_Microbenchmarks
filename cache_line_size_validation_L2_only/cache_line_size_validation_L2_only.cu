@@ -130,7 +130,7 @@ int main(int argc, char **argv)
 	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(int) * 1));
 	
 
-	for(int iter = 2048; iter >0; iter = iter / 2){
+	for(int iter = 2048; iter > 0; iter = iter / 2){
 	///////////////////////////////////////////////////////////////////GPU data in
 		int *GPU_data_in2;	
 		checkCudaErrors(cudaMalloc(&GPU_data_in2, sizeof(int) * data_size));
