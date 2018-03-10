@@ -89,7 +89,7 @@ int main(int argc, char **argv)
 		printf("###################data_stride%d#########################\n", data_stride);
 	for(int mod = 1024 * 256 * 2; mod > 1024; mod = mod / 2){/////kepler L2 1.5m
 		///////////////////////////////////////////////////////////////////CPU data begin
-		int data_size = 512 * 1024 * 300;/////size = iteration * stride = 300 2mb pages.		
+		int data_size = 512 * 1024 * 30;/////size = iteration * stride = 30 2mb pages.		
 		int iterations = data_size / data_stride;
 	
 		int *CPU_data_in;
