@@ -90,7 +90,8 @@ int main(int argc, char **argv)
 	for(int mod = 1024 * 256 * 2; mod > 1024; mod = mod / 2){/////kepler L2 1.5m
 		///////////////////////////////////////////////////////////////////CPU data begin
 		int data_size = 512 * 1024 * 30;/////size = iteration * stride = 30 2mb pages.		
-		int iterations = data_size / data_stride;
+		//int iterations = data_size / data_stride;
+		int iterations = data_size;
 	
 		int *CPU_data_in;
 		CPU_data_in = (int*)malloc(sizeof(int) * data_size);	
