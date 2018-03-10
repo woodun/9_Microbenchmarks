@@ -219,7 +219,6 @@ ALL_CCFLAGS += $(EXTRA_NVCCFLAGS)
 ALL_CCFLAGS += $(addprefix -Xcompiler ,$(CCFLAGS))
 ALL_CCFLAGS += $(addprefix -Xcompiler ,$(EXTRA_CCFLAGS))
 ALL_CCFLAGS += -keep
-ALL_CCFLAGS += -Xptxas -dlcm=cg1
 
 UBUNTU = $(shell lsb_release -i -s 2>/dev/null | grep -i ubuntu)
 
