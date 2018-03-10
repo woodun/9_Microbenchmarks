@@ -19,6 +19,10 @@ void init_cpu_data(int* A, int size, int stride, int mod){
 //////////min page size 4kb = 4096b = 32 * 128.
 __device__ void P_chasing(int mark, int *A, int iterations, int *B, int starting_index, float clock_rate){
 	
+	for (int it = 0; it < mark; it++){/////////////warmup
+		j = A[j];
+	}
+	
 	int j = starting_index;/////make them in the same page, and miss near in cache lines
 	
 	long long int start_time = 0;//////clock
@@ -74,8 +78,6 @@ int main(int argc, char **argv)
         exit(EXIT_WAIVED);
     }
 	
-
-	
 	///////////////////////////////////////////////////////////////////GPU data out
 	int *GPU_data_out;
 	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(int) * 1));
@@ -84,7 +86,7 @@ int main(int argc, char **argv)
 	for(int mod = 1024 * 256 * 7 ; mod >= 1024 * 256 * 6; mod = mod - 256 * 128){/////volta L2 6m
 		///////////////////////////////////////////////////////////////////CPU data begin
 		int data_size = 512 * 1024 * 300;/////size = iteration * stride = 300 2mb pages.	
-		int data_stride = 8;/////32b. Pointing to the next cacheline.
+		int data_stride = 4;/////16b. Pointing to the next cacheline.
 		int iterations = data_size / data_stride;
 	
 		int *CPU_data_in;	
