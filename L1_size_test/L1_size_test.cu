@@ -20,7 +20,7 @@ void init_cpu_data(int* A, int size, int stride, int mod){
 __device__ void P_chasing(int mark, int *A, int iterations, int *B, int starting_index, float clock_rate){
 	
 	int k = starting_index;/////make them in the same page, and miss near in cache lines
-	for (int it = 0; it < mark / 4; it++){/////////////warmup
+	for (int it = 0; it < mark / 2; it++){/////////////warmup
 		k = A[k];
 	}
 	
@@ -88,7 +88,7 @@ int main(int argc, char **argv)
 	for(int mod = 1024 * 256 * 8; mod > 0; mod = mod / 2){/////kepler L2 1.5m
 		///////////////////////////////////////////////////////////////////CPU data begin
 		int data_size = 512 * 1024 * 300;/////size = iteration * stride = 300 2mb pages.	
-		int data_stride = 4;/////16b. Pointing to the next cacheline.
+		int data_stride = 2;/////16b. Pointing to the next cacheline.
 		int iterations = data_size / data_stride;
 	
 		int *CPU_data_in;	
