@@ -88,11 +88,11 @@ int main(int argc, char **argv)
 	for(int data_stride = 4; data_stride <= 64; data_stride = data_stride * 2){
 		printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m
-	for(int mod = 1024 * 256 * 3; mod > 0; mod = mod / 2){/////kepler L2 1.5m
+	for(int mod = 1024 * 256 * 6; mod > 0; mod = mod / 2){/////kepler L2 1.5m
 		///////////////////////////////////////////////////////////////////CPU data begin
 		int data_size = 512 * 1024 * 30;/////size = iteration * stride = 30 2mb pages.		
 		//int iterations = data_size / data_stride;
-		int iterations = data_size / 10;
+		int iterations = data_size;
 	
 		int *CPU_data_in;
 		CPU_data_in = (int*)malloc(sizeof(int) * data_size);	
