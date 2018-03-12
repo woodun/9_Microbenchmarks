@@ -7,69 +7,45 @@
 #include <helper_cuda.h>
 #include <time.h>
 
-/////////////////////////////prefetch test for dense accesses.
+/////////////////////////////access L2 sequentially. change the data size to observe if prefetch happens. L1 is enabled. "ALL_CCFLAGS += -Xptxas -dlcm=ca"
 
 
-void init_cpu_data(int* A, int size, int stride){
+void init_cpu_data(int* A, int size, int stride, int mod){
 	for (int i = 0; i < size; ++i){
-		A[i]=(i + stride) % size;
+		A[i]=(i + stride) % mod;
    	}
 }
 
-/*
-__device__ void cache_warmup(int *A, int iterations, int *B){
-	
-	int j = 0;
-	
-	for (int it =0; it < iterations; it ++){
-		j = A[j];
-	}
-	
-	B[0] = j;
-}
-*/
-
 //////////min page size 4kb = 4096b = 32 * 128.
-__device__ void P_chasing(int mark, int *A, int iterations, int *B, int starting_index, float clock_rate){
+__device__ void P_chasing(int mark, int *A, int iterations, int *B, int starting_index, float clock_rate, int data_stride){
+	
+	int k = starting_index;/////make them in the same page, and miss near in cache lines
+	for (int it = 0; it < mark / data_stride; it++){/////////////warmup
+		k = A[k];
+	}
 	
 	int j = starting_index;/////make them in the same page, and miss near in cache lines
 	
 	long long int start_time = 0;//////clock
 	long long int end_time = 0;//////clock
 	start_time = clock64();//////clock
-	
-	for (int it =0; it < iterations; it ++){
+			
+	for (int it = 0; it < iterations; it++){
 		j = A[j];
 	}
 	
 	end_time=clock64();//////clock
 	long long int total_time = end_time - start_time;//////clock
-	printf("inside%d:%fms\n", mark, total_time / (float)clock_rate);//////clock
+	printf("inside%d:%fms\n", mark, (total_time / (float)clock_rate) / ((float)iterations));//////clock, average latency
 	
 	B[0] = j;
 }
 
-__global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rate){	
-
-	int index = 0;
+__global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rate, int mod, int data_stride){	
 	
-	long long int start_time = 0;///////////clock
-	long long int end_time = 0;///////////clock	
-	start_time = clock64();///////////clock
+	P_chasing(mod, A, iterations, B, 0, clock_rate, data_stride);
 	
-	P_chasing(0, A, 1, B, 31 * 32, clock_rate);/////TLB warmup	
-	P_chasing(0, A, 4, B, 0 * 32, clock_rate);/////cache warmup	
-	for(index = 1; index <= 31; index++){
-		P_chasing(index, A, 4, B, 0 * 32 + index, clock_rate);/////make them in the same page, and hit near in cache lines		
-	}
-	P_chasing(61, A, 4, B, 32 * 4, clock_rate);/////make them in the same page, and miss near in cache lines
-	P_chasing(61, A, 4, B, 32 * 16, clock_rate);/////make them in the same page, and miss far in cache lines	
-	P_chasing(0, A, 4, B,  2 * 16384 * 32, clock_rate);/////TLB miss, cache miss
-	
-	end_time=clock64();///////////clock
-		
-	long long int total_time = end_time - start_time;///////////clock
-	printf("outside1:%fms\n", total_time / (float)clock_rate);///////////clock
+	 __syncthreads();
 }
 
 int main(int argc, char **argv)
@@ -102,44 +78,43 @@ int main(int argc, char **argv)
 
         exit(EXIT_WAIVED);
     }
-		
-	///////////////////////////////////////////////////////////////////CPU data begin
-	int iterations = 16384 * 100;
-	////////size(int) = 4, 32 = 128b, 256 = 1kb, 32 * 32 = 1024 = 4kb, 262144 = 1mb, 16384 * 32 = 512 * 1024 = 524288 = 2mb.
-	int data_stride = 32;/////128b. Pointing to the next cacheline.
-	//int data_size = 524288000;/////1000 * 2mb. ##### size = iteration * stride. ##### This can support 1000 iteration. The 1001st iteration starts from head again.
-	int data_size = iterations * data_stride;/////size = iteration * stride = 2 4kb pages.
 	
-	int *CPU_data_in;	
-	CPU_data_in = (int*)malloc(sizeof(int) * data_size);
-	//int *CPU_data_out;
-	//CPU_data_out = (int*)malloc(data_size * sizeof(int));
-	
-	init_cpu_data(CPU_data_in, data_size, data_stride);
-	///////////////////////////////////////////////////////////////////CPU data end
-	
-	///////////////////////////////////////////////////////////////////GPU data begin
-	int *GPU_data_in;
-	//////checkCudaErrors(cudaMallocManaged(&data, sizeof(int) * data_size));
-	checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));
-	
+	///////////////////////////////////////////////////////////////////GPU data out
 	int *GPU_data_out;
 	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(int) * 1));
 	
-	cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
-	///////////////////////////////////////////////////////////////////GPU data end				  
+	//for(int mod = 1024 * 256 * 8; mod > 0; mod = mod / 2){/////volta L2 6m
+	//for(int mod = 1024 * 256 * 7 ; mod >= 1024 * 256 * 6; mod = mod - 256 * 128){/////volta L2 6m
+	for(int data_stride = 4; data_stride <= 64; data_stride = data_stride * 2){
+		printf("###################data_stride%d#########################\n", data_stride);
+	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m
+	for(int mod = 1024 * 256 * 6; mod > 0; mod = mod / 2){/////kepler L2 1.5m
+		///////////////////////////////////////////////////////////////////CPU data begin
+		int data_size = 512 * 1024 * 30;/////size = iteration * stride = 30 2mb pages.		
+		//int iterations = data_size / data_stride;
+		int iterations = data_size;
+	
+		int *CPU_data_in;
+		CPU_data_in = (int*)malloc(sizeof(int) * data_size);	
+		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
+		///////////////////////////////////////////////////////////////////CPU data end	
+	
+		///////////////////////////////////////////////////////////////////GPU data in	
+		int *GPU_data_in;
+		checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));	
+		cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
 		
-	tlb_latency_test<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate);//////////////////////////////////////////////kernel is here
-	
-	//cudaMemcpy(CPU_data_out, GPU_data_out, sizeof(int) * data_size, cudaMemcpyDeviceToHost);
-	
-    cudaDeviceSynchronize();
-	
-	checkCudaErrors(cudaFree(GPU_data_in));
-	checkCudaErrors(cudaFree(GPU_data_out));
-	
-	free(CPU_data_in);
+		tlb_latency_test<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);//////////////////////////////////////////////kernel is here	
+		cudaDeviceSynchronize();
+		
+		checkCudaErrors(cudaFree(GPU_data_in));
+		free(CPU_data_in);
+	}
+		printf("############################################\n\n");
+	}
+			
+	checkCudaErrors(cudaFree(GPU_data_out));	
 	//free(CPU_data_out);
-		
+	
     exit(EXIT_SUCCESS);
 }

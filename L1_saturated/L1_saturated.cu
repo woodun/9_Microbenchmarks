@@ -7,7 +7,7 @@
 #include <helper_cuda.h>
 #include <time.h>
 
-/////////////////////////////saturate L1 with long consecutive data.
+/////////////////////////////saturate L1 or L2 with long consecutive data. Using loop to repeat the sequence.
 
 
 void init_cpu_data(int* A, int size, int stride){

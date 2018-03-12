@@ -219,6 +219,7 @@ ALL_CCFLAGS += $(EXTRA_NVCCFLAGS)
 ALL_CCFLAGS += $(addprefix -Xcompiler ,$(CCFLAGS))
 ALL_CCFLAGS += $(addprefix -Xcompiler ,$(EXTRA_CCFLAGS))
 ALL_CCFLAGS += -keep
+ALL_CCFLAGS += -Xptxas -dlcm=ca
 
 UBUNTU = $(shell lsb_release -i -s 2>/dev/null | grep -i ubuntu)
 
@@ -290,7 +291,7 @@ endif
 # Target rules
 all: build
 
-build: cache_line_size_validation_L1_only
+build: L2_size_test
 
 check.deps:
 ifeq ($(SAMPLE_ENABLED),0)
@@ -299,19 +300,19 @@ else
 	@echo "Sample is ready - all dependencies have been met"
 endif
 
-cache_line_size_validation_L1_only.o:cache_line_size_validation_L1_only.cu
+L2_size_test.o:L2_size_test.cu
 	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
-cache_line_size_validation_L1_only: cache_line_size_validation_L1_only.o
+L2_size_test: L2_size_test.o
 	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
 	$(EXEC) mkdir -p ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 	$(EXEC) cp $@ ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 
 run: build
-	$(EXEC) ./cache_line_size_validation_L1_only
+	$(EXEC) ./L2_size_test
 
 clean:
-	rm -f cache_line_size_validation_L1_only cache_line_size_validation_L1_only.o
-	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/cache_line_size_validation_L1_only
+	rm -f L2_size_test L2_size_test.o
+	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/L2_size_test
 
 clobber: clean

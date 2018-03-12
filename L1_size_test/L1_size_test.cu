@@ -20,7 +20,7 @@ void init_cpu_data(int* A, int size, int stride, int mod){
 __device__ void P_chasing(int mark, int *A, int iterations, int *B, int starting_index, float clock_rate, int data_stride){
 	
 	int k = starting_index;/////make them in the same page, and miss near in cache lines
-	for (int it = 0; it < mark / data_stride; it++){/////////////warmup
+	for (int it = 0; it < iterations; it++){/////////////warmup
 		k = A[k];
 	}
 	
@@ -88,7 +88,7 @@ int main(int argc, char **argv)
 	for(int data_stride = 4; data_stride <= 64; data_stride = data_stride * 2){
 		printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m
-	for(int mod = 1024 * 256 * 6; mod > 0; mod = mod / 2){/////kepler L2 1.5m
+	for(int mod = 1024 * 256 * 6; mod > 0; mod = mod / 2){/////kepler L2 1.5m //////////////1024 * 4 * 3 /////////8 /////////// 1024 * 256 * 1.5 / 1024 * 4 * 3 / 8 = 4 sets? 
 		///////////////////////////////////////////////////////////////////CPU data begin
 		int data_size = 512 * 1024 * 30;/////size = iteration * stride = 30 2mb pages.		
 		//int iterations = data_size / data_stride;
