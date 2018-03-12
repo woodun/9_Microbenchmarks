@@ -83,12 +83,44 @@ int main(int argc, char **argv)
 	int *GPU_data_out;
 	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(int) * 1));
 	
+	printf("################fixing data range, changing stride############################\n");
 	//for(int mod = 1024 * 256 * 8; mod > 0; mod = mod / 2){/////volta L2 6m
 	//for(int mod = 1024 * 256 * 7 ; mod >= 1024 * 256 * 6; mod = mod - 256 * 128){/////volta L2 6m
 	for(int data_stride = 4; data_stride <= 64; data_stride = data_stride * 2){
 		printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m
-	for(int mod = 1024 * 256 * 6; mod > 0; mod = mod / 2){/////kepler L2 1.5m
+	for(int mod = 1024 * 256 * 3; mod >= 1024 * 256 * 3; mod = mod / 2){/////kepler L2 1.5m //////////////1024 * 4 * 3 /////////8 /////////// 1024 * 256 * 1.5 / 1024 * 4 * 3 / 8 = 4 sets? 
+		///////////////////////////////////////////////////////////////////CPU data begin
+		int data_size = 512 * 1024 * 30;/////size = iteration * stride = 30 2mb pages.		
+		//int iterations = data_size / data_stride;
+		int iterations = data_size;
+	
+		int *CPU_data_in;
+		CPU_data_in = (int*)malloc(sizeof(int) * data_size);	
+		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
+		///////////////////////////////////////////////////////////////////CPU data end	
+	
+		///////////////////////////////////////////////////////////////////GPU data in	
+		int *GPU_data_in;
+		checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));	
+		cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
+		
+		tlb_latency_test<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);//////////////////////////////////////////////kernel is here	
+		cudaDeviceSynchronize();
+		
+		checkCudaErrors(cudaFree(GPU_data_in));
+		free(CPU_data_in);
+	}
+		printf("############################################\n\n");
+	}
+	
+	printf("\n\n################fixing stride, changing data range############################\n\n");
+	//for(int mod = 1024 * 256 * 8; mod > 0; mod = mod / 2){/////volta L2 6m
+	//for(int mod = 1024 * 256 * 7 ; mod >= 1024 * 256 * 6; mod = mod - 256 * 128){/////volta L2 6m
+	for(int data_stride = 4; data_stride <= 4; data_stride = data_stride * 2){
+		printf("###################data_stride%d#########################\n", data_stride);
+	for(int mod = 1024 * 256 * 1.5 + 32 * 1024; mod > 1024 * 256 * 1.5 - 32 * 1024; mod = mod - 4 * 1024){/////kepler L2 1.5m
+	//for(int mod = 1024 * 256 * 6; mod > 0; mod = mod / 2){/////kepler L2 1.5m //////////////1024 * 4 * 3 /////////8 /////////// 1024 * 256 * 1.5 / 1024 * 4 * 3 / 8 = 4 sets? 
 		///////////////////////////////////////////////////////////////////CPU data begin
 		int data_size = 512 * 1024 * 30;/////size = iteration * stride = 30 2mb pages.		
 		//int iterations = data_size / data_stride;
