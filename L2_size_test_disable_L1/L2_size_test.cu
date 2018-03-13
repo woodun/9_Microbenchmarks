@@ -86,7 +86,7 @@ int main(int argc, char **argv)
 	printf("################fixing data range, changing stride############################\n");
 	//for(int mod = 1024 * 256 * 8; mod > 0; mod = mod / 2){/////volta L2 6m
 	//for(int mod = 1024 * 256 * 7 ; mod >= 1024 * 256 * 6; mod = mod - 256 * 128){/////volta L2 6m
-	for(int data_stride = 4; data_stride <= 128; data_stride = data_stride * 2){
+	for(int data_stride = 4; data_stride <= 32; data_stride = data_stride + 1){
 		printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m
 	for(int mod = 1024 * 256 * 6; mod >= 1024 * 256 * 6; mod = mod / 2){/////kepler L2 1.5m //////////////1024 * 4 * 3 /////////8 /////////// 1024 * 256 * 1.5 / 1024 * 4 * 3 / 8 = 4 sets? 
@@ -120,7 +120,7 @@ int main(int argc, char **argv)
 	for(int data_stride = 4; data_stride <= 4; data_stride = data_stride * 2){
 		printf("###################data_stride%d#########################\n", data_stride);
 	for(int mod = 1024 * 256 * 1.5 + 32 * 32; mod > 1024 * 256 * 1.5 - 32 * 32; mod = mod - 32){/////kepler L2 1.5m
-	//for(int mod = 1024 * 256 * 6; mod > 0; mod = mod / 2){/////kepler L2 1.5m //////////////1024 * 4 * 3 /////////8 /////////// 1024 * 256 * 1.5 / 1024 * 4 * 3 / 8 = 4 sets? 
+	//for(int mod = 1024 * 256 * 6; mod > 0; mod = mod / 2){/////kepler L2 1.5m //////////////1024 * 256 * 6 / 128 = 1024 * 2 * 6 ///////8 /////// 1024 * 256 * 1.5 / 1024 * 2 * 6 / 8 = 4 sets? 
 		///////////////////////////////////////////////////////////////////CPU data begin
 		int data_size = 512 * 1024 * 30;/////size = iteration * stride = 30 2mb pages.		
 		//int iterations = data_size / data_stride;
