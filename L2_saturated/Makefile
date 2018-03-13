@@ -291,7 +291,7 @@ endif
 # Target rules
 all: build
 
-build: L2_size_test
+build: L2_saturated
 
 check.deps:
 ifeq ($(SAMPLE_ENABLED),0)
@@ -300,19 +300,19 @@ else
 	@echo "Sample is ready - all dependencies have been met"
 endif
 
-L2_size_test.o:L2_size_test.cu
+L2_saturated.o:L2_saturated.cu
 	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
-L2_size_test: L2_size_test.o
+L2_saturated: L2_saturated.o
 	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
 	$(EXEC) mkdir -p ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 	$(EXEC) cp $@ ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 
 run: build
-	$(EXEC) ./L2_size_test
+	$(EXEC) ./L2_saturated
 
 clean:
-	rm -f L2_size_test L2_size_test.o
-	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/L2_size_test
+	rm -f L2_saturated L2_saturated.o
+	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/L2_saturated
 
 clobber: clean
