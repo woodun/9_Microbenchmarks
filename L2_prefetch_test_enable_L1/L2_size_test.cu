@@ -11,7 +11,29 @@
 ///////////conclusion: L1 is not LRU, 1M data range still cannot saturate L1. However, by comparing with L1 disabled, it's clear that one L1 miss will fetch 4 L2 cache lines.
 
 void init_cpu_data(int* A, int size, int stride, int mod){
-	for (int i = 0; i < size; ++i){
+	int count = 0;
+	
+	for (int i = 0; i < mod; i = i + stride){
+		A[i]=(i + stride) % mod;
+   	}
+	
+	A[mod - stride] = 7;
+	for (int i = 7; i < mod; i = i + stride){
+		A[i]=(i + stride) % mod;
+   	}
+	
+	A[mod - stride] = 15;
+	for (int i = 15; i < mod; i = i + stride){
+		A[i]=(i + stride) % mod;
+   	}
+	
+	A[mod - stride] = 23;
+	for (int i = 23; i < mod; i = i + stride){
+		A[i]=(i + stride) % mod;
+   	}
+	
+	A[mod - stride] = 31;
+	for (int i = 15; i < mod; i = i + stride){
 		A[i]=(i + stride) % mod;
    	}
 }
@@ -44,10 +66,6 @@ __device__ void P_chasing(int mark, int *A, int iterations, int *B, int starting
 __global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rate, int mod, int data_stride){	
 	
 	P_chasing(0, A, iterations, B, 0, clock_rate, data_stride);////////saturate the L1 not L2
-	P_chasing(7, A, iterations, B, 7, clock_rate, data_stride);////////access different parts of the 128 byte on L2
-	P_chasing(15, A, iterations, B, 15, clock_rate, data_stride);////////access different parts of the 128 byte on L2
-	P_chasing(23, A, iterations, B, 23, clock_rate, data_stride);////////access different parts of the 128 byte on L2
-	P_chasing(31, A, iterations, B, 31, clock_rate, data_stride);////////access different parts of the 128 byte on L2
 	
 	 __syncthreads();
 }
@@ -145,35 +163,6 @@ int main(int argc, char **argv)
 		printf("############################################\n\n");
 	}
 	
-	printf("################L1 not saturated############################\n");
-	for(int data_stride = 32; data_stride <= 32; data_stride = data_stride + 1){/////////stride shall be L1 cache line size.
-		printf("###################data_stride%d#########################\n", data_stride);
-	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m
-	for(int mod = 512; mod >= 512; mod = mod / 2){/////kepler L2 1.5m ////////saturate the L1 not L2
-		///////////////////////////////////////////////////////////////////CPU data begin
-		int data_size = 512 * 1024 * 30;/////size = iteration * stride = 30 2mb pages.		
-		//int iterations = data_size / data_stride;
-		int iterations = mod / data_stride;
-	
-		int *CPU_data_in;
-		CPU_data_in = (int*)malloc(sizeof(int) * data_size);	
-		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
-		///////////////////////////////////////////////////////////////////CPU data end	
-	
-		///////////////////////////////////////////////////////////////////GPU data in	
-		int *GPU_data_in;
-		checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));	
-		cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
-		
-		tlb_latency_test<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);//////////////////////////////////////////////kernel is here	
-		cudaDeviceSynchronize();
-		
-		checkCudaErrors(cudaFree(GPU_data_in));
-		free(CPU_data_in);
-	}
-		printf("############################################\n\n");
-	}
-			
 	checkCudaErrors(cudaFree(GPU_data_out));	
 	//free(CPU_data_out);
 	

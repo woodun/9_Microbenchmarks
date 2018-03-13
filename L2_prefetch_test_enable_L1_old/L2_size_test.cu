@@ -7,8 +7,7 @@
 #include <helper_cuda.h>
 #include <time.h>
 
-/////////////////////////////saturate L1 with long consecutive data. this one use the method in the paper which initialize the data multiple times. L1 is disabled with "ALL_CCFLAGS += -Xptxas -dlcm=cg"
-
+///////////when L1 is enabled. every miss will cause L2 to fetch 4 cache lines * 32 bytes to fill the 1 cache line * 128 byte in L1. Is it true? Change the starting offset to see.
 
 void init_cpu_data(int* A, int size, int stride, int mod){
 	for (int i = 0; i < size; ++i){
@@ -19,11 +18,12 @@ void init_cpu_data(int* A, int size, int stride, int mod){
 //////////min page size 4kb = 4096b = 32 * 128.
 __device__ void P_chasing(int mark, int *A, int iterations, int *B, int starting_index, float clock_rate, int data_stride){
 	
+	/*
 	int k = starting_index;/////make them in the same page, and miss near in cache lines
 	for (int it = 0; it < iterations; it++){/////////////warmup
 		k = A[k];
 	}
-	B[1] = k;//////////////////////////////////////////////////////////////////////////////////////////////////////ignored? j = starting_index?
+	*/
 	
 	int j = starting_index;/////make them in the same page, and miss near in cache lines
 	
@@ -44,7 +44,11 @@ __device__ void P_chasing(int mark, int *A, int iterations, int *B, int starting
 
 __global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rate, int mod, int data_stride){	
 	
-	P_chasing(mod, A, iterations, B, 0, clock_rate, data_stride);
+	P_chasing(0, A, iterations, B, 0, clock_rate, data_stride);////////saturate the L1 not L2
+	P_chasing(7, A, iterations, B, 7, clock_rate, data_stride);////////access different parts of the 128 byte on L2
+	P_chasing(15, A, iterations, B, 15, clock_rate, data_stride);////////access different parts of the 128 byte on L2
+	P_chasing(23, A, iterations, B, 23, clock_rate, data_stride);////////access different parts of the 128 byte on L2
+	P_chasing(31, A, iterations, B, 31, clock_rate, data_stride);////////access different parts of the 128 byte on L2
 	
 	 __syncthreads();
 }
@@ -84,17 +88,15 @@ int main(int argc, char **argv)
 	int *GPU_data_out;
 	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(int) * 1));
 	
-	printf("################fixing data range, changing stride############################\n");
-	//for(int mod = 1024 * 256 * 8; mod > 0; mod = mod / 2){/////volta L2 6m
-	//for(int mod = 1024 * 256 * 7 ; mod >= 1024 * 256 * 6; mod = mod - 256 * 128){/////volta L2 6m
-	for(int data_stride = 4; data_stride <= 32; data_stride = data_stride + 1){
+	printf("################L1 saturated############################\n");	
+	for(int data_stride = 32; data_stride <= 32; data_stride = data_stride + 1){/////////stride shall be L1 cache line size.
 		printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m
-	for(int mod = 1024 * 256 * 6; mod >= 1024 * 256 * 6; mod = mod / 2){/////kepler L2 1.5m //////////////1024 * 4 * 3 /////////8 /////////// 1024 * 256 * 1.5 / 1024 * 4 * 3 / 8 = 4 sets? 
+	for(int mod = 1024 * 256 * 1; mod >= 1024 * 256 * 1; mod = mod / 2){/////kepler L2 1.5m ////////saturate the L1 not L2
 		///////////////////////////////////////////////////////////////////CPU data begin
 		int data_size = 512 * 1024 * 30;/////size = iteration * stride = 30 2mb pages.		
 		//int iterations = data_size / data_stride;
-		int iterations = data_size;
+		int iterations = mod / data_stride;
 	
 		int *CPU_data_in;
 		CPU_data_in = (int*)malloc(sizeof(int) * data_size);	
@@ -115,17 +117,15 @@ int main(int argc, char **argv)
 		printf("############################################\n\n");
 	}
 	
-	printf("\n\n################fixing stride, changing data range############################\n\n");
-	//for(int mod = 1024 * 256 * 8; mod > 0; mod = mod / 2){/////volta L2 6m
-	//for(int mod = 1024 * 256 * 7 ; mod >= 1024 * 256 * 6; mod = mod - 256 * 128){/////volta L2 6m
-	for(int data_stride = 4; data_stride <= 4; data_stride = data_stride * 2){
+	printf("################L1 not saturated############################\n");
+	for(int data_stride = 32; data_stride <= 32; data_stride = data_stride + 1){/////////stride shall be L1 cache line size.
 		printf("###################data_stride%d#########################\n", data_stride);
-	for(int mod = 1024 * 256 * 1.5 + 32 * 32; mod > 1024 * 256 * 1.5 - 32 * 32; mod = mod - 32){/////kepler L2 1.5m
-	//for(int mod = 1024 * 256 * 6; mod > 0; mod = mod / 2){/////kepler L2 1.5m //////////////1024 * 256 * 6 / 128 = 1024 * 2 * 6 ///////8 /////// 1024 * 256 * 1.5 / 1024 * 2 * 6 / 8 = 4 sets? 
+	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m
+	for(int mod = 1024; mod >= 1024; mod = mod / 2){/////kepler L2 1.5m ////////saturate the L1 not L2
 		///////////////////////////////////////////////////////////////////CPU data begin
 		int data_size = 512 * 1024 * 30;/////size = iteration * stride = 30 2mb pages.		
 		//int iterations = data_size / data_stride;
-		int iterations = data_size;
+		int iterations = mod / data_stride;
 	
 		int *CPU_data_in;
 		CPU_data_in = (int*)malloc(sizeof(int) * data_size);	
