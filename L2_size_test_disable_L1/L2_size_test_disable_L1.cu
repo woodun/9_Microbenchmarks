@@ -7,7 +7,7 @@
 #include <helper_cuda.h>
 #include <time.h>
 
-/////////////////////////////saturate L1 with long consecutive data. this one use the method in the paper which initialize the data multiple times. L1 is disabled with "ALL_CCFLAGS += -Xptxas -dlcm=cg"
+/////////////////////////////saturate L2 with long consecutive data. this one use the method in the paper which initialize the data multiple times. L1 is disabled with "ALL_CCFLAGS += -Xptxas -dlcm=cg"
 
 
 void init_cpu_data(int* A, int size, int stride, int mod){
@@ -19,11 +19,19 @@ void init_cpu_data(int* A, int size, int stride, int mod){
 //////////min page size 4kb = 4096b = 32 * 128.
 __device__ void P_chasing(int mark, int *A, int iterations, int *B, int starting_index, float clock_rate, int data_stride){
 	
+	long long int start_time1 = 0;//////clock
+	long long int end_time1 = 0;//////clock
+	start_time1 = clock64();//////clock
+	
 	int k = starting_index;/////make them in the same page, and miss near in cache lines
 	for (int it = 0; it < iterations; it++){/////////////warmup
 		k = A[k];
 	}
-	B[1] = k;//////////////////////////////////////////////////////////////////////////////////////////////////////ignored? j = starting_index?
+	
+	end_time1 = clock64();//////clock
+	long long int total_time1 = end_time1 - start_time1;//////clock
+	printf("mark%d:%fms\n", mark, (total_time1 / (float)clock_rate) / ((float)iterations));//////clock, average latency
+	//B[1] = k;//////////////////////////////////////////////////////////////////////////////////////////////////////ignored? j = starting_index?
 	
 	int j = starting_index;/////make them in the same page, and miss near in cache lines
 	
@@ -82,12 +90,12 @@ int main(int argc, char **argv)
 	
 	///////////////////////////////////////////////////////////////////GPU data out
 	int *GPU_data_out;
-	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(int) * 1));
+	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(int) * 2));
 	
 	printf("################fixing data range, changing stride############################\n");
 	//for(int mod = 1024 * 256 * 8; mod > 0; mod = mod / 2){/////volta L2 6m
 	//for(int mod = 1024 * 256 * 7 ; mod >= 1024 * 256 * 6; mod = mod - 256 * 128){/////volta L2 6m
-	for(int data_stride = 4; data_stride <= 32; data_stride = data_stride + 1){
+	for(int data_stride = 4; data_stride <= 32; data_stride = data_stride * 2){
 		printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m
 	for(int mod = 1024 * 256 * 6; mod >= 1024 * 256 * 6; mod = mod / 2){/////kepler L2 1.5m //////////////1024 * 4 * 3 /////////8 /////////// 1024 * 256 * 1.5 / 1024 * 4 * 3 / 8 = 4 sets? 
@@ -120,7 +128,7 @@ int main(int argc, char **argv)
 	//for(int mod = 1024 * 256 * 7 ; mod >= 1024 * 256 * 6; mod = mod - 256 * 128){/////volta L2 6m
 	for(int data_stride = 4; data_stride <= 4; data_stride = data_stride * 2){
 		printf("###################data_stride%d#########################\n", data_stride);
-	for(int mod = 1024 * 256 * 1.5 + 32 * 32; mod > 1024 * 256 * 1.5 - 32 * 32; mod = mod - 32){/////kepler L2 1.5m
+	for(int mod = 1024 * 256 * 1.5 + 32 * 1024; mod > 1024 * 256 * 1.5 - 8 * 1024; mod = mod - 8 * 1024){/////kepler L2 1.5m
 	//for(int mod = 1024 * 256 * 6; mod > 0; mod = mod / 2){/////kepler L2 1.5m //////////////1024 * 256 * 6 / 128 = 1024 * 2 * 6 ///////8 /////// 1024 * 256 * 1.5 / 1024 * 2 * 6 / 8 = 4 sets? 
 		///////////////////////////////////////////////////////////////////CPU data begin
 		int data_size = 512 * 1024 * 30;/////size = iteration * stride = 30 2mb pages.		
