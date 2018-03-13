@@ -23,6 +23,7 @@ __device__ void P_chasing(int mark, int *A, int iterations, int *B, int starting
 	for (int it = 0; it < iterations; it++){/////////////warmup
 		k = A[k];
 	}
+	B[0] = k;
 	
 	int j = starting_index;/////make them in the same page, and miss near in cache lines
 	
