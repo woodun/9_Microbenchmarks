@@ -144,6 +144,35 @@ int main(int argc, char **argv)
 	}
 		printf("############################################\n\n");
 	}
+	
+	printf("################L1 not saturated############################\n");
+	for(int data_stride = 32; data_stride <= 32; data_stride = data_stride + 1){/////////stride shall be L1 cache line size.
+		printf("###################data_stride%d#########################\n", data_stride);
+	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m
+	for(int mod = 512; mod >= 512; mod = mod / 2){/////kepler L2 1.5m ////////saturate the L1 not L2
+		///////////////////////////////////////////////////////////////////CPU data begin
+		int data_size = 512 * 1024 * 30;/////size = iteration * stride = 30 2mb pages.		
+		//int iterations = data_size / data_stride;
+		int iterations = mod / data_stride;
+	
+		int *CPU_data_in;
+		CPU_data_in = (int*)malloc(sizeof(int) * data_size);	
+		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
+		///////////////////////////////////////////////////////////////////CPU data end	
+	
+		///////////////////////////////////////////////////////////////////GPU data in	
+		int *GPU_data_in;
+		checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));	
+		cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
+		
+		tlb_latency_test<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);//////////////////////////////////////////////kernel is here	
+		cudaDeviceSynchronize();
+		
+		checkCudaErrors(cudaFree(GPU_data_in));
+		free(CPU_data_in);
+	}
+		printf("############################################\n\n");
+	}
 			
 	checkCudaErrors(cudaFree(GPU_data_out));	
 	//free(CPU_data_out);
