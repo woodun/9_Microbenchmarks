@@ -8,6 +8,7 @@
 #include <time.h>
 
 ///////////when L1 is enabled. every miss will cause L2 to fetch 4 cache lines * 32 bytes to fill the 1 cache line * 128 byte in L1. Is it true? Change the starting offset to see.
+///////////conclusion: L1 is not LRU, 1M data range still cannot saturate L1. However, by comparing with L1 disabled, it's clear that one L1 miss will fetch 4 L2 cache lines.
 
 void init_cpu_data(int* A, int size, int stride, int mod){
 	for (int i = 0; i < size; ++i){
@@ -44,7 +45,9 @@ __global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rat
 	
 	P_chasing(0, A, iterations, B, 0, clock_rate, data_stride);////////saturate the L1 not L2
 	P_chasing(7, A, iterations, B, 7, clock_rate, data_stride);////////access different parts of the 128 byte on L2
-	P_chasing(9, A, iterations, B, 31, clock_rate, data_stride);////////access different parts of the 128 byte on L2
+	P_chasing(15, A, iterations, B, 15, clock_rate, data_stride);////////access different parts of the 128 byte on L2
+	P_chasing(23, A, iterations, B, 23, clock_rate, data_stride);////////access different parts of the 128 byte on L2
+	P_chasing(31, A, iterations, B, 31, clock_rate, data_stride);////////access different parts of the 128 byte on L2
 	
 	 __syncthreads();
 }

@@ -44,7 +44,9 @@ __global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rat
 	
 	P_chasing(0, A, iterations, B, 0, clock_rate, data_stride);////////saturate the L1 not L2
 	P_chasing(7, A, iterations, B, 7, clock_rate, data_stride);////////access different parts of the 128 byte on L2
-	P_chasing(9, A, iterations, B, 31, clock_rate, data_stride);////////access different parts of the 128 byte on L2
+	P_chasing(15, A, iterations, B, 15, clock_rate, data_stride);////////access different parts of the 128 byte on L2
+	P_chasing(23, A, iterations, B, 23, clock_rate, data_stride);////////access different parts of the 128 byte on L2
+	P_chasing(31, A, iterations, B, 31, clock_rate, data_stride);////////access different parts of the 128 byte on L2
 	
 	 __syncthreads();
 }
