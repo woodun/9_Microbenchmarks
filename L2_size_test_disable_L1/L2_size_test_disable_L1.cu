@@ -31,7 +31,7 @@ __device__ void P_chasing(int mark, int *A, int iterations, int *B, int starting
 	end_time1 = clock64();//////clock
 	long long int total_time1 = end_time1 - start_time1;//////clock
 	printf("mark%d:%fms\n", mark, (total_time1 / (float)clock_rate) / ((float)iterations));//////clock, average latency
-	//B[1] = k;//////////////////////////////////////////////////////////////////////////////////////////////////////ignored? j = starting_index?
+	B[0] = k;//////////////////////////////////////////////////////////////////////////////////////////////////////ignored? j = starting_index?
 	
 	int j = starting_index;/////make them in the same page, and miss near in cache lines
 	
