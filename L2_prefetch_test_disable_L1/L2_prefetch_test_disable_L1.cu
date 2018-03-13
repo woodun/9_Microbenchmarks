@@ -18,11 +18,6 @@ void init_cpu_data(int* A, int size, int stride, int mod){
 //////////min page size 4kb = 4096b = 32 * 128.
 __device__ void P_chasing(int mark, int *A, int iterations, int *B, int starting_index, float clock_rate, int data_stride){
 	
-	int k = starting_index;/////make them in the same page, and miss near in cache lines
-	for (int it = 0; it < iterations; it++){/////////////warmup
-		k = A[k];
-	}
-	
 	int j = starting_index;/////make them in the same page, and miss near in cache lines
 	
 	long long int start_time = 0;//////clock
