@@ -63,9 +63,10 @@ __device__ void P_chasing_2(int mark, int *A, int iterations, int *B, int starti
 		
 		for (int it =0; it < iterations; it++){
 			j = A[j];
-		}		
-	}
-	B[0] = j;
+		}	
+
+		B[0] = j;		
+	}	
 	
 	end_time=clock64();//////clock
 	long long int total_time = end_time - start_time;//////clock
@@ -83,8 +84,8 @@ __global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rat
 	//start_time = clock64();///////////clock
 		
 	//////////////////////////////////////////////////////16 * (2) * 32 * 32 = 128kb ///////////////////48 * 128kb = 6144kb ///////////12 * 128kb = 1536kb
-	//for(index = 1024 * 256 * 1 / 32 ; index >= 1024 * 256 * 1 / 32; index = index - 1024){
-	for(index = 32; index >= 32; index = index - 1024){
+	for(index = 1024 * 256 * 1 / 32 ; index >= 1024 * 256 * 1 / 32; index = index - 1024){
+	//for(index = 32; index >= 32; index = index - 1024){
 		P_chasing_1(index, A, index, B, 0, clock_rate);/////warmup cache and TLB
 		P_chasing_2(index, A, index, B, 0, clock_rate);/////try to generate hits	
 	}
