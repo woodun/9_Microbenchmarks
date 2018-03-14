@@ -12,27 +12,30 @@
 
 void init_cpu_data(int* A, int size, int stride, int mod){
 	for (int i = 0; i < size; ++i){
-		A[i]=(i + stride) % mod;
+		A[i] = 4 * ((i + stride) % mod);
    	}
 }
 
 //////////min page size 4kb = 4096b = 32 * 128.
 __device__ void P_chasing(int mark, int *A, int iterations, int *B, int starting_index, float clock_rate, int data_stride){
 	
+	/*
 	int k = starting_index;/////make them in the same page, and miss near in cache lines
 	for (int it = 0; it < mark; it++){/////////////warmup
 		k = A[k];
 	}
 	B[0] = k;///////////////it will disappear without this line.
+	*/
 	
 	int j = starting_index;/////make them in the same page, and miss near in cache lines
+	int stride = 0;///////////
 	
 	long long int start_time = 0;//////clock
 	long long int end_time = 0;//////clock
 	start_time = clock64();//////clock
 			
 	for (int it = 0; it < iterations; it++){
-		j = A[j];
+		j = A[(j/4)];		
 	}
 	
 	end_time=clock64();//////clock
@@ -79,10 +82,7 @@ int main(int argc, char **argv)
 
         exit(EXIT_WAIVED);
     }
-	
-	printf("%d\n", sizeof(signed char));
-	printf("%d\n", sizeof(unsigned char));
-	exit(0);
+
 	///////////////////////////////////////////////////////////////////GPU data out
 	int *GPU_data_out;
 	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(int) * 1));
