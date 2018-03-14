@@ -63,10 +63,9 @@ __device__ void P_chasing_2(int mark, int *A, int iterations, int *B, int starti
 		
 		for (int it =0; it < iterations; it++){
 			j = A[j];
-		}
-		
-		B[0] = j;
+		}		
 	}
+	B[0] = j;
 	
 	end_time=clock64();//////clock
 	long long int total_time = end_time - start_time;//////clock
