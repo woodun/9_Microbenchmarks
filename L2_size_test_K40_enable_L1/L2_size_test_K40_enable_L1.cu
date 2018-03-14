@@ -7,8 +7,9 @@
 #include <helper_cuda.h>
 #include <time.h>
 
-/////////////////////////////saturate L1 with long consecutive data. this one use the method in the paper which initialize the data multiple times. L1 is disabled with "ALL_CCFLAGS += -Xptxas -dlcm=cg"
-
+//////////////saturate L2 with long consecutive data. this one use the method in the paper which initialize the data multiple times. L1 is enabled with "ALL_CCFLAGS += -Xptxas -dlcm=ca"
+/////////////conclusion: using tvalue-s and tvalue-N, we can only roughly know the size of the cache, size of the cache line, but we do not know the number of ways or sets, or the eviction policy.
+/////////////However, we can tell if L1 or L2 is saturated 
 
 void init_cpu_data(int* A, int size, int stride, int mod){
 	for (int i = 0; i < size; ++i){
@@ -86,12 +87,12 @@ int main(int argc, char **argv)
 	
 	//for(int mod = 1024 * 256 * 8; mod > 0; mod = mod / 2){/////volta L2 6m
 	//for(int mod = 1024 * 256 * 7 ; mod >= 1024 * 256 * 6; mod = mod - 256 * 128){/////volta L2 6m
-	for(int data_stride = 4; data_stride <= 64; data_stride = data_stride * 2){
+	for(int data_stride = 1; data_stride <= 1024; data_stride = data_stride * 2){
 		printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m
 	for(int mod = 1024 * 256 * 6; mod > 0; mod = mod / 2){/////kepler L2 1.5m
 		///////////////////////////////////////////////////////////////////CPU data begin
-		int data_size = 512 * 1024 * 30;/////size = iteration * stride = 30 2mb pages.		
+		int data_size = 512 * 1024 * 30;/////size = iteration * stride = 30 2mb pages.
 		//int iterations = data_size / data_stride;
 		int iterations = data_size;
 	
