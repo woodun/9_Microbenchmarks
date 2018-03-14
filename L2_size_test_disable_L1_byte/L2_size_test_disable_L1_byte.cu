@@ -56,6 +56,46 @@ __global__ void tlb_latency_test(unsigned char *A, int iterations, unsigned char
 	 __syncthreads();
 }
 
+
+
+
+//////////min page size 4kb = 4096b = 32 * 128.
+__device__ void P_chasing2(int mark, int *A, int iterations, int *B, int starting_index, float clock_rate, int data_stride){
+	
+	int k = starting_index;/////make them in the same page, and miss near in cache lines
+	for (int it = 0; it < mark; it++){/////////////warmup
+		k = A[k];
+	}
+	B[0] = k;///////////////it will disappear without this line.
+	
+	int j = starting_index;/////make them in the same page, and miss near in cache lines
+	
+	long long int start_time = 0;//////clock
+	long long int end_time = 0;//////clock
+	start_time = clock64();//////clock
+			
+	for (int it = 0; it < iterations; it++){
+		j = A[j];
+	}
+	
+	end_time=clock64();//////clock
+	long long int total_time = end_time - start_time;//////clock
+	printf("inside%d:%fms\n", mark, (total_time / (float)clock_rate) / ((float)iterations));//////clock, average latency
+	
+	B[0] = j;
+}
+
+__global__ void tlb_latency_test2(int *A, int iterations, int *B, float clock_rate, int mod, int data_stride){	
+	
+	P_chasing2(mod, A, iterations, B, 0, clock_rate, data_stride);
+	
+	 __syncthreads();
+}
+
+
+
+
+
 int main(int argc, char **argv)
 {
 	printf("\n");
@@ -187,7 +227,7 @@ int main(int argc, char **argv)
 		checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));	
 		cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
 		
-		tlb_latency_test<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);//////////////////////////////////////////////kernel is here	
+		tlb_latency_test2<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);//////////////////////////////////////////////kernel is here	
 		cudaDeviceSynchronize();
 		
 		checkCudaErrors(cudaFree(GPU_data_in));
@@ -219,7 +259,7 @@ int main(int argc, char **argv)
 		checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));	
 		cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
 		
-		tlb_latency_test<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);//////////////////////////////////////////////kernel is here	
+		tlb_latency_test2<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);//////////////////////////////////////////////kernel is here	
 		cudaDeviceSynchronize();
 		
 		checkCudaErrors(cudaFree(GPU_data_in));
