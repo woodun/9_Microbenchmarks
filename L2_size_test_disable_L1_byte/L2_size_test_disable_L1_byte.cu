@@ -82,7 +82,7 @@ int main(int argc, char **argv)
 	
 	printf("%d\n", sizeof(signed char));
 	printf("%d\n", sizeof(unsigned char));
-	exit();
+	exit(0);
 	///////////////////////////////////////////////////////////////////GPU data out
 	int *GPU_data_out;
 	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(int) * 1));
