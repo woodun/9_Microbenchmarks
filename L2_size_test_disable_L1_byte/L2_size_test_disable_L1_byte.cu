@@ -16,6 +16,12 @@ void init_cpu_data(unsigned char* A, unsigned char size, unsigned char stride, i
    	}
 }
 
+void init_cpu_data2(int* A, int size, int stride, int mod){
+	for (int i = 0; i < size; ++i){
+		A[i]=(i + stride) % mod;
+   	}
+}
+
 //////////min page size 4kb = 4096b = 32 * 128.
 __device__ void P_chasing(int mark, unsigned char *A, int iterations, unsigned char *B, unsigned char starting_index, float clock_rate, unsigned char data_stride){
 	
@@ -101,7 +107,7 @@ int main(int argc, char **argv)
 		int iterations = mod * 1024;
 	
 		unsigned char *CPU_data_in;
-		CPU_data_in = (signed char*)malloc(sizeof(unsigned char) * data_size);	
+		CPU_data_in = malloc(sizeof(unsigned char) * data_size);	
 		init_cpu_data(CPU_data_in, 255, data_stride, mod);
 		///////////////////////////////////////////////////////////////////CPU data end	
 	
@@ -175,7 +181,7 @@ int main(int argc, char **argv)
 	
 		int *CPU_data_in;
 		CPU_data_in = (int*)malloc(sizeof(int) * data_size);	
-		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
+		init_cpu_data2(CPU_data_in, data_size, data_stride, mod);
 		///////////////////////////////////////////////////////////////////CPU data end	
 	
 		///////////////////////////////////////////////////////////////////GPU data in	
@@ -207,7 +213,7 @@ int main(int argc, char **argv)
 	
 		int *CPU_data_in;
 		CPU_data_in = (int*)malloc(sizeof(int) * data_size);	
-		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
+		init_cpu_data2(CPU_data_in, data_size, data_stride, mod);
 		///////////////////////////////////////////////////////////////////CPU data end	
 	
 		///////////////////////////////////////////////////////////////////GPU data in	
