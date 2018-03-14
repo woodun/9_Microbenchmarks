@@ -82,7 +82,7 @@ __global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rat
 	//start_time = clock64();///////////clock
 		
 	//////////////////////////////////////////////////////16 * (2) * 32 * 32 = 128kb ///////////////////48 * 128kb = 6144kb ///////////12 * 128kb = 1536kb
-	for(index = 1024 * 256 * 8; index > (1572864 - 256); index = index - 1024){
+	for(index = 1024 * 256 * 1; index > 1024 * 256 * 1; index = index - 1024){
 		P_chasing_1(index, A, index, B, 0, clock_rate);/////warmup cache and TLB
 		P_chasing_2(index, A, index, B, 0, clock_rate);/////try to generate hits	
 	}
@@ -126,11 +126,11 @@ int main(int argc, char **argv)
     }
 		
 	///////////////////////////////////////////////////////////////////CPU data begin
-	int iterations = 16 * 16384 * 100;
+	int iterations = 1024 * 256 * 8;
 	////////size(int) = 4, 32 = 128b, 256 = 1kb, 32 * 32 = 1024 = 4kb, 262144 = 1mb, 16384 * 32 = 512 * 1024 = 524288 = 2mb.
-	int data_stride = 2;/////8b. Pointing to the next cacheline.
+	int data_stride = 32;/////8b. Pointing to the next cacheline.
 	//int data_size = 524288000;/////1000 * 2mb. ##### size = iteration * stride. ##### This can support 1000 iteration. The 1001st iteration starts from head again.
-	int data_size = iterations * data_stride;/////size = iteration * stride = 100 2mb pages.
+	int data_size = 512 * 1024 * 30;/////size = iteration * stride = 100 2mb pages.
 	
 	int *CPU_data_in;	
 	CPU_data_in = (int*)malloc(sizeof(int) * data_size);
