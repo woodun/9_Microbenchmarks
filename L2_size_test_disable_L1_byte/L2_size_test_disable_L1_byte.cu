@@ -9,6 +9,7 @@
 
 /////////////saturate L2 with long consecutive data. this one use the method in the paper which initialize the data multiple times. L1 is disabled with "ALL_CCFLAGS += -Xptxas -dlcm=cg"
 /////////////see what happens with byte data in the ptx. can we eliminate the multiplication? is there change in latency?
+/////////////it get stuck with unsigned char data.
 
 void init_cpu_data(unsigned char* A, int size, int stride, int mod){
 	for (unsigned char i = 0; i <= size; ++i){
