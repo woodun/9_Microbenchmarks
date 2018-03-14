@@ -23,15 +23,15 @@ void init_cpu_data2(int* A, int size, int stride, int mod){
 }
 
 //////////min page size 4kb = 4096b = 32 * 128.
-__device__ void P_chasing(int mark, unsigned char *A, int iterations, unsigned char *B, unsigned char starting_index, float clock_rate, unsigned char data_stride){
+__device__ void P_chasing(int mark, unsigned char *A, int iterations, unsigned char *B, int starting_index, float clock_rate, unsigned char data_stride){
 	
-	unsigned char k = starting_index;/////make them in the same page, and miss near in cache lines
+	int k = starting_index;/////make them in the same page, and miss near in cache lines
 	for (int it = 0; it < iterations; it++){/////////////warmup
 		k = A[k];
 	}
 	B[0] = k;///////////////it will disappear without this line.
 	
-	unsigned char j = starting_index;/////make them in the same page, and miss near in cache lines
+	int j = starting_index;/////make them in the same page, and miss near in cache lines
 	//int stride = 0;///////////
 	
 	long long int start_time = 0;//////clock
