@@ -106,8 +106,7 @@ int main(int argc, char **argv)
 		//int iterations = data_size / data_stride;
 		int iterations = mod * 1024;
 	
-		unsigned char *CPU_data_in;
-		CPU_data_in = malloc(sizeof(unsigned char) * data_size);	
+		unsigned char *CPU_data_in = (unsigned char*) malloc(sizeof(unsigned char) * data_size);	
 		init_cpu_data(CPU_data_in, 255, data_stride, mod);
 		///////////////////////////////////////////////////////////////////CPU data end	
 	
@@ -138,8 +137,7 @@ int main(int argc, char **argv)
 		//int iterations = data_size;
 		int iterations = mod * 1024;
 	
-		unsigned char *CPU_data_in;
-		CPU_data_in = (unsigned char*)malloc(sizeof(unsigned char) * data_size);	
+		unsigned char *CPU_data_in = (unsigned char*) malloc(sizeof(unsigned char) * data_size);	
 		init_cpu_data(CPU_data_in, 255, data_stride, mod);
 		///////////////////////////////////////////////////////////////////CPU data end	
 	
