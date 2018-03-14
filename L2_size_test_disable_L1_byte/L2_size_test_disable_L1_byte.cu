@@ -19,13 +19,11 @@ void init_cpu_data(int* A, int size, int stride, int mod){
 //////////min page size 4kb = 4096b = 32 * 128.
 __device__ void P_chasing(int mark, int *A, int iterations, int *B, int starting_index, float clock_rate, int data_stride){
 	
-	/*
 	int k = starting_index;/////make them in the same page, and miss near in cache lines
 	for (int it = 0; it < mark; it++){/////////////warmup
 		k = A[k];
 	}
 	B[0] = k;///////////////it will disappear without this line.
-	*/
 	
 	int j = starting_index;/////make them in the same page, and miss near in cache lines
 	int stride = 0;///////////
@@ -34,8 +32,9 @@ __device__ void P_chasing(int mark, int *A, int iterations, int *B, int starting
 	long long int end_time = 0;//////clock
 	start_time = clock64();//////clock
 			
-	for (int it = 0; it < iterations; it++){
-		j = A[(j/4)];		
+	while (int it = 0; it < iterations; it++){
+		stride = A[j];
+		j = j + stride;
 	}
 	
 	end_time=clock64();//////clock
@@ -84,8 +83,8 @@ int main(int argc, char **argv)
     }
 
 	///////////////////////////////////////////////////////////////////GPU data out
-	int *GPU_data_out;
-	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(int) * 1));
+	unsigned char *GPU_data_out;
+	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(unsigned char) * 1));
 	
 	if(1){
 	printf("################fixing data range, changing stride############################\n");
@@ -100,15 +99,15 @@ int main(int argc, char **argv)
 		//int iterations = data_size / data_stride;
 		int iterations = mod * 2;
 	
-		int *CPU_data_in;
-		CPU_data_in = (int*)malloc(sizeof(int) * data_size);	
+		unsigned char *CPU_data_in;
+		CPU_data_in = (signed char*)malloc(sizeof(unsigned char) * data_size);	
 		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
 		///////////////////////////////////////////////////////////////////CPU data end	
 	
 		///////////////////////////////////////////////////////////////////GPU data in	
-		int *GPU_data_in;
-		checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));	
-		cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
+		unsigned char *GPU_data_in;
+		checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(unsigned char) * data_size));	
+		cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(unsigned char) * data_size, cudaMemcpyHostToDevice);
 		
 		tlb_latency_test<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);//////////////////////////////////////////////kernel is here	
 		cudaDeviceSynchronize();
@@ -133,14 +132,14 @@ int main(int argc, char **argv)
 		//int iterations = data_size;
 		int iterations = mod * 2;
 	
-		int *CPU_data_in;
-		CPU_data_in = (int*)malloc(sizeof(int) * data_size);	
+		unsigned char *CPU_data_in;
+		CPU_data_in = (unsigned char*)malloc(sizeof(unsigned char) * data_size);	
 		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
 		///////////////////////////////////////////////////////////////////CPU data end	
 	
 		///////////////////////////////////////////////////////////////////GPU data in	
-		int *GPU_data_in;
-		checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));	
+		unsigned char *GPU_data_in;
+		checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(unsigned char) * data_size));	
 		cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
 		
 		tlb_latency_test<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);//////////////////////////////////////////////kernel is here	
