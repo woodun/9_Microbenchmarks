@@ -10,7 +10,7 @@
 /////////////saturate L2 with long consecutive data. this one use the method in the paper which initialize the data multiple times. L1 is disabled with "ALL_CCFLAGS += -Xptxas -dlcm=cg"
 /////////////see what happens with byte data in the ptx. can we eliminate the multiplication? is there change in latency?
 
-void init_cpu_data(unsigned char* A, unsigned char size, unsigned char stride, int mod){
+void init_cpu_data(unsigned char* A, int size, int stride, int mod){
 	for (unsigned char i = 0; i <= size; ++i){
 		A[i] = (unsigned char)((i + stride) % mod);
    	}
@@ -137,7 +137,7 @@ int main(int argc, char **argv)
 	printf("################fixing data range, changing stride############################\n");
 	//for(int mod = 1024 * 256 * 8; mod > 0; mod = mod / 2){/////volta L2 6m
 	//for(int mod = 1024 * 256 * 7 ; mod >= 1024 * 256 * 6; mod = mod - 256 * 128){/////volta L2 6m
-	for(unsigned char data_stride = 4; data_stride <= 128; data_stride = data_stride * 2){
+	for(int data_stride = 4; data_stride <= 128; data_stride = data_stride * 2){
 		printf("###################data_stride%d#########################\n", data_stride / 4);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m
 	for(int mod = 256; mod >= 256; mod = mod / 2){/////kepler L2 1.5m //////////////1024 * 4 * 3 /////////8 /////////// 1024 * 256 * 1.5 / 1024 * 4 * 3 / 8 = 4 sets? 
@@ -147,7 +147,7 @@ int main(int argc, char **argv)
 		int iterations = mod * 2;
 	
 		unsigned char *CPU_data_in = (unsigned char*) malloc(sizeof(unsigned char) * data_size);	
-		init_cpu_data(CPU_data_in, 255, data_stride, mod);
+		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
 		///////////////////////////////////////////////////////////////////CPU data end	
 	
 		///////////////////////////////////////////////////////////////////GPU data in	
@@ -167,7 +167,7 @@ int main(int argc, char **argv)
 	printf("\n\n################fixing stride, changing data range############################\n\n");
 	//for(int mod = 1024 * 256 * 8; mod > 0; mod = mod / 2){/////volta L2 6m
 	//for(int mod = 1024 * 256 * 7 ; mod >= 1024 * 256 * 6; mod = mod - 256 * 128){/////volta L2 6m
-	for(unsigned char data_stride = 4; data_stride <= 4; data_stride = data_stride * 2){
+	for(int data_stride = 4; data_stride <= 4; data_stride = data_stride * 2){
 		printf("###################data_stride%d#########################\n", data_stride / 4);
 	for(int mod = 256; mod >= 4; mod = mod / 2){/////kepler L2 1.5m
 	//for(int mod = 1024 * 256 * 6; mod > 0; mod = mod / 2){/////kepler L2 1.5m //////////////1024 * 256 * 6 / 128 = 1024 * 2 * 6 ///////8 /////// 1024 * 256 * 1.5 / 1024 * 2 * 6 / 8 = 4 sets? 
@@ -178,7 +178,7 @@ int main(int argc, char **argv)
 		int iterations = mod * 2;
 	
 		unsigned char *CPU_data_in = (unsigned char*) malloc(sizeof(unsigned char) * data_size);	
-		init_cpu_data(CPU_data_in, 255, data_stride, mod);
+		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
 		///////////////////////////////////////////////////////////////////CPU data end	
 	
 		///////////////////////////////////////////////////////////////////GPU data in	
