@@ -144,7 +144,7 @@ int main(int argc, char **argv)
 		///////////////////////////////////////////////////////////////////CPU data begin
 		int data_size = 512 * 1024 * 30 * 4;/////size = iteration * stride = 30 2mb pages.		
 		//int iterations = data_size / data_stride;
-		int iterations = mod * 1024;
+		int iterations = mod * 128;
 	
 		unsigned char *CPU_data_in = (unsigned char*) malloc(sizeof(unsigned char) * data_size);	
 		init_cpu_data(CPU_data_in, 255, data_stride, mod);
@@ -175,7 +175,7 @@ int main(int argc, char **argv)
 		int data_size = 1024 * 512 * 30 * 4;/////size = iteration * stride = 30 2mb pages.		
 		//int iterations = data_size / data_stride;
 		//int iterations = data_size;
-		int iterations = mod * 1024;
+		int iterations = mod * 128;
 	
 		unsigned char *CPU_data_in = (unsigned char*) malloc(sizeof(unsigned char) * data_size);	
 		init_cpu_data(CPU_data_in, 255, data_stride, mod);
