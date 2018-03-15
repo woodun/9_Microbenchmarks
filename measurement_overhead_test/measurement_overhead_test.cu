@@ -80,70 +80,8 @@ int main(int argc, char **argv)
 	///////////////////////////////////////////////////////////////////GPU data out
 	int *GPU_data_out;
 	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(int) * 1));
-	
-	printf("################L1 saturated############################\n");	
-	for(int data_stride = 32; data_stride <= 32; data_stride = data_stride + 1){/////////stride shall be L1 cache line size.
-		printf("###################data_stride%d#########################\n", data_stride);
-	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m
-	for(int mod = 1024 * 256 * 1; mod >= 1024 * 256 * 1; mod = mod / 2){/////kepler L2 1.5m ////////saturate the L1 not L2
-		///////////////////////////////////////////////////////////////////CPU data begin
-		int data_size = 512 * 1024 * 30;/////size = iteration * stride = 30 2mb pages.		
-		//int iterations = data_size / data_stride;
-		//int iterations = 1024 * 256 * 8;
-		int iterations = mod / data_stride;
-	
-		int *CPU_data_in;
-		CPU_data_in = (int*)malloc(sizeof(int) * data_size);	
-		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
-		///////////////////////////////////////////////////////////////////CPU data end	
-	
-		///////////////////////////////////////////////////////////////////GPU data in	
-		int *GPU_data_in;
-		checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));	
-		cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
-		
-		tlb_latency_test<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);//////////////////////////////////////////////kernel is here	
-		cudaDeviceSynchronize();
-		
-		checkCudaErrors(cudaFree(GPU_data_in));
-		free(CPU_data_in);
-	}
-		printf("############################################\n\n");
-	}
-	
-	if(0){////////////this part is not accurate because iteration is too small.
-	printf("################L1 not saturated############################\n");
-	for(int data_stride = 32; data_stride <= 32; data_stride = data_stride + 1){/////////stride shall be L1 cache line size.
-		printf("###################data_stride%d#########################\n", data_stride);
-	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m
-	for(int mod = 1024 * 1; mod >= 1024 * 1; mod = mod / 2){/////kepler L2 1.5m ////////saturate the L1 not L2
-		///////////////////////////////////////////////////////////////////CPU data begin
-		int data_size = 512 * 1024 * 30;/////size = iteration * stride = 30 2mb pages.		
-		//int iterations = data_size / data_stride;
-		//int iterations = 1024 * 256 * 8;
-		int iterations = mod / data_stride;
-	
-		int *CPU_data_in;
-		CPU_data_in = (int*)malloc(sizeof(int) * data_size);	
-		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
-		///////////////////////////////////////////////////////////////////CPU data end	
-	
-		///////////////////////////////////////////////////////////////////GPU data in	
-		int *GPU_data_in;
-		checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));	
-		cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
-		
-		tlb_latency_test<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);//////////////////////////////////////////////kernel is here	
-		cudaDeviceSynchronize();
-		
-		checkCudaErrors(cudaFree(GPU_data_in));
-		free(CPU_data_in);
-	}
-		printf("############################################\n\n");
-	}
-	}
-	
-	for(int x = 1; x <= 128; x = x * 2){
+			
+	for(int x = 1; x <= 1024; x = x * 2){
 	printf("################L1 not saturated, x = %d############################\n", x);
 	for(int data_stride = 32; data_stride <= 32; data_stride = data_stride + 1){/////////stride shall be L1 cache line size.
 		printf("###################data_stride%d#########################\n", data_stride);
