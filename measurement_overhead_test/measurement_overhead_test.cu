@@ -81,8 +81,8 @@ int main(int argc, char **argv)
 	int *GPU_data_out;
 	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(int) * 1));
 			
-	for(int x = 1; x <= 1024; x = x * 2){
-	printf("################L1 not saturated, x = %d############################\n", x);
+	for(int x = 1; x <= 8192; x = x * 2){
+	printf("################L1 not saturated, %d * 32 iterations############################\n", x);
 	for(int data_stride = 32; data_stride <= 32; data_stride = data_stride + 1){/////////stride shall be L1 cache line size.
 		printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m
