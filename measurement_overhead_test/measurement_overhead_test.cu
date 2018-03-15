@@ -7,9 +7,7 @@
 #include <helper_cuda.h>
 #include <time.h>
 
-///////////using the initial method to initialize the data, not the one in the paper.
-///////////when L1 is enabled. every miss will cause L2 to fetch 4 cache lines * 32 bytes to fill the 1 cache line * 128 byte in L1. Is it true? Change the starting offset to see.
-///////////conclusion: L1 is not LRU, 1M data range still cannot saturate L1. However, by comparing with L1 disabled, it's clear that one L1 miss will fetch 4 L2 cache lines.
+///////////testing the number of iterations required to get a stable latency measurement of L1 hit.
 
 void init_cpu_data(int* A, int size, int stride, int mod){
 	for (int i = 0; i < size; ++i){
@@ -145,6 +143,38 @@ int main(int argc, char **argv)
 	}
 	}
 	
+	for(int x = 1; x <= 128; x = x * 2){
+	printf("################L1 not saturated, x = %d############################\n", x);
+	for(int data_stride = 32; data_stride <= 32; data_stride = data_stride + 1){/////////stride shall be L1 cache line size.
+		printf("###################data_stride%d#########################\n", data_stride);
+	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m
+	for(int mod = 1024 * 1; mod >= 1024 * 1; mod = mod / 2){/////kepler L2 1.5m ////////saturate the L1 not L2
+		///////////////////////////////////////////////////////////////////CPU data begin
+		int data_size = 512 * 1024 * 30;/////size = iteration * stride = 30 2mb pages.		
+		//int iterations = data_size / data_stride;
+		//int iterations = 1024 * 256 * 8;
+		int iterations = mod / data_stride * x;
+	
+		int *CPU_data_in;
+		CPU_data_in = (int*)malloc(sizeof(int) * data_size);	
+		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
+		///////////////////////////////////////////////////////////////////CPU data end	
+	
+		///////////////////////////////////////////////////////////////////GPU data in	
+		int *GPU_data_in;
+		checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));	
+		cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
+		
+		tlb_latency_test<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);//////////////////////////////////////////////kernel is here	
+		cudaDeviceSynchronize();
+		
+		checkCudaErrors(cudaFree(GPU_data_in));
+		free(CPU_data_in);
+	}
+		printf("############################################\n\n");
+	}
+	}
+			
 	checkCudaErrors(cudaFree(GPU_data_out));	
 	//free(CPU_data_out);
 	
