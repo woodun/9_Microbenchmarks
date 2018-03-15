@@ -7,7 +7,9 @@
 #include <helper_cuda.h>
 #include <time.h>
 
+///////////using the initial method to initialize the data, not the one in the paper.
 ///////////when L1 is enabled. every miss will cause L2 to fetch 4 cache lines * 32 bytes to fill the 1 cache line * 128 byte in L1. Is it true? Change the starting offset to see.
+///////////conclusion: L1 is not LRU, 1M data range still cannot saturate L1. However, by comparing with L1 disabled, it's clear that one L1 miss will fetch 4 L2 cache lines.
 
 void init_cpu_data(int* A, int size, int stride, int mod){
 	for (int i = 0; i < size; ++i){
@@ -89,7 +91,8 @@ int main(int argc, char **argv)
 		///////////////////////////////////////////////////////////////////CPU data begin
 		int data_size = 512 * 1024 * 30;/////size = iteration * stride = 30 2mb pages.		
 		//int iterations = data_size / data_stride;
-		int iterations = 1024 * 256 * 8;
+		//int iterations = 1024 * 256 * 8;
+		int iterations = mod / data_stride;
 	
 		int *CPU_data_in;
 		CPU_data_in = (int*)malloc(sizeof(int) * data_size);	
@@ -114,11 +117,12 @@ int main(int argc, char **argv)
 	for(int data_stride = 32; data_stride <= 32; data_stride = data_stride + 1){/////////stride shall be L1 cache line size.
 		printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m
-	for(int mod = 1024; mod >= 1024; mod = mod / 2){/////kepler L2 1.5m ////////saturate the L1 not L2
+	for(int mod = 1024 * 4; mod >= 1024 * 4; mod = mod / 2){/////kepler L2 1.5m ////////saturate the L1 not L2
 		///////////////////////////////////////////////////////////////////CPU data begin
 		int data_size = 512 * 1024 * 30;/////size = iteration * stride = 30 2mb pages.		
 		//int iterations = data_size / data_stride;
-		int iterations = 1024 * 256 * 8;
+		//int iterations = 1024 * 256 * 8;
+		int iterations = mod / data_stride;
 	
 		int *CPU_data_in;
 		CPU_data_in = (int*)malloc(sizeof(int) * data_size);	

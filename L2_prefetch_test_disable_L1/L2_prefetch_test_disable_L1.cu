@@ -89,7 +89,8 @@ int main(int argc, char **argv)
 		///////////////////////////////////////////////////////////////////CPU data begin
 		int data_size = 512 * 1024 * 30;/////size = iteration * stride = 30 2mb pages.		
 		//int iterations = data_size / data_stride;
-		int iterations = 1024 * 256 * 8;
+		//int iterations = 1024 * 256 * 8;
+		int iterations = mod / data_stride;
 	
 		int *CPU_data_in;
 		CPU_data_in = (int*)malloc(sizeof(int) * data_size);	
@@ -114,11 +115,12 @@ int main(int argc, char **argv)
 	for(int data_stride = 32; data_stride <= 32; data_stride = data_stride + 1){/////////stride shall be L1 cache line size.
 		printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m
-	for(int mod = 1024; mod >= 1024; mod = mod / 2){/////kepler L2 1.5m ////////saturate the L1 not L2
+	for(int mod = 1024 * 4; mod >= 1024 * 4; mod = mod / 2){/////kepler L2 1.5m ////////saturate the L1 not L2
 		///////////////////////////////////////////////////////////////////CPU data begin
 		int data_size = 512 * 1024 * 30;/////size = iteration * stride = 30 2mb pages.		
 		//int iterations = data_size / data_stride;
-		int iterations = 1024 * 256 * 8;
+		//int iterations = 1024 * 256 * 8;
+		int iterations = mod / data_stride;
 	
 		int *CPU_data_in;
 		CPU_data_in = (int*)malloc(sizeof(int) * data_size);	
