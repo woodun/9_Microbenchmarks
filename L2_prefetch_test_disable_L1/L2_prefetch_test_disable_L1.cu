@@ -120,7 +120,7 @@ int main(int argc, char **argv)
 		int data_size = 512 * 1024 * 30;/////size = iteration * stride = 30 2mb pages.		
 		//int iterations = data_size / data_stride;
 		//int iterations = 1024 * 256 * 8;
-		int iterations = mod / data_stride;
+		int iterations = mod / data_stride * 128;
 	
 		int *CPU_data_in;
 		CPU_data_in = (int*)malloc(sizeof(int) * data_size);	
