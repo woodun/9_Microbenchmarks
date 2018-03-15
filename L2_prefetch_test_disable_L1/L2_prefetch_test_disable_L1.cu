@@ -111,6 +111,7 @@ int main(int argc, char **argv)
 		printf("############################################\n\n");
 	}
 	
+	if(0){////////////this part is not accurate because iteration is too small.
 	printf("################L1 not saturated############################\n");
 	for(int data_stride = 32; data_stride <= 32; data_stride = data_stride + 1){/////////stride shall be L1 cache line size.
 		printf("###################data_stride%d#########################\n", data_stride);
@@ -120,7 +121,7 @@ int main(int argc, char **argv)
 		int data_size = 512 * 1024 * 30;/////size = iteration * stride = 30 2mb pages.		
 		//int iterations = data_size / data_stride;
 		//int iterations = 1024 * 256 * 8;
-		int iterations = mod / data_stride * 128;
+		int iterations = mod / data_stride;
 	
 		int *CPU_data_in;
 		CPU_data_in = (int*)malloc(sizeof(int) * data_size);	
@@ -140,7 +141,8 @@ int main(int argc, char **argv)
 	}
 		printf("############################################\n\n");
 	}
-			
+	}
+				
 	checkCudaErrors(cudaFree(GPU_data_out));	
 	//free(CPU_data_out);
 	
