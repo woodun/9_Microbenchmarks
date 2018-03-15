@@ -7,7 +7,8 @@
 #include <helper_cuda.h>
 #include <time.h>
 
-///////////using the paper's method to initialize the data.
+///////////unfinished.
+///////////using only one loop to measure the latency for all offsets together to reduce the overhead.
 ///////////when L1 is enabled. every miss will cause L2 to fetch 4 cache lines * 32 bytes to fill the 1 cache line * 128 byte in L1. Is it true? Change the starting offset to see.
 
 

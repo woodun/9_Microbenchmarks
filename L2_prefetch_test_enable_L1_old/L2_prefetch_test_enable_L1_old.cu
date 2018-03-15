@@ -7,9 +7,9 @@
 #include <helper_cuda.h>
 #include <time.h>
 
-///////////using the initial method to initialize the data, not the one in the paper.
+///////////using multiple loops to measure the latency.
 ///////////when L1 is enabled. every miss will cause L2 to fetch 4 cache lines * 32 bytes to fill the 1 cache line * 128 byte in L1. Is it true? Change the starting offset to see.
-///////////conclusion: L1 is not LRU, 1M data range still cannot saturate L1. However, by comparing with L1 disabled, it's clear that one L1 miss will fetch 4 L2 cache lines.
+///////////conclusion: By comparing with L1 disabled, it's clear that one L1 miss will fetch 4 L2 cache lines. When L1 is disabled, each L2 miss will only fetch 1 L2 cache line.
 
 void init_cpu_data(int* A, int size, int stride, int mod){
 	for (int i = 0; i < size; ++i){
