@@ -10,39 +10,61 @@
 ///////////testing the number of iterations required to get a stable latency measurement of L1 hit.
 ///////////conclusion: at least 4096 iterations in K40.
 
+//typedef unsigned char byte;
+
 void init_cpu_data(int* A, int size, int stride, int mod){
 	for (int i = 0; i < size; ++i){
 		A[i]=(i + stride) % mod;
    	}
 }
 
+__device__ void P_chasing0(int mark, int *A, int iterations, int *B, int *C, long long int *D, int starting_index, float clock_rate, int data_stride){	
+	
+	int j = starting_index;/////make them in the same page, and miss near in cache lines
+			
+	for (int it = 0; it < iterations; it++){	
+		j = A[j];		
+	}	
+		
+	B[0] = j;
+}
+
 //////////min page size 4kb = 4096b = 32 * 128.
-__device__ void P_chasing(int mark, int *A, int iterations, int *B, int starting_index, float clock_rate, int data_stride){
+__device__ void P_chasing(int mark, int *A, int iterations, int *B, int *C, long long int *D, int starting_index, float clock_rate, int data_stride){	
+	
+	__shared__ long long int s_tvalue[1024 * 256 * 2];
+	//__shared__ int s_index[];
 	
 	int j = starting_index;/////make them in the same page, and miss near in cache lines
 	
 	long long int start_time = 0;//////clock
 	long long int end_time = 0;//////clock
-	start_time = clock64();//////clock
+	//long long int total_time = end_time - start_time;//////clock
+	
 			
 	for (int it = 0; it < iterations; it++){
+		
+		start_time = clock64();//////clock		
 		j = A[j];
-	}
+		end_time=clock64();//////clock
+		//s_index[it] = j;
+		s_tvalue[it] = end_time - start_time;
+	}	
 	
-	end_time=clock64();//////clock
-	long long int total_time = end_time - start_time;//////clock
-	printf("inside%d:%fms\n", mark, (total_time / (float)clock_rate) / ((float)iterations));//////clock, average latency
+	//printf("inside%d:%fms\n", mark, (total_time / (float)clock_rate) / ((float)iterations));//////clock, average latency
 	
 	B[0] = j;
+	
+	for (int it = 0; it < iterations; it++){		
+		//C[it] = s_index[it];
+		D[it] = s_tvalue[it];
+	}
 }
 
-__global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rate, int mod, int data_stride){	
+__global__ void tlb_latency_test(int *A, int iterations, int *B, int *C, long long int *D, float clock_rate, int mod, int data_stride){
 	
-	P_chasing(0, A, iterations, B, 0, clock_rate, data_stride);////////saturate the L1 not L2
-	P_chasing(7, A, iterations, B, 7, clock_rate, data_stride);////////access different parts of the 128 byte on L2
-	P_chasing(15, A, iterations, B, 15, clock_rate, data_stride);////////access different parts of the 128 byte on L2
-	P_chasing(23, A, iterations, B, 23, clock_rate, data_stride);////////access different parts of the 128 byte on L2
-	P_chasing(31, A, iterations, B, 31, clock_rate, data_stride);////////access different parts of the 128 byte on L2
+	P_chasing0(0, A, iterations, B, C, D, 0, clock_rate, data_stride);	
+	P_chasing(0, A, iterations, B, C, D, 0, clock_rate, data_stride);////////saturate the L1 not L2
 	
 	 __syncthreads();
 }
@@ -80,9 +102,11 @@ int main(int argc, char **argv)
 	
 	///////////////////////////////////////////////////////////////////GPU data out
 	int *GPU_data_out;
-	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(int) * 1));
-			
-	for(int x = 1; x <= 8192; x = x * 2){
+	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(int) * 1));			
+	
+	FILE * pFile;
+    pFile = fopen ("output.txt","w");	
+	
 	printf("################L1 not saturated, %d * 32 iterations############################\n", x);
 	for(int data_stride = 32; data_stride <= 32; data_stride = data_stride + 1){/////////stride shall be L1 cache line size.
 		printf("###################data_stride%d#########################\n", data_stride);
@@ -92,11 +116,16 @@ int main(int argc, char **argv)
 		int data_size = 512 * 1024 * 30;/////size = iteration * stride = 30 2mb pages.		
 		//int iterations = data_size / data_stride;
 		//int iterations = 1024 * 256 * 8;
-		int iterations = mod / data_stride * x;
+		int iterations = mod / data_stride;
 	
 		int *CPU_data_in;
 		CPU_data_in = (int*)malloc(sizeof(int) * data_size);	
 		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
+		
+		int *CPU_data_out_index;
+		CPU_data_in = (int*)malloc(sizeof(int) * iterations);
+		long long int *CPU_data_out_time;
+		CPU_data_in = (int*)malloc(sizeof(long long int) * iterations);
 		///////////////////////////////////////////////////////////////////CPU data end	
 	
 		///////////////////////////////////////////////////////////////////GPU data in	
@@ -104,18 +133,35 @@ int main(int argc, char **argv)
 		checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));	
 		cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
 		
-		tlb_latency_test<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);//////////////////////////////////////////////kernel is here	
-		cudaDeviceSynchronize();
+		///////////////////////////////////////////////////////////////////GPU data out
+		int *GPU_data_out_index;
+		checkCudaErrors(cudaMalloc(&GPU_data_out_index, sizeof(int) * iterations));
+		int *GPU_data_out_time;
+		checkCudaErrors(cudaMalloc(&GPU_data_out_time, sizeof(long long int) * iterations));
 		
+		tlb_latency_test<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, GPU_data_out_index, GPU_data_out_time, clock_rate, mod, data_stride);///////////////kernel is here	
+		cudaDeviceSynchronize();
+				
+		cudaMemcpy(CPU_data_out_index, GPU_data_out_index, sizeof(int) * iterations, cudaMemcpyDeviceToHost);
+		cudaMemcpy(CPU_data_out_time, GPU_data_out_time, sizeof(long long int) * iterations, cudaMemcpyDeviceToHost);
+				
+		for (int it = 0; it < iterations; it++){
+			fprintf (pFile, "%d %fms\n", it, CPU_data_out_time[it] / (float)clock_rate);
+		}
+		
+		checkCudaErrors(cudaFree(GPU_data_out_index));
+		checkCudaErrors(cudaFree(GPU_data_out_time));
 		checkCudaErrors(cudaFree(GPU_data_in));
 		free(CPU_data_in);
+		free(CPU_data_out_index);
+		free(CPU_data_out_time);
 	}
 		printf("############################################\n\n");
 	}
-	}
 			
 	checkCudaErrors(cudaFree(GPU_data_out));	
-	//free(CPU_data_out);
+	free(CPU_data_out);
+	fclose (pFile);
 	
     exit(EXIT_SUCCESS);
 }

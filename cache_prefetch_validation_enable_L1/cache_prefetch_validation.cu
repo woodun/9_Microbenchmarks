@@ -7,8 +7,8 @@
 #include <helper_cuda.h>
 #include <time.h>
 
-///////////testing the number of iterations required to get a stable latency measurement of L1 hit.
-///////////conclusion: at least 4096 iterations in K40.
+/////////////////////////////access L2 sequentially. change the data size to observe if prefetch happens. L1 is enabled. "ALL_CCFLAGS += -Xptxas -dlcm=ca"
+
 
 void init_cpu_data(int* A, int size, int stride, int mod){
 	for (int i = 0; i < size; ++i){
@@ -18,6 +18,11 @@ void init_cpu_data(int* A, int size, int stride, int mod){
 
 //////////min page size 4kb = 4096b = 32 * 128.
 __device__ void P_chasing(int mark, int *A, int iterations, int *B, int starting_index, float clock_rate, int data_stride){
+	
+	int k = starting_index;/////make them in the same page, and miss near in cache lines
+	for (int it = 0; it < mark / data_stride; it++){/////////////warmup
+		k = A[k];
+	}
 	
 	int j = starting_index;/////make them in the same page, and miss near in cache lines
 	
@@ -38,11 +43,7 @@ __device__ void P_chasing(int mark, int *A, int iterations, int *B, int starting
 
 __global__ void tlb_latency_test(int *A, int iterations, int *B, float clock_rate, int mod, int data_stride){	
 	
-	P_chasing(0, A, iterations, B, 0, clock_rate, data_stride);////////saturate the L1 not L2
-	P_chasing(7, A, iterations, B, 7, clock_rate, data_stride);////////access different parts of the 128 byte on L2
-	P_chasing(15, A, iterations, B, 15, clock_rate, data_stride);////////access different parts of the 128 byte on L2
-	P_chasing(23, A, iterations, B, 23, clock_rate, data_stride);////////access different parts of the 128 byte on L2
-	P_chasing(31, A, iterations, B, 31, clock_rate, data_stride);////////access different parts of the 128 byte on L2
+	P_chasing(mod, A, iterations, B, 0, clock_rate, data_stride);
 	
 	 __syncthreads();
 }
@@ -81,18 +82,17 @@ int main(int argc, char **argv)
 	///////////////////////////////////////////////////////////////////GPU data out
 	int *GPU_data_out;
 	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(int) * 1));
-			
-	for(int x = 1; x <= 8192; x = x * 2){
-	printf("################L1 not saturated, %d * 32 iterations############################\n", x);
-	for(int data_stride = 32; data_stride <= 32; data_stride = data_stride + 1){/////////stride shall be L1 cache line size.
+	
+	//for(int mod = 1024 * 256 * 8; mod > 0; mod = mod / 2){/////volta L2 6m
+	//for(int mod = 1024 * 256 * 7 ; mod >= 1024 * 256 * 6; mod = mod - 256 * 128){/////volta L2 6m
+	for(int data_stride = 4; data_stride <= 64; data_stride = data_stride * 2){
 		printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m
-	for(int mod = 1024 * 1; mod >= 1024 * 1; mod = mod / 2){/////kepler L2 1.5m ////////saturate the L1 not L2
+	for(int mod = 1024 * 256 * 6; mod > 0; mod = mod / 2){/////kepler L2 1.5m
 		///////////////////////////////////////////////////////////////////CPU data begin
 		int data_size = 512 * 1024 * 30;/////size = iteration * stride = 30 2mb pages.		
 		//int iterations = data_size / data_stride;
-		//int iterations = 1024 * 256 * 8;
-		int iterations = mod / data_stride * x;
+		int iterations = data_size;
 	
 		int *CPU_data_in;
 		CPU_data_in = (int*)malloc(sizeof(int) * data_size);	
@@ -111,7 +111,6 @@ int main(int argc, char **argv)
 		free(CPU_data_in);
 	}
 		printf("############################################\n\n");
-	}
 	}
 			
 	checkCudaErrors(cudaFree(GPU_data_out));	
