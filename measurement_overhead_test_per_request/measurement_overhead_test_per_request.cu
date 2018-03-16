@@ -124,7 +124,7 @@ int main(int argc, char **argv)
 		int *CPU_data_out_index;
 		CPU_data_out_index = (int*)malloc(sizeof(int) * iterations);
 		long long int *CPU_data_out_time;
-		CPU_data_out_time = (int*)malloc(sizeof(long long int) * iterations);
+		CPU_data_out_time = (long long int*)malloc(sizeof(long long int) * iterations);
 		///////////////////////////////////////////////////////////////////CPU data end	
 	
 		///////////////////////////////////////////////////////////////////GPU data in	
