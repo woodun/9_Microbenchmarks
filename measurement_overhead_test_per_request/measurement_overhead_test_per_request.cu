@@ -145,7 +145,7 @@ int main(int argc, char **argv)
 		cudaMemcpy(CPU_data_out_time, GPU_data_out_time, sizeof(long long int) * iterations, cudaMemcpyDeviceToHost);
 				
 		for (int it = 0; it < iterations; it++){
-			fprintf (pFile, "%d %fms\n", it, CPU_data_out_time[it] / (float)clock_rate);
+			//fprintf (pFile, "%d %fms\n", it, CPU_data_out_time[it] / (float)clock_rate);
 		}
 		
 		checkCudaErrors(cudaFree(GPU_data_out_index));
