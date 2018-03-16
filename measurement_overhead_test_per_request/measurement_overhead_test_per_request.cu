@@ -57,7 +57,7 @@ __device__ void P_chasing(int mark, int *A, int iterations, int *B, int *C, long
 	
 	for (int it = 0; it < iterations; it++){		
 		//C[it] = s_index[it];
-		D[it] = s_tvalue[it];
+		//D[it] = s_tvalue[it];
 	}
 }
 
