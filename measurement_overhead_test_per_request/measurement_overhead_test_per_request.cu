@@ -7,8 +7,7 @@
 #include <helper_cuda.h>
 #include <time.h>
 
-///////////testing the number of iterations required to get a stable latency measurement of L1 hit.
-///////////conclusion: at least 4096 iterations in K40.
+///////////per request timing.
 
 //typedef unsigned char byte;
 
@@ -32,8 +31,8 @@ __device__ void P_chasing0(int mark, int *A, int iterations, int *B, int *C, lon
 //////////min page size 4kb = 4096b = 32 * 128.
 __device__ void P_chasing(int mark, int *A, int iterations, int *B, int *C, long long int *D, int starting_index, float clock_rate, int data_stride){	
 	
-	__shared__ long long int s_tvalue[1024 * 4];
-	//__shared__ int s_index[];
+	__shared__ long long int s_tvalue[1024 * 2];
+	__shared__ int s_index[1024 * 2];
 	
 	int j = starting_index;/////make them in the same page, and miss near in cache lines
 	
@@ -47,7 +46,7 @@ __device__ void P_chasing(int mark, int *A, int iterations, int *B, int *C, long
 		start_time = clock64();//////clock		
 		j = A[j];
 		end_time=clock64();//////clock
-		//s_index[it] = j;
+		s_index[it] = j;
 		s_tvalue[it] = end_time - start_time;
 	}	
 	
@@ -56,14 +55,14 @@ __device__ void P_chasing(int mark, int *A, int iterations, int *B, int *C, long
 	B[0] = j;
 	
 	for (int it = 0; it < iterations; it++){		
-		//C[it] = s_index[it];
+		C[it] = s_index[it];
 		D[it] = s_tvalue[it];
 	}
 }
 
 __global__ void tlb_latency_test(int *A, int iterations, int *B, int *C, long long int *D, float clock_rate, int mod, int data_stride){
 	
-	P_chasing0(0, A, iterations, B, C, D, 0, clock_rate, data_stride);	
+	P_chasing0(0, A, iterations, B, C, D, 0, clock_rate, data_stride);
 	P_chasing(0, A, iterations, B, C, D, 0, clock_rate, data_stride);////////saturate the L1 not L2
 	
 	 __syncthreads();
@@ -145,7 +144,7 @@ int main(int argc, char **argv)
 		cudaMemcpy(CPU_data_out_time, GPU_data_out_time, sizeof(long long int) * iterations, cudaMemcpyDeviceToHost);
 				
 		for (int it = 0; it < iterations; it++){
-			fprintf (pFile, "%d %fms\n", it, CPU_data_out_time[it] / (float)clock_rate);
+			fprintf (pFile, "%d %fms\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate);
 		}
 		
 		checkCudaErrors(cudaFree(GPU_data_out_index));
