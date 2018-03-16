@@ -105,9 +105,8 @@ int main(int argc, char **argv)
 	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(int) * 1));			
 	
 	FILE * pFile;
-    pFile = fopen ("output.txt","w");	
+    pFile = fopen ("output.txt","w");		
 	
-	printf("################L1 not saturated, %d * 32 iterations############################\n", x);
 	for(int data_stride = 32; data_stride <= 32; data_stride = data_stride + 1){/////////stride shall be L1 cache line size.
 		printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m
@@ -136,7 +135,7 @@ int main(int argc, char **argv)
 		///////////////////////////////////////////////////////////////////GPU data out
 		int *GPU_data_out_index;
 		checkCudaErrors(cudaMalloc(&GPU_data_out_index, sizeof(int) * iterations));
-		int *GPU_data_out_time;
+		long long int *GPU_data_out_time;
 		checkCudaErrors(cudaMalloc(&GPU_data_out_time, sizeof(long long int) * iterations));
 		
 		tlb_latency_test<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, GPU_data_out_index, GPU_data_out_time, clock_rate, mod, data_stride);///////////////kernel is here	
@@ -160,7 +159,7 @@ int main(int argc, char **argv)
 	}
 			
 	checkCudaErrors(cudaFree(GPU_data_out));	
-	free(CPU_data_out);
+	//free(CPU_data_out);
 	fclose (pFile);
 	
     exit(EXIT_SUCCESS);
