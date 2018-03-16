@@ -32,7 +32,7 @@ __device__ void P_chasing0(int mark, int *A, int iterations, int *B, int *C, lon
 //////////min page size 4kb = 4096b = 32 * 128.
 __device__ void P_chasing(int mark, int *A, int iterations, int *B, int *C, long long int *D, int starting_index, float clock_rate, int data_stride){	
 	
-	__shared__ long long int s_tvalue[1024 * 256 * 2];
+	__shared__ long long int s_tvalue[1024 * 4];
 	//__shared__ int s_index[];
 	
 	int j = starting_index;/////make them in the same page, and miss near in cache lines
