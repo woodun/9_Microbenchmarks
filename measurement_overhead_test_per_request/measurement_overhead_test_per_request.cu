@@ -57,7 +57,7 @@ __device__ void P_chasing(int mark, int *A, int iterations, int *B, int *C, long
 	
 	for (int it = 0; it < iterations; it++){		
 		//C[it] = s_index[it];
-		//D[it] = s_tvalue[it];
+		D[it] = s_tvalue[it];
 	}
 }
 
@@ -122,9 +122,9 @@ int main(int argc, char **argv)
 		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
 		
 		int *CPU_data_out_index;
-		CPU_data_in = (int*)malloc(sizeof(int) * iterations);
+		CPU_data_out_index = (int*)malloc(sizeof(int) * iterations);
 		long long int *CPU_data_out_time;
-		CPU_data_in = (int*)malloc(sizeof(long long int) * iterations);
+		CPU_data_out_time = (int*)malloc(sizeof(long long int) * iterations);
 		///////////////////////////////////////////////////////////////////CPU data end	
 	
 		///////////////////////////////////////////////////////////////////GPU data in	
@@ -145,7 +145,7 @@ int main(int argc, char **argv)
 		cudaMemcpy(CPU_data_out_time, GPU_data_out_time, sizeof(long long int) * iterations, cudaMemcpyDeviceToHost);
 				
 		for (int it = 0; it < iterations; it++){
-			//fprintf (pFile, "%d %fms\n", it, CPU_data_out_time[it] / (float)clock_rate);
+			fprintf (pFile, "%d %fms\n", it, CPU_data_out_time[it] / (float)clock_rate);
 		}
 		
 		checkCudaErrors(cudaFree(GPU_data_out_index));
