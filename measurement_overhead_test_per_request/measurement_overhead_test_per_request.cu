@@ -32,7 +32,7 @@ __device__ void P_chasing0(int mark, int *A, int iterations, int *B, int *C, lon
 __device__ void P_chasing(int mark, int *A, int iterations, int *B, int *C, long long int *D, int starting_index, float clock_rate, int data_stride){	
 	
 	__shared__ long long int s_tvalue[1024 * 2];
-	__shared__ int s_index[1024 * 2];
+	//__shared__ int s_index[1024 * 2];
 	
 	int j = starting_index;/////make them in the same page, and miss near in cache lines
 	
@@ -40,22 +40,35 @@ __device__ void P_chasing(int mark, int *A, int iterations, int *B, int *C, long
 	long long int end_time = 0;//////clock
 	//long long int total_time = end_time - start_time;//////clock
 	
-			
+	/*		
 	for (int it = 0; it < iterations; it++){
 		
 		start_time = clock64();//////clock		
 		j = A[j];
-		s_index[it] = j;
+		//s_index[it] = j;
 		end_time=clock64();//////clock		
 		s_tvalue[it] = end_time - start_time;
-	}	
+	}
+	*/
+	
+	for (int it = 0; it < iterations; it++){
+		
+	asm(".reg .u32 t1;\n\t"
+		"mul.wide.s32 	%t1, %3, 4;\n\t"		
+		"mov.u64 	%0, %clock64;\n\t"		
+		"ld.global.u32 	%2, [%t1];\n\t"
+		"mov.u64 	%1, %clock64;"
+		: "=l"(start_time), "=l"(end_time), "=r"(j) : "r"(j));
+		
+		s_tvalue[it] = end_time - start_time;
+	}
 	
 	//printf("inside%d:%fms\n", mark, (total_time / (float)clock_rate) / ((float)iterations));//////clock, average latency
 	
 	B[0] = j;
 	
 	for (int it = 0; it < iterations; it++){		
-		C[it] = s_index[it];
+		//C[it] = s_index[it];
 		D[it] = s_tvalue[it];
 	}
 }
@@ -144,7 +157,8 @@ int main(int argc, char **argv)
 		cudaMemcpy(CPU_data_out_time, GPU_data_out_time, sizeof(long long int) * iterations, cudaMemcpyDeviceToHost);
 				
 		for (int it = 0; it < iterations; it++){
-			fprintf (pFile, "%d %fms\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate);
+			//fprintf (pFile, "%d %fms\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate);
+			fprintf (pFile, "%d %fms\n", it, CPU_data_out_time[it] / (float)clock_rate);
 		}
 		
 		checkCudaErrors(cudaFree(GPU_data_out_index));
