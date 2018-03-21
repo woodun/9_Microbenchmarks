@@ -51,11 +51,13 @@ __device__ void P_chasing(int mark, int *A, int iterations, int *B, int *C, long
 	}
 	*/
 	
+		asm(".reg .u32 t1;\n\t"
+		".reg .u64 t2;\n\t");
+	
 	for (int it = 0; it < iterations; it++){
 		
-	asm(".reg .u32 t1;\n\t"
-		".reg .u64 t2;\n\t"
-		"mul.wide.s32 	t1, %3, 4;\n\t"	
+
+		asm("mul.wide.s32 	t1, %3, 4;\n\t"	
 		"add.s64 	t2, t1, %4;\n\t"		
 		"mov.u64 	%0, %clock64;\n\t"		
 		"ld.global.u32 	%2, [t1];\n\t"
