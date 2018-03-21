@@ -51,7 +51,7 @@ __device__ void P_chasing(int mark, int *A, int iterations, int *B, int *C, long
 	}
 	*/
 	
-		asm(".reg .u32 t1;\n\t"
+		asm(".reg .u64 t1;\n\t"
 		".reg .u64 t2;\n\t");
 	
 	for (int it = 0; it < iterations; it++){
