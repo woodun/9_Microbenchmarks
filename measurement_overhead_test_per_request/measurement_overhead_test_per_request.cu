@@ -54,8 +54,8 @@ __device__ void P_chasing2(int mark, int *A, int iterations, int *B, int *C, lon
 	__shared__ long long int s_tvalue[1024 * 4];
 	//__shared__ int s_index[1024 * 2];
 	
-	//int j = starting_index;/////make them in the same page, and miss near in cache lines
-	int j = B[0];
+	int j = starting_index;/////make them in the same page, and miss near in cache lines
+	//int j = B[0];
 	
 	long long int start_time = 0;//////clock
 	long long int end_time = 0;//////clock
