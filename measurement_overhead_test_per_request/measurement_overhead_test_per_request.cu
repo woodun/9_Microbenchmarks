@@ -118,7 +118,7 @@ __global__ void tlb_latency_test(int *A, int iterations, int *B, int *C, long lo
 	P_chasing1(0, A, iterations * 1024, B, C, D, 0, clock_rate, data_stride);
 	//P_chasing1(0, A, iterations, B, C, D, 0, clock_rate, data_stride);////////saturate the L1 not L2
 	//P_chasing1(0, A, iterations, B, C, D, 0, clock_rate, data_stride);////////saturate the L1 not L2
-	P_chasing2(0, A, iterations, B, C, D, 0, clock_rate, data_stride);////////saturate the L1 not L2
+	P_chasing2(0, A, iterations * 8, B, C, D, 0, clock_rate, data_stride);////////saturate the L1 not L2
 	
 	 __syncthreads();
 }
