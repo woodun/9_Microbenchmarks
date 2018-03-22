@@ -94,7 +94,7 @@ __device__ void P_chasing2(int mark, int *A, int iterations, int *B, int *C, lon
 		: "=l"(start_time), "=r"(j) : "r"(j), "l"(A), "r"(4));
 		
 		s_index[it] = j;		
-		asm("mov.u64 %0, %clock64;": "=l"(end_time));
+		asm volatile ("mov.u64 %0, %clock64;": "=l"(end_time));
 		
 		time_interval = end_time - start_time;
 		//if(it >= 4 * 1024){
