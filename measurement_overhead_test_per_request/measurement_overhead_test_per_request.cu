@@ -42,8 +42,8 @@ __device__ void P_chasing1(int mark, int *A, int iterations, int *B, int *C, lon
 	}
 	
 	end_time=clock64();//////clock
-	long long int total_time = end_time - start_time;//////clock
-	printf("inside%d:%fms\n", mark, (total_time / (float)clock_rate) / ((float)iterations));//////clock, average latency
+	//long long int total_time = end_time - start_time;//////clock
+	//printf("inside%d:%fms\n", mark, (total_time / (float)clock_rate) / ((float)iterations));//////clock, average latency
 	
 	B[0] = j;
 }
