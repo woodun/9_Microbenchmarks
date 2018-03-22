@@ -92,9 +92,8 @@ __device__ void P_chasing2(int mark, int *A, int iterations, int *B, int *C, lon
 		"ld.global.u32 	%1, [t2];\n\t"		
 		: "=l"(start_time), "=r"(j) : "r"(j), "l"(A), "r"(4));
 		
-		s_index[it] = j;
-		
-		asm("mov.u64 	%0, %clock64;": "=l"(end_time));
+		s_index[it] = j;		
+		asm("mov.u64 %0, %clock64;": "=l"(end_time));
 		
 		//if(it >= 4 * 1024){
 		s_tvalue[it] = end_time - start_time;
