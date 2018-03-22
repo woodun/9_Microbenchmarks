@@ -94,7 +94,7 @@ __device__ void P_chasing2(int mark, int *A, int iterations, int *B, int *C, lon
 		"ld.global.u32 	%1, [t2];\n\t"		
 		: "=l"(start_time), "=r"(j) : "r"(j), "l"(A), "r"(4));
 		
-		s_index[it] = j;//////what if without this?
+		//s_index[it] = j;//////what if without this?
 		
 		asm volatile ("mov.u64 %0, %clock64;": "=l"(end_time));
 		
@@ -109,7 +109,7 @@ __device__ void P_chasing2(int mark, int *A, int iterations, int *B, int *C, lon
 	B[0] = j;
 	
 	for (int it = 0; it < iterations; it++){		
-		C[it] = s_index[it];
+		//C[it] = s_index[it];
 		D[it] = s_tvalue[it];
 	}
 }
