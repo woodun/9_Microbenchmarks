@@ -114,11 +114,11 @@ __device__ void P_chasing2(int mark, int *A, int iterations, int *B, int *C, lon
 
 __global__ void tlb_latency_test(int *A, int iterations, int *B, int *C, long long int *D, float clock_rate, int mod, int data_stride){
 	
-	P_chasing1(0, A, iterations * 1024, B, C, D, 0, clock_rate, data_stride);
-	P_chasing1(0, A, iterations * 1024, B, C, D, 0, clock_rate, data_stride);
+	P_chasing1(0, A, iterations, B, C, D, 0, clock_rate, data_stride);
+	P_chasing1(0, A, iterations, B, C, D, 0, clock_rate, data_stride);
 	//P_chasing1(0, A, iterations, B, C, D, 0, clock_rate, data_stride);////////saturate the L1 not L2
 	//P_chasing1(0, A, iterations, B, C, D, 0, clock_rate, data_stride);////////saturate the L1 not L2
-	P_chasing2(0, A, iterations * 8, B, C, D, 0, clock_rate, data_stride);////////saturate the L1 not L2
+	P_chasing2(0, A, iterations, B, C, D, 0, clock_rate, data_stride);////////saturate the L1 not L2
 	
 	 __syncthreads();
 }
@@ -169,7 +169,7 @@ int main(int argc, char **argv)
 		int data_size = 512 * 1024 * 30;/////size = iteration * stride = 30 2mb pages.		
 		//int iterations = data_size / data_stride;
 		//int iterations = 1024 * 256 * 8;
-		int iterations = mod / data_stride;
+		int iterations = mod / data_stride * 8;
 	
 		int *CPU_data_in;
 		CPU_data_in = (int*)malloc(sizeof(int) * data_size);	
