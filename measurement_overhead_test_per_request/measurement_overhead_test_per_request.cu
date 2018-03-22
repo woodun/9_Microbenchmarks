@@ -46,7 +46,7 @@ __device__ void P_chasing1(int mark, int *A, int iterations, int *B, int *C, lon
 	//printf("inside%d:%fms\n", mark, (total_time / (float)clock_rate) / ((float)iterations));//////clock, average latency
 	
 	B[0] = j;
-	B[1] = (int) total_time;
+	//B[1] = (int) total_time;
 }
 
 //////////min page size 4kb = 4096b = 32 * 128.
