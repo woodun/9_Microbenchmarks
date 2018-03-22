@@ -59,6 +59,7 @@ __device__ void P_chasing2(int mark, int *A, int iterations, int *B, int *C, lon
 	
 	long long int start_time = 0;//////clock
 	long long int end_time = 0;//////clock
+	long long int time_interval = 0;//////clock
 	//long long int total_time = end_time - start_time;//////clock
 	
 	/*		
@@ -95,8 +96,9 @@ __device__ void P_chasing2(int mark, int *A, int iterations, int *B, int *C, lon
 		s_index[it] = j;		
 		asm("mov.u64 %0, %clock64;": "=l"(end_time));
 		
+		time_interval = end_time - start_time;
 		//if(it >= 4 * 1024){
-		s_tvalue[it] = end_time - start_time;
+		s_tvalue[it] = time_interval;
 		//}
 	}
 	
