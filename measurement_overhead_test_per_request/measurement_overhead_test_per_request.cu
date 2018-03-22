@@ -46,6 +46,7 @@ __device__ void P_chasing1(int mark, int *A, int iterations, int *B, int *C, lon
 	//printf("inside%d:%fms\n", mark, (total_time / (float)clock_rate) / ((float)iterations));//////clock, average latency
 	
 	B[0] = j;
+	b[1] = (int) total_time;
 }
 
 //////////min page size 4kb = 4096b = 32 * 128.
@@ -156,7 +157,7 @@ int main(int argc, char **argv)
 	
 	///////////////////////////////////////////////////////////////////GPU data out
 	int *GPU_data_out;
-	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(int) * 1));			
+	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(int) * 2));			
 	
 	FILE * pFile;
     pFile = fopen ("output.txt","w");		
