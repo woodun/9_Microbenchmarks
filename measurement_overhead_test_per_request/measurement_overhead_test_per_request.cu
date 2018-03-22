@@ -29,7 +29,27 @@ __device__ void P_chasing0(int mark, int *A, int iterations, int *B, int *C, lon
 }
 
 //////////min page size 4kb = 4096b = 32 * 128.
-__device__ void P_chasing(int mark, int *A, int iterations, int *B, int *C, long long int *D, int starting_index, float clock_rate, int data_stride){	
+__device__ void P_chasing1(int mark, int *A, int iterations, int *B, int starting_index, float clock_rate, int data_stride){
+	
+	int j = starting_index;/////make them in the same page, and miss near in cache lines
+	
+	long long int start_time = 0;//////clock
+	long long int end_time = 0;//////clock
+	start_time = clock64();//////clock
+			
+	for (int it = 0; it < iterations; it++){
+		j = A[j];
+	}
+	
+	end_time=clock64();//////clock
+	long long int total_time = end_time - start_time;//////clock
+	printf("inside%d:%fms\n", mark, (total_time / (float)clock_rate) / ((float)iterations));//////clock, average latency
+	
+	B[0] = j;
+}
+
+//////////min page size 4kb = 4096b = 32 * 128.
+__device__ void P_chasing2(int mark, int *A, int iterations, int *B, int *C, long long int *D, int starting_index, float clock_rate, int data_stride){	
 	
 	__shared__ long long int s_tvalue[1024 * 4];
 	//__shared__ int s_index[1024 * 2];
@@ -81,8 +101,10 @@ __device__ void P_chasing(int mark, int *A, int iterations, int *B, int *C, long
 
 __global__ void tlb_latency_test(int *A, int iterations, int *B, int *C, long long int *D, float clock_rate, int mod, int data_stride){
 	
-	P_chasing0(0, A, iterations, B, C, D, 0, clock_rate, data_stride);
-	P_chasing(0, A, iterations, B, C, D, 0, clock_rate, data_stride);////////saturate the L1 not L2
+	P_chasing1(0, A, iterations, B, C, D, 0, clock_rate, data_stride);
+	P_chasing1(0, A, iterations, B, C, D, 0, clock_rate, data_stride);////////saturate the L1 not L2
+	P_chasing1(0, A, iterations, B, C, D, 0, clock_rate, data_stride);////////saturate the L1 not L2
+	P_chasing2(0, A, iterations, B, C, D, 0, clock_rate, data_stride);////////saturate the L1 not L2
 	
 	 __syncthreads();
 }
