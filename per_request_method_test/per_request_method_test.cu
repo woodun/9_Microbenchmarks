@@ -54,7 +54,7 @@ __device__ void P_chasing2(int mark, int *A, int iterations, int *B, int *C, lon
 	
 	//////shared memory: 0xc000 max (49152 Bytes = 48KB)
 	__shared__ long long int s_tvalue[1024 * 5];
-	//__shared__ int s_index[1024 * 8];
+	//__shared__ int s_index[1024 * 4];
 	__shared__ int s_index[1];
 	
 	int j = starting_index;/////make them in the same page, and miss near in cache lines
@@ -111,7 +111,7 @@ __device__ void P_chasing2(int mark, int *A, int iterations, int *B, int *C, lon
 	B[0] = j;
 	
 	for (int it = 0; it < iterations; it++){		
-		C[it] = s_index[it];
+		//C[it] = s_index[it];
 		D[it] = s_tvalue[it];
 	}
 }
