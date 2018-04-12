@@ -53,7 +53,8 @@ __device__ void P_chasing1(int mark, int *A, int iterations, int *B, int *C, lon
 __device__ void P_chasing2(int mark, int *A, int iterations, int *B, int *C, long long int *D, int starting_index, float clock_rate, int data_stride){//////what is the effect of warmup outside vs inside?
 	
 	__shared__ long long int s_tvalue[1024 * 8];
-	__shared__ int s_index[1024 * 8];
+	//__shared__ int s_index[1024 * 8];
+	__shared__ int s_index[1];
 	
 	int j = starting_index;/////make them in the same page, and miss near in cache lines
 	//int j = B[0];
@@ -94,7 +95,7 @@ __device__ void P_chasing2(int mark, int *A, int iterations, int *B, int *C, lon
 		"ld.global.u32 	%1, [t2];\n\t"		
 		: "=l"(start_time), "=r"(j) : "r"(j), "l"(A), "r"(4));
 		
-		s_index[it] = j;////what if without this? ///Then it is not accurate and cannot get the access time at all, due to the ILP. (another way is to use average time, but inevitably containing other instructions:setp, add).
+		s_index[0] = j;////what if without this? ///Then it is not accurate and cannot get the access time at all, due to the ILP. (another way is to use average time, but inevitably containing other instructions:setp, add).
 		
 		asm volatile ("mov.u64 %0, %clock64;": "=l"(end_time));
 		
