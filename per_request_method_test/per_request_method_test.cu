@@ -7,7 +7,7 @@
 #include <helper_cuda.h>
 #include <time.h>
 
-///////////per request timing.
+///////////per request timing. L1 enabled.
 
 //typedef unsigned char byte;
 
@@ -43,7 +43,7 @@ __device__ void P_chasing1(int mark, int *A, int iterations, int *B, int *C, lon
 	
 	end_time=clock64();//////clock
 	long long int total_time = end_time - start_time;//////clock
-	//printf("inside%d:%fms\n", mark, (total_time / (float)clock_rate) / ((float)iterations));//////clock, average latency //////////the print will flush the L1?!
+	//printf("inside%d:%fms\n", mark, (total_time / (float)clock_rate) / ((float)iterations));//////clock, average latency //////////the print will flush the L1?! (
 	
 	B[0] = j;
 	B[1] = (int) total_time;
@@ -109,7 +109,7 @@ __device__ void P_chasing2(int mark, int *A, int iterations, int *B, int *C, lon
 	B[0] = j;
 	
 	for (int it = 0; it < iterations; it++){		
-		//C[it] = s_index[it];
+		C[it] = s_index[it];
 		D[it] = s_tvalue[it];
 	}
 }
@@ -166,7 +166,7 @@ int main(int argc, char **argv)
 	for(int data_stride = 32; data_stride <= 32; data_stride = data_stride + 1){/////////stride shall be L1 cache line size.
 		printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m
-	for(int mod = 1024 *2; mod >= 1024 * 2; mod = mod / 2){/////kepler L2 1.5m ////////saturate the L1 not L2
+	for(int mod = 1024 * 4; mod >= 1024 * 4; mod = mod / 2){/////kepler L2 1.5m ////////saturate the L1 not L2
 		///////////////////////////////////////////////////////////////////CPU data begin
 		int data_size = 512 * 1024 * 30;/////size = iteration * stride = 30 2mb pages.		
 		//int iterations = data_size / data_stride;
