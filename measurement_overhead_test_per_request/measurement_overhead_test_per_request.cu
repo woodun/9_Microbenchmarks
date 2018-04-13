@@ -100,7 +100,7 @@ __device__ void P_chasing2(int mark, int *A, int iterations, int *B, int *C, lon
 		
 		asm volatile ("mov.u64 %0, %clock64;": "=l"(start_time));
 		
-		s_index[it] = it;////what if without this? ///Then it is not accurate and cannot get the access time at all, due to the ILP. (another way is to use average time, but inevitably containing other instructions:setp, add).
+		s_index[it] = j;////what if without this? ///Then it is not accurate and cannot get the access time at all, due to the ILP. (another way is to use average time, but inevitably containing other instructions:setp, add).
 		
 		asm volatile ("mov.u64 %0, %clock64;": "=l"(end_time));
 		
