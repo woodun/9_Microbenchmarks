@@ -90,11 +90,15 @@ __device__ void P_chasing2(int mark, int *A, int iterations, int *B, int *C, lon
 		: "=l"(start_time), "=l"(end_time), "=r"(j) : "r"(j), "l"(A), "r"(4));
 		*/
 
+		/*
 		asm("mul.wide.u32 	t1, %2, %4;\n\t"	
 		"add.u64 	t2, t1, %3;\n\t"						
 		"ld.global.u32 	%1, [t2];\n\t"	
 		"mov.u64 	%0, %clock64;\n\t"		
 		: "=l"(start_time), "=r"(j) : "r"(j), "l"(A), "r"(4));
+		*/
+		
+		asm volatile ("mov.u64 %0, %clock64;": "=l"(start_time));
 		
 		s_index[it] = j;////what if without this? ///Then it is not accurate and cannot get the access time at all, due to the ILP. (another way is to use average time, but inevitably containing other instructions:setp, add).
 		
