@@ -291,7 +291,7 @@ endif
 # Target rules
 all: build
 
-build: measurement_overhead_test_per_request
+build: measurement_overhead_test_per_request2
 
 check.deps:
 ifeq ($(SAMPLE_ENABLED),0)
@@ -300,19 +300,19 @@ else
 	@echo "Sample is ready - all dependencies have been met"
 endif
 
-measurement_overhead_test_per_request.o:measurement_overhead_test_per_request.cu
+measurement_overhead_test_per_request2.o:measurement_overhead_test_per_request2.cu
 	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
-measurement_overhead_test_per_request: measurement_overhead_test_per_request.o
+measurement_overhead_test_per_request2: measurement_overhead_test_per_request2.o
 	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
 	$(EXEC) mkdir -p ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 	$(EXEC) cp $@ ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 
 run: build
-	$(EXEC) ./measurement_overhead_test_per_request
+	$(EXEC) ./measurement_overhead_test_per_request2
 
 clean:
-	rm -f measurement_overhead_test_per_request measurement_overhead_test_per_request.o
-	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/measurement_overhead_test_per_request
+	rm -f measurement_overhead_test_per_request2 measurement_overhead_test_per_request2.o
+	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/measurement_overhead_test_per_request2
 
 clobber: clean
