@@ -291,7 +291,7 @@ endif
 # Target rules
 all: build
 
-build: per_request_method_test
+build: pr_L1_miss_K40
 
 check.deps:
 ifeq ($(SAMPLE_ENABLED),0)
@@ -300,19 +300,19 @@ else
 	@echo "Sample is ready - all dependencies have been met"
 endif
 
-per_request_method_test.o:per_request_method_test.cu
+pr_L1_miss_K40.o:pr_L1_miss_K40.cu
 	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
-per_request_method_test: per_request_method_test.o
+pr_L1_miss_K40: pr_L1_miss_K40.o
 	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
 	$(EXEC) mkdir -p ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 	$(EXEC) cp $@ ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 
 run: build
-	$(EXEC) ./per_request_method_test
+	$(EXEC) ./pr_L1_miss_K40
 
 clean:
-	rm -f per_request_method_test per_request_method_test.o
-	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/per_request_method_test
+	rm -f pr_L1_miss_K40 pr_L1_miss_K40.o
+	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/pr_L1_miss_K40
 
 clobber: clean
