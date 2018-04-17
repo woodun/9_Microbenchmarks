@@ -33,8 +33,8 @@ __device__ void P_chasing1(int mark, int *A, int iterations, int *B, int *C, lon
 	
 	int j = starting_index;/////make them in the same page, and miss near in cache lines
 	
-	long long int start_time = 0;//////clock
-	long long int end_time = 0;//////clock
+	//long long int start_time = 0;//////clock
+	//long long int end_time = 0;//////clock
 	//start_time = clock64();//////clock
 			
 	for (int it = 0; it < iterations; it++){
@@ -164,7 +164,7 @@ int main(int argc, char **argv)
     pFile = fopen ("output.txt","w");		
 	
 	for(int data_stride = 32; data_stride <= 32; data_stride = data_stride + 1){/////////stride shall be L1 cache line size.
-		printf("###################data_stride%d#########################\n", data_stride);
+		//printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m
 	for(int mod = 1024 * 384; mod <= 1024 * 384 + 32 * 64; mod = mod + 32){/////kepler L2 1.5m /////kepler L1 16KB ////////saturate the L1 not L2
 		///////////////////////////////////////////////////////////////////CPU data begin
@@ -200,8 +200,9 @@ int main(int argc, char **argv)
 		cudaMemcpy(CPU_data_out_index, GPU_data_out_index, sizeof(int) * iterations, cudaMemcpyDeviceToHost);
 		cudaMemcpy(CPU_data_out_time, GPU_data_out_time, sizeof(long long int) * iterations, cudaMemcpyDeviceToHost);
 				
+		fprintf(pFile, "###################data_stride%d#########################\n", data_stride);
 		fprintf (pFile, "###############Mod%d##############%d\n", mod, (mod - 1024 * 4) / 32);
-		for (int it = 0; it < iterations; it++){			
+		for (int it = 0; it < 512; it++){			
 			fprintf (pFile, "%d %fms %lldcycles\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate, CPU_data_out_time[it]);
 			//fprintf (pFile, "%d %fms\n", it, CPU_data_out_time[it] / (float)clock_rate);
 			//printf ("%d %fms\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate);
