@@ -90,11 +90,15 @@ __device__ void P_chasing2(int mark, int *A, int iterations, int *B, int *C, lon
 		: "=l"(start_time), "=l"(end_time), "=r"(j) : "r"(j), "l"(A), "r"(4));
 		*/
 
+		/*
 		asm("mul.wide.u32 	t1, %2, %4;\n\t"	
-		"add.u64 	t2, t1, %3;\n\t"		
+		"add.u64 	t2, t1, %3;\n\t"						
+		"ld.global.u32 	%1, [t2];\n\t"	
 		"mov.u64 	%0, %clock64;\n\t"		
-		"ld.global.u32 	%1, [t2];\n\t"		
 		: "=l"(start_time), "=r"(j) : "r"(j), "l"(A), "r"(4));
+		*/
+		
+		asm volatile ("mov.u64 %0, %clock64;": "=l"(start_time));
 		
 		s_index[it] = j;////what if without this? ///Then it is not accurate and cannot get the access time at all, due to the ILP. (another way is to use average time, but inevitably containing other instructions:setp, add).
 		
@@ -168,7 +172,7 @@ int main(int argc, char **argv)
 	for(int data_stride = 32; data_stride <= 32; data_stride = data_stride + 1){/////////stride shall be L1 cache line size.
 		printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m
-	for(int mod = 1024 * 4; mod <= 1024 * 4 + 32 * 64; mod = mod + 32){/////kepler L2 1.5m /////kepler L1 16KB ////////saturate the L1 not L2
+	for(int mod = 1024 * 4; mod <= 1024 * 4 + 32 * 64; mod = mod + 32){/////kepler L2 1.5m ////////saturate the L1 not L2
 		///////////////////////////////////////////////////////////////////CPU data begin
 		int data_size = 512 * 1024 * 30;/////size = iteration * stride = 30 2mb pages.		
 		//int iterations = data_size / data_stride;
