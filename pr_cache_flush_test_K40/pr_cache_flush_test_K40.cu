@@ -7,7 +7,7 @@
 #include <helper_cuda.h>
 #include <time.h>
 
-///////////per request timing. L1 enabled. L2 has misses even when data size is less than 1024 * 384 (1.5m). So the eviction policy seems not to be LRU.
+///////////per request timing. L1 enabled. 
 
 //typedef unsigned char byte;
 
@@ -171,7 +171,7 @@ int main(int argc, char **argv)
 		int data_size = 512 * 1024 * 30;/////size = iteration * stride = 30 2mb pages.		
 		//int iterations = data_size / data_stride;
 		//int iterations = 1024 * 256 * 8;
-		int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256
+		int iterations = mod / data_stride * 2;////32 * 32 * 4 / 32 * 2 = 256
 	
 		int *CPU_data_in;
 		CPU_data_in = (int*)malloc(sizeof(int) * data_size);	
@@ -235,7 +235,7 @@ int main(int argc, char **argv)
 		int data_size = 512 * 1024 * 30;/////size = iteration * stride = 30 2mb pages.		
 		//int iterations = data_size / data_stride;
 		//int iterations = 1024 * 256 * 8;
-		int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256
+		int iterations = mod / data_stride * 2;////32 * 32 * 4 / 32 * 2 = 256
 	
 		int *CPU_data_in;
 		CPU_data_in = (int*)malloc(sizeof(int) * data_size);	
