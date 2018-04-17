@@ -7,7 +7,9 @@
 #include <helper_cuda.h>
 #include <time.h>
 
-///////////per request timing. L1 enabled. 
+///////////per request timing. L1 enabled. L2 prefetching exists. L1 prefetching does not. The data found in cache depends on the data size. So the prefetching is caused by the memcpy which goes through the L2 as well.
+
+///////question: when using managed memory and not using explicit prefetching, does the prefetching still exist?
 
 //typedef unsigned char byte;
 
