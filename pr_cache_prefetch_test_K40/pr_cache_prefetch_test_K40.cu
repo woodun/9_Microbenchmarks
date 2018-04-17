@@ -200,7 +200,7 @@ int main(int argc, char **argv)
 		cudaMemcpy(CPU_data_out_index, GPU_data_out_index, sizeof(int) * iterations, cudaMemcpyDeviceToHost);
 		cudaMemcpy(CPU_data_out_time, GPU_data_out_time, sizeof(long long int) * iterations, cudaMemcpyDeviceToHost);
 				
-		fprintf(pFile, "###################data_stride%d#########################\n", data_size);
+		fprintf(pFile, "############data_size%d#########################\n", data_size);
 		fprintf(pFile, "###################data_stride%d#########################\n", data_stride);
 		fprintf (pFile, "###############Mod%d##############%d\n", mod, (mod - 1024 * 4) / 32);
 		for (int it = 0; it < 512; it++){			
