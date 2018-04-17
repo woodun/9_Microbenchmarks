@@ -11,8 +11,8 @@
 
 //typedef unsigned char byte;
 
-void init_cpu_data(int* A, int size, int stride, int mod){
-	for (int i = 0; i < size; i = i + stride){
+void init_cpu_data(int* A, long int size, int stride, long int mod){
+	for (long int i = 0; i < size; i = i + stride){
 		A[i]=(i + stride) % mod;
    	}
 }
@@ -50,7 +50,7 @@ __device__ void P_chasing1(int mark, int *A, int iterations, int *B, int *C, lon
 }
 
 //////////min page size 4kb = 4096b = 32 * 128.
-__device__ void P_chasing2(int mark, int *A, int iterations, int *B, int *C, long long int *D, int starting_index, float clock_rate, int data_stride){//////what is the effect of warmup outside vs inside?
+__device__ void P_chasing2(int mark, int *A, long int iterations, int *B, int *C, long long int *D, int starting_index, float clock_rate, int data_stride){//////what is the effect of warmup outside vs inside?
 	
 	//////shared memory: 0xc000 max (49152 Bytes = 48KB)
 	__shared__ long long int s_tvalue[1024 * 4];/////must be enough to contain the number of iterations.
@@ -79,7 +79,7 @@ __device__ void P_chasing2(int mark, int *A, int iterations, int *B, int *C, lon
 		asm(".reg .u64 t1;\n\t"
 		".reg .u64 t2;\n\t");
 	
-	for (int it = 0; it < iterations; it++){
+	for (long int it = 0; it < iterations; it++){
 		
 		/*
 		asm("mul.wide.u32 	t1, %3, %5;\n\t"	
@@ -110,13 +110,13 @@ __device__ void P_chasing2(int mark, int *A, int iterations, int *B, int *C, lon
 	
 	B[0] = j;
 	
-	for (int it = 0; it < iterations; it++){		
+	for (long int it = 0; it < iterations; it++){		
 		C[it] = s_index[it];
 		D[it] = s_tvalue[it];
 	}
 }
 
-__global__ void tlb_latency_test(int *A, int iterations, int *B, int *C, long long int *D, float clock_rate, int mod, int data_stride){
+__global__ void tlb_latency_test(int *A, long int iterations, int *B, int *C, long long int *D, float clock_rate, long int mod, int data_stride){
 	
 	///////////kepler L2 has 48 * 1024 = 49152 cache lines. But we only have 1024 * 4 slots in shared memory.
 	//P_chasing1(0, A, iterations + 0, B, C, D, 0, clock_rate, data_stride);////////saturate the L2
@@ -167,14 +167,14 @@ int main(int argc, char **argv)
 	for(int data_stride = 2 * 256 * 1024; data_stride <= 2 * 256 * 1024; data_stride = data_stride + 1){/////////2mb stride
 		//printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m
-	for(int mod = 2 * 256 * 1024 * 32; mod <= 2 * 256 * 1024 * 1024 * 8; mod = mod * 2){/////kepler L2 1.5m /////kepler L1 16KB ////////saturate the L1 not L2
+	for(long int mod = 2 * 256 * 1024 * 32; mod <= 2 * 256 * 1024 * 1024 * 8; mod = mod * 2){/////kepler L2 1.5m /////kepler L1 16KB ////////saturate the L1 not L2
 		counter++;
 		///////////////////////////////////////////////////////////////////CPU data begin
 		//int data_size = 2 * 256 * 1024 * 32;/////size = iteration * stride = 32 2mb pages.
-		int data_size = mod;
+		long int data_size = mod;
 		//int iterations = data_size / data_stride;
 		//int iterations = 1024 * 256 * 8;
-		int iterations = mod / data_stride * 2;////32 * 32 * 4 / 32 * 2 = 256
+		long int iterations = mod / data_stride * 2;////32 * 32 * 4 / 32 * 2 = 256
 	
 		int *CPU_data_in;
 		CPU_data_in = (int*)malloc(sizeof(int) * data_size);	
@@ -205,7 +205,7 @@ int main(int argc, char **argv)
 				
 		fprintf(pFile, "###################data_stride%d#########################\n", data_stride);
 		fprintf (pFile, "###############Mod%d##############%d\n", mod, mod / (2 * 256 * 1024));
-		for (int it = 0; it < iterations; it++){			
+		for (long int it = 0; it < iterations; it++){			
 			fprintf (pFile, "%d %fms %lldcycles\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate, CPU_data_out_time[it]);
 			//fprintf (pFile, "%d %fms\n", it, CPU_data_out_time[it] / (float)clock_rate);
 			//printf ("%d %fms\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate);
