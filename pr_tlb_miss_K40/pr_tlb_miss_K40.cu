@@ -167,10 +167,11 @@ int main(int argc, char **argv)
 	for(int data_stride = 2 * 256 * 1024; data_stride <= 2 * 256 * 1024; data_stride = data_stride + 1){/////////2mb stride
 		//printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m
-	for(int mod = 2 * 256 * 1024 * 32; mod <= 2 * 256 * 1024 * 32; mod = mod + 32){/////kepler L2 1.5m /////kepler L1 16KB ////////saturate the L1 not L2
+	for(int mod = 2 * 256 * 1024 * 32; mod <= 2 * 256 * 1024 * 1024; mod = mod * 2){/////kepler L2 1.5m /////kepler L1 16KB ////////saturate the L1 not L2
 		counter++;
 		///////////////////////////////////////////////////////////////////CPU data begin
-		int data_size = 2 * 256 * 1024 * 32;/////size = iteration * stride = 32 2mb pages.		
+		//int data_size = 2 * 256 * 1024 * 32;/////size = iteration * stride = 32 2mb pages.
+		int data_size = mod;
 		//int iterations = data_size / data_stride;
 		//int iterations = 1024 * 256 * 8;
 		int iterations = mod / data_stride * 2;////32 * 32 * 4 / 32 * 2 = 256
@@ -203,7 +204,7 @@ int main(int argc, char **argv)
 		cudaMemcpy(CPU_data_out_time, GPU_data_out_time, sizeof(long long int) * iterations, cudaMemcpyDeviceToHost);
 				
 		fprintf(pFile, "###################data_stride%d#########################\n", data_stride);
-		fprintf (pFile, "###############Mod%d##############%d\n", mod, counter);
+		fprintf (pFile, "###############Mod%d##############%d\n", mod, mod / (2 * 256 * 1024));
 		for (int it = 0; it < iterations; it++){			
 			fprintf (pFile, "%d %fms %lldcycles\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate, CPU_data_out_time[it]);
 			//fprintf (pFile, "%d %fms\n", it, CPU_data_out_time[it] / (float)clock_rate);
