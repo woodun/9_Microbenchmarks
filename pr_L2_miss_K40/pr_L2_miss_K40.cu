@@ -7,7 +7,7 @@
 #include <helper_cuda.h>
 #include <time.h>
 
-///////////per request timing. L1 enabled.
+///////////per request timing. L1 enabled. L2 has misses even when data size is less than 1024 * 384 (1.5m). So the eviction policy seems not to be LRU.
 
 //typedef unsigned char byte;
 
@@ -215,7 +215,7 @@ int main(int argc, char **argv)
 		free(CPU_data_out_index);
 		free(CPU_data_out_time);
 	}
-		printf("############################################\n\n");
+		//printf("############################################\n\n");
 	}
 			
 	checkCudaErrors(cudaFree(GPU_data_out));	

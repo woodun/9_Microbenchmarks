@@ -7,7 +7,7 @@
 #include <helper_cuda.h>
 #include <time.h>
 
-///////////per request timing. L1 enabled.
+///////////per request timing. L1 enabled. L2 has misses even when data size is less than 1024 * 384 (1.5m). So the eviction policy seems not to be LRU.
 
 //typedef unsigned char byte;
 
@@ -33,20 +33,20 @@ __device__ void P_chasing1(int mark, int *A, int iterations, int *B, int *C, lon
 	
 	int j = starting_index;/////make them in the same page, and miss near in cache lines
 	
-	long long int start_time = 0;//////clock
-	long long int end_time = 0;//////clock
-	start_time = clock64();//////clock
+	//long long int start_time = 0;//////clock
+	//long long int end_time = 0;//////clock
+	//start_time = clock64();//////clock
 			
 	for (int it = 0; it < iterations; it++){
 		j = A[j];
 	}
 	
-	end_time=clock64();//////clock
-	long long int total_time = end_time - start_time;//////clock
+	//end_time=clock64();//////clock
+	//long long int total_time = end_time - start_time;//////clock
 	//printf("inside%d:%fms\n", mark, (total_time / (float)clock_rate) / ((float)iterations));//////clock, average latency //////////the print will flush the L1?! (
 	
 	B[0] = j;
-	B[1] = (int) total_time;
+	//B[1] = (int) total_time;
 }
 
 //////////min page size 4kb = 4096b = 32 * 128.
@@ -118,11 +118,9 @@ __device__ void P_chasing2(int mark, int *A, int iterations, int *B, int *C, lon
 
 __global__ void tlb_latency_test(int *A, int iterations, int *B, int *C, long long int *D, float clock_rate, int mod, int data_stride){
 	
-	//P_chasing0(0, A, iterations, B, C, D, 0, clock_rate, data_stride);
-	//P_chasing1(0, A, iterations, B, C, D, 0, clock_rate, data_stride);
-	//P_chasing1(0, A, iterations, B, C, D, 0, clock_rate, data_stride);////////saturate the L1 not L2
-	//P_chasing1(0, A, iterations, B, C, D, 0, clock_rate, data_stride);////////saturate the L1 not L2
-	P_chasing2(0, A, iterations, B, C, D, 0, clock_rate, data_stride);////////saturate the L1 not L2
+	///////////kepler L2 has 48 * 1024 = 49152 cache lines. But we only have 1024 * 4 slots in shared memory.
+	P_chasing1(0, A, iterations + 0, B, C, D, 0, clock_rate, data_stride);////////saturate the L2
+	P_chasing2(0, A, 512, B, C, D, B[0], clock_rate, data_stride);////////partially print the data
 	
 	 __syncthreads();
 }
@@ -166,14 +164,14 @@ int main(int argc, char **argv)
     pFile = fopen ("output.txt","w");		
 	
 	for(int data_stride = 32; data_stride <= 32; data_stride = data_stride + 1){/////////stride shall be L1 cache line size.
-		printf("###################data_stride%d#########################\n", data_stride);
+		//printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m
-	for(int mod = 1024 * 4; mod <= 1024 * 4 + 32 * 64; mod = mod + 32){/////kepler L2 1.5m /////kepler L1 16KB ////////saturate the L1 not L2
+	for(int mod = 1024 * 384; mod <= 1024 * 384 + 32 * 64; mod = mod + 32){/////kepler L2 1.5m /////kepler L1 16KB ////////saturate the L1 not L2
 		///////////////////////////////////////////////////////////////////CPU data begin
 		int data_size = 512 * 1024 * 30;/////size = iteration * stride = 30 2mb pages.		
 		//int iterations = data_size / data_stride;
 		//int iterations = 1024 * 256 * 8;
-		int iterations = mod / data_stride * 2;////32 * 32 * 4 / 32 * 2 = 256
+		int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256
 	
 		int *CPU_data_in;
 		CPU_data_in = (int*)malloc(sizeof(int) * data_size);	
@@ -202,8 +200,9 @@ int main(int argc, char **argv)
 		cudaMemcpy(CPU_data_out_index, GPU_data_out_index, sizeof(int) * iterations, cudaMemcpyDeviceToHost);
 		cudaMemcpy(CPU_data_out_time, GPU_data_out_time, sizeof(long long int) * iterations, cudaMemcpyDeviceToHost);
 				
+		fprintf(pFile, "###################data_stride%d#########################\n", data_stride);
 		fprintf (pFile, "###############Mod%d##############%d\n", mod, (mod - 1024 * 4) / 32);
-		for (int it = 0; it < iterations; it++){			
+		for (int it = 0; it < 512; it++){			
 			fprintf (pFile, "%d %fms %lldcycles\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate, CPU_data_out_time[it]);
 			//fprintf (pFile, "%d %fms\n", it, CPU_data_out_time[it] / (float)clock_rate);
 			//printf ("%d %fms\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate);
@@ -216,7 +215,7 @@ int main(int argc, char **argv)
 		free(CPU_data_out_index);
 		free(CPU_data_out_time);
 	}
-		printf("############################################\n\n");
+		//printf("############################################\n\n");
 	}
 			
 	checkCudaErrors(cudaFree(GPU_data_out));	
