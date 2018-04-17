@@ -7,7 +7,7 @@
 #include <helper_cuda.h>
 #include <time.h>
 
-///////////per request timing. L1 enabled. L2 has misses even when data size is less than 1024 * 384 (1.5m). So the eviction policy seems not to be LRU.
+///////////per request timing. L1 enabled. 
 
 //typedef unsigned char byte;
 
@@ -119,7 +119,7 @@ __device__ void P_chasing2(int mark, int *A, int iterations, int *B, int *C, lon
 __global__ void tlb_latency_test(int *A, int iterations, int *B, int *C, long long int *D, float clock_rate, int mod, int data_stride){
 	
 	///////////kepler L2 has 48 * 1024 = 49152 cache lines. But we only have 1024 * 4 slots in shared memory.
-	P_chasing1(0, A, iterations + 0, B, C, D, 0, clock_rate, data_stride);////////saturate the L2
+	//P_chasing1(0, A, iterations + 0, B, C, D, 0, clock_rate, data_stride);////////saturate the L2
 	P_chasing2(0, A, 512, B, C, D, B[0], clock_rate, data_stride);////////partially print the data
 	
 	 __syncthreads();
@@ -166,7 +166,7 @@ int main(int argc, char **argv)
 	for(int data_stride = 32; data_stride <= 32; data_stride = data_stride + 1){/////////stride shall be L1 cache line size.
 		//printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m
-	for(int mod = 1024 * 384; mod <= 1024 * 384 + 32 * 64; mod = mod + 32){/////kepler L2 1.5m /////kepler L1 16KB ////////saturate the L1 not L2
+	for(int mod = 1024 * 384; mod <= 1024 * 384; mod = mod + 32){/////kepler L2 1.5m /////kepler L1 16KB ////////saturate the L1 not L2
 		///////////////////////////////////////////////////////////////////CPU data begin
 		int data_size = 512 * 1024 * 30;/////size = iteration * stride = 30 2mb pages.		
 		//int iterations = data_size / data_stride;
@@ -200,6 +200,7 @@ int main(int argc, char **argv)
 		cudaMemcpy(CPU_data_out_index, GPU_data_out_index, sizeof(int) * iterations, cudaMemcpyDeviceToHost);
 		cudaMemcpy(CPU_data_out_time, GPU_data_out_time, sizeof(long long int) * iterations, cudaMemcpyDeviceToHost);
 				
+		fprintf(pFile, "###################data_stride%d#########################\n", data_size);
 		fprintf(pFile, "###################data_stride%d#########################\n", data_stride);
 		fprintf (pFile, "###############Mod%d##############%d\n", mod, (mod - 1024 * 4) / 32);
 		for (int it = 0; it < 512; it++){			
