@@ -7,12 +7,12 @@
 #include <helper_cuda.h>
 #include <time.h>
 
-///////////per request timing. L1 enabled.
+///////////per request timing. L1 enabled. L1 tlb misses commonly occur when data size reach 4gb. L2 tlb misses sparsely appear at data size 8gb. Page table context switches also appear more often at data size 8gb.
 
 //typedef unsigned char byte;
 
-void init_cpu_data(int* A, int size, int stride, int mod){
-	for (int i = 0; i < size; ++i){
+void init_cpu_data(int* A, long long int size, int stride, long long int mod){
+	for (long int i = 0; i < size; i = i + stride){
 		A[i]=(i + stride) % mod;
    	}
 }
@@ -50,7 +50,7 @@ __device__ void P_chasing1(int mark, int *A, int iterations, int *B, int *C, lon
 }
 
 //////////min page size 4kb = 4096b = 32 * 128.
-__device__ void P_chasing2(int mark, int *A, int iterations, int *B, int *C, long long int *D, int starting_index, float clock_rate, int data_stride){//////what is the effect of warmup outside vs inside?
+__device__ void P_chasing2(int mark, int *A, long long int iterations, int *B, int *C, long long int *D, int starting_index, float clock_rate, int data_stride){//////what is the effect of warmup outside vs inside?
 	
 	//////shared memory: 0xc000 max (49152 Bytes = 48KB)
 	__shared__ long long int s_tvalue[1024 * 4];/////must be enough to contain the number of iterations.
@@ -79,7 +79,7 @@ __device__ void P_chasing2(int mark, int *A, int iterations, int *B, int *C, lon
 		asm(".reg .u64 t1;\n\t"
 		".reg .u64 t2;\n\t");
 	
-	for (int it = 0; it < iterations; it++){
+	for (long long int it = 0; it < iterations; it++){
 		
 		/*
 		asm("mul.wide.u32 	t1, %3, %5;\n\t"	
@@ -110,17 +110,17 @@ __device__ void P_chasing2(int mark, int *A, int iterations, int *B, int *C, lon
 	
 	B[0] = j;
 	
-	for (int it = 0; it < iterations; it++){		
+	for (long long int it = 0; it < iterations; it++){		
 		C[it] = s_index[it];
 		D[it] = s_tvalue[it];
 	}
 }
 
-__global__ void tlb_latency_test(int *A, int iterations, int *B, int *C, long long int *D, float clock_rate, int mod, int data_stride){
+__global__ void tlb_latency_test(int *A, long long int iterations, int *B, int *C, long long int *D, float clock_rate, long long int mod, int data_stride){
 	
 	///////////kepler L2 has 48 * 1024 = 49152 cache lines. But we only have 1024 * 4 slots in shared memory.
-	P_chasing1(0, A, iterations + 0, B, C, D, 0, clock_rate, data_stride);////////saturate the L2
-	P_chasing2(0, A, 512, B, C, D, B[0], clock_rate, data_stride);////////partially print the data
+	//P_chasing1(0, A, iterations + 0, B, C, D, 0, clock_rate, data_stride);////////saturate the L2
+	P_chasing2(0, A, iterations, B, C, D, 0, clock_rate, data_stride);////////partially print the data
 	
 	 __syncthreads();
 }
@@ -163,18 +163,22 @@ int main(int argc, char **argv)
 	FILE * pFile;
     pFile = fopen ("output.txt","w");		
 	
-	for(int data_stride = 32; data_stride <= 32; data_stride = data_stride + 1){/////////stride shall be L1 cache line size.
+	int counter = 0;
+	for(int data_stride = 2 * 256 * 1024; data_stride <= 2 * 256 * 1024; data_stride = data_stride + 1){/////////2mb stride
 		//printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m
-	for(int mod = 1024 * 384; mod <= 1024 * 384 + 32 * 64; mod = mod + 32){/////kepler L2 1.5m /////kepler L1 16KB ////////saturate the L1 not L2
+	for(long long int mod = 2 * 256 * 1024 * 32; mod <= 2147483648; mod = mod * 2){////1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb.
+		counter++;
 		///////////////////////////////////////////////////////////////////CPU data begin
-		int data_size = 512 * 1024 * 30;/////size = iteration * stride = 30 2mb pages.		
+		//int data_size = 2 * 256 * 1024 * 32;/////size = iteration * stride = 32 2mb pages.
+		long long int data_size = mod;
 		//int iterations = data_size / data_stride;
 		//int iterations = 1024 * 256 * 8;
-		int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256
+		long long int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256
 	
 		int *CPU_data_in;
-		CPU_data_in = (int*)malloc(sizeof(int) * data_size);	
+		//CPU_data_in = (int*)malloc(sizeof(int) * data_size);
+		checkCudaErrors(cudaMallocManaged(&CPU_data_in, sizeof(int) * data_size));/////////////using unified memory
 		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
 		
 		int *CPU_data_out_index;
@@ -201,8 +205,8 @@ int main(int argc, char **argv)
 		cudaMemcpy(CPU_data_out_time, GPU_data_out_time, sizeof(long long int) * iterations, cudaMemcpyDeviceToHost);
 				
 		fprintf(pFile, "###################data_stride%d#########################\n", data_stride);
-		fprintf (pFile, "###############Mod%d##############%d\n", mod, (mod - 1024 * 4) / 32);
-		for (int it = 0; it < 512; it++){			
+		fprintf (pFile, "###############Mod%d##############%d\n", mod, mod / (2 * 256 * 1024));
+		for (long long int it = 0; it < iterations; it++){			
 			fprintf (pFile, "%d %fms %lldcycles\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate, CPU_data_out_time[it]);
 			//fprintf (pFile, "%d %fms\n", it, CPU_data_out_time[it] / (float)clock_rate);
 			//printf ("%d %fms\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate);
