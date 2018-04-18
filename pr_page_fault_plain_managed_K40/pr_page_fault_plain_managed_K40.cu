@@ -7,7 +7,8 @@
 #include <helper_cuda.h>
 #include <time.h>
 
-///////////per request timing. L1 enabled. L1 tlb misses commonly occur when data size reach 4gb. L2 tlb misses sparsely appear at data size 8gb. Page table context switches also appear more often at data size 8gb.
+///////////per request timing. L1 enabled. 
+///////////For the second iteration, after data size 8gb when L2 tlb misses sparsely appear, managed and copied memory start to show a little difference in tlb miss patterns. Before that their tlb miss patterns are the same.
 
 //typedef unsigned char byte;
 
@@ -119,7 +120,7 @@ __device__ void P_chasing2(int mark, int *A, long long int iterations, int *B, i
 __global__ void tlb_latency_test(int *A, long long int iterations, int *B, int *C, long long int *D, float clock_rate, long long int mod, int data_stride){
 	
 	///////////kepler L2 has 48 * 1024 = 49152 cache lines. But we only have 1024 * 4 slots in shared memory.
-	P_chasing1(0, A, iterations + 0, B, C, D, 0, clock_rate, data_stride);////////saturate the L2
+	//P_chasing1(0, A, iterations + 0, B, C, D, 0, clock_rate, data_stride);////////saturate the L2
 	P_chasing2(0, A, iterations, B, C, D, 0, clock_rate, data_stride);////////partially print the data
 	
 	 __syncthreads();
