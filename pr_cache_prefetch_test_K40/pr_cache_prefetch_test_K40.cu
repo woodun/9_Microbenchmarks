@@ -7,7 +7,8 @@
 #include <helper_cuda.h>
 #include <time.h>
 
-///////////per request timing. L1 enabled. L2 prefetching exists. L1 prefetching does not. The data found in cache depends on the data size. So the prefetching is caused by the memcpy which goes through the L2 as well.
+///////////per request timing. L1 enabled. L2 prefetching exists. L1 prefetching does not. The data found in cache depends on the data size. So the prefetching is caused by the memcpy which goes through the L2 as well. 
+////////////////However, since 4mb (largest data size used) is far less to saturate the tlbs, if tlbs show misses using it, it means that both L1 and L2 tlbs does not prefetch.
 
 ///////question: when using managed memory and not using explicit prefetching, does the prefetching still exist?
 
@@ -169,7 +170,7 @@ int main(int argc, char **argv)
 	
 	for(int mod = 1024 * 2; mod <= 1024 * 2; mod = mod + 32){/////kepler L2 1.5m /////kepler L1 16KB ////////saturate the L1 not L2
 		///////////////////////////////////////////////////////////////////CPU data begin
-		int data_size = 1024 * 256 * 4;/////size = iteration * stride = 30 2mb pages.		
+		int data_size = 1024 * 256 * 4;/////4mb.		
 		//int iterations = data_size / data_stride;
 		//int iterations = 1024 * 256 * 8;
 		int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256 ////////we only need to see the first time if it is prefetched or not.
@@ -220,7 +221,7 @@ int main(int argc, char **argv)
 	
 		for(int mod = 1024 * 2; mod <= 1024 * 2; mod = mod + 32){/////kepler L2 1.5m /////kepler L1 16KB ////////saturate the L1 not L2
 		///////////////////////////////////////////////////////////////////CPU data begin
-		int data_size = 1024 * 256 * 2;/////size = iteration * stride = 30 2mb pages.		
+		int data_size = 1024 * 256 * 2;/////2mb.		
 		//int iterations = data_size / data_stride;
 		//int iterations = 1024 * 256 * 8;
 		int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256 ////////we only need to see the first time if it is prefetched or not.

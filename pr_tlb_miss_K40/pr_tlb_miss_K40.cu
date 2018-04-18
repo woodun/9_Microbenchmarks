@@ -177,7 +177,7 @@ int main(int argc, char **argv)
 		long long int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256
 	
 		int *CPU_data_in;
-		CPU_data_in = (int*)malloc(sizeof(int) * data_size);	
+		CPU_data_in = (int*)malloc(sizeof(int) * data_size);
 		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
 		
 		int *CPU_data_out_index;
