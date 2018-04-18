@@ -156,6 +156,13 @@ int main(int argc, char **argv)
         exit(EXIT_WAIVED);
     }
 	
+	if (device_prop.concurrentManagedAccess == 1){
+		printf("This device supports concurrent Managed Access.\n");
+    }else{
+		printf("This device does not support concurrent Managed Access.\n");
+	}
+	
+	
 	///////////////////////////////////////////////////////////////////GPU data out
 	int *GPU_data_out;
 	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(int) * 2));			
