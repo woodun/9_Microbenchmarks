@@ -9,6 +9,7 @@
 
 ///////////per request timing. L1 enabled. 
 ///////////For the second iteration, after data size 8gb when L2 tlb misses sparsely appear, managed and copied memory start to show a little difference in tlb miss patterns. Before that their tlb miss patterns are the same.
+///////////For the first iteration, for Kepler, 
 
 //typedef unsigned char byte;
 
