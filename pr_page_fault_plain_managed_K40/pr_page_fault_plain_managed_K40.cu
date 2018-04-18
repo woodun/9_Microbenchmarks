@@ -214,8 +214,9 @@ int main(int argc, char **argv)
 		
 		checkCudaErrors(cudaFree(GPU_data_out_index));
 		checkCudaErrors(cudaFree(GPU_data_out_time));
-		checkCudaErrors(cudaFree(GPU_data_in));
-		free(CPU_data_in);
+		//checkCudaErrors(cudaFree(GPU_data_in));
+		checkCudaErrors(cudaFree(CPU_data_in));
+		//free(CPU_data_in);
 		free(CPU_data_out_index);
 		free(CPU_data_out_time);
 	}
