@@ -119,7 +119,7 @@ __device__ void P_chasing2(int mark, int *A, long long int iterations, int *B, i
 __global__ void tlb_latency_test(int *A, long long int iterations, int *B, int *C, long long int *D, float clock_rate, long long int mod, int data_stride){
 	
 	///////////kepler L2 has 48 * 1024 = 49152 cache lines. But we only have 1024 * 4 slots in shared memory.
-	//P_chasing1(0, A, iterations + 0, B, C, D, 0, clock_rate, data_stride);////////saturate the L2
+	P_chasing1(0, A, iterations + 0, B, C, D, 0, clock_rate, data_stride);////////saturate the L2
 	P_chasing2(0, A, iterations, B, C, D, 0, clock_rate, data_stride);////////partially print the data
 	
 	 __syncthreads();
@@ -167,14 +167,14 @@ int main(int argc, char **argv)
 	for(int data_stride = 2 * 256 * 1024; data_stride <= 2 * 256 * 1024; data_stride = data_stride + 1){/////////2mb stride
 		//printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m
-	for(long long int mod = 2 * 256 * 1024 * 32; mod <= 1073741824; mod = mod * 2){////1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb.
+	for(long long int mod = 2 * 256 * 1024 * 32; mod <= 2147483648; mod = mod * 2){////1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb.
 		counter++;
 		///////////////////////////////////////////////////////////////////CPU data begin
 		//int data_size = 2 * 256 * 1024 * 32;/////size = iteration * stride = 32 2mb pages.
 		long long int data_size = mod;
 		//int iterations = data_size / data_stride;
 		//int iterations = 1024 * 256 * 8;
-		long long int iterations = mod / data_stride * 2;////32 * 32 * 4 / 32 * 2 = 256
+		long long int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256
 	
 		int *CPU_data_in;
 		CPU_data_in = (int*)malloc(sizeof(int) * data_size);	
