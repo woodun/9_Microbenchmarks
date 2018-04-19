@@ -8,9 +8,8 @@
 #include <time.h>
 
 ///////////per request timing. L1 enabled. 
-///////////Both the first and second iteration have almost same latencies and miss patterns as the plain managed case.
-///////////Only slightly different in the 800s patterns.
-///////////cudaMemAdviseSetPreferredLocation doesn't seem to have noticeable effect on K40.
+///////////cudaMemAdviseSetAccessedBy is not supported for K40 using dev_id (because cudaDevAttrConcurrentManagedAccess = 0).
+///////////cudaCpuDeviceId
 
 
 //typedef unsigned char byte;
@@ -195,7 +194,7 @@ int main(int argc, char **argv)
 		//checkCudaErrors(cudaMalloc(&CPU_data_in, sizeof(int) * data_size));////////code=11(cudaErrorInvalidValue)
 		checkCudaErrors(cudaMallocManaged(&CPU_data_in, sizeof(int) * data_size));/////////////using unified memory
 		//checkCudaErrors(cudaMemAdvise(CPU_data_in, sizeof(int) * data_size, cudaMemAdviseSetPreferredLocation, cudaCpuDeviceId));//////////////////////////////////////using hint
-		checkCudaErrors(cudaMemAdvise(CPU_data_in, sizeof(int) * data_size, cudaMemAdviseSetAccessedBy, dev_id));//////////////////////////////////////using hint
+		checkCudaErrors(cudaMemAdvise(CPU_data_in, sizeof(int) * data_size, cudaMemAdviseSetAccessedBy, cudaCpuDeviceId));//////////////////////////////////////using hint
 		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
 		
 		int *CPU_data_out_index;
