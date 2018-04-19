@@ -119,7 +119,7 @@ __device__ void P_chasing2(int mark, int *A, long long int iterations, int *B, i
 __global__ void tlb_latency_test(int *A, long long int iterations, int *B, int *C, long long int *D, float clock_rate, long long int mod, int data_stride){
 	
 	///////////kepler L2 has 48 * 1024 = 49152 cache lines. But we only have 1024 * 4 slots in shared memory.
-	P_chasing1(0, A, iterations + 0, B, C, D, 0, clock_rate, data_stride);////////saturate the L2
+	//P_chasing1(0, A, iterations + 0, B, C, D, 0, clock_rate, data_stride);////////saturate the L2
 	P_chasing2(0, A, iterations, B, C, D, 0, clock_rate, data_stride);////////partially print the data
 	
 	 __syncthreads();
@@ -156,6 +156,19 @@ int main(int argc, char **argv)
         exit(EXIT_WAIVED);
     }
 	
+	if (device_prop.concurrentManagedAccess == 1){
+		printf("This device supports concurrent Managed Access.\n");
+    }else{
+		printf("This device does not support concurrent Managed Access.\n");
+	}
+	
+	if (device_prop.cudaDevAttrConcurrentManagedAccess == 1){
+		printf("This device supports concurrent Managed Access.\n");
+    }else{
+		printf("This device does not support concurrent Managed Access.\n");
+	}
+	
+	
 	///////////////////////////////////////////////////////////////////GPU data out
 	int *GPU_data_out;
 	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(int) * 2));			
@@ -177,9 +190,10 @@ int main(int argc, char **argv)
 		long long int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256
 	
 		int *CPU_data_in;
-		//CPU_data_in = (int*)malloc(sizeof(int) * data_size);
-		checkCudaErrors(cudaMallocManaged(&CPU_data_in, sizeof(int) * data_size));/////////////using unified memory
-		cudaMemAdvise(data, N, PreferredLocation, cudaCpuDeviceId);//////////////////////////////////////using hint
+		CPU_data_in = (int*)malloc(sizeof(int) * data_size);
+		//checkCudaErrors(cudaMalloc(&CPU_data_in, sizeof(int) * data_size));////////test if this works with advise
+		//checkCudaErrors(cudaMallocManaged(&CPU_data_in, sizeof(int) * data_size));/////////////using unified memory
+		checkCudaErrors(cudaMemAdvise(CPU_data_in, sizeof(int) * data_size, cudaMemAdviseSetPreferredLocation, cudaCpuDeviceId));//////////////////////////////////////using hint
 		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
 		
 		int *CPU_data_out_index;
