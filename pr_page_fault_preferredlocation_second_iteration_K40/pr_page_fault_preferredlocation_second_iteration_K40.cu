@@ -7,15 +7,7 @@
 #include <helper_cuda.h>
 #include <time.h>
 
-///////////per request timing. L1 enabled. Pinned memory experience similar latency patterns with plain managed & copied memory. 
-///////////However, as shown in the second iteration, it does not produce L2 cache hits. Meanwhile its memory access latency is much longer.
-///////////It's probably because it's accessing the host memory directly.
-///////////In the first iteration, it seems that the host does prefetch the L2 tlb on the host side.
-///////////However, with increased data size eventually the L2 tlb will also be missed by almost all requests. 
-///////////(Moreover, in the second iteration the L2 tlb miss rate is much less. 
-///////////So is the latency observed in the first iteration really l2 tlb miss latency or is it also a page table context switch latency?)
-///////////Sometimes there are requests with even greater latency than the l2 tlb miss.
-///////////It could be the l3 tlb on the host or still the page table context switch.
+///////////per request timing. L1 enabled. L1 tlb misses commonly occur when data size reach 4gb. L2 tlb misses sparsely appear at data size 8gb. Page table context switches also appear more often at data size 8gb.
 
 //typedef unsigned char byte;
 
@@ -164,13 +156,6 @@ int main(int argc, char **argv)
         exit(EXIT_WAIVED);
     }
 	
-	if (device_prop.concurrentManagedAccess == 1){
-		printf("This device supports concurrent Managed Access.\n");
-    }else{
-		printf("This device does not support concurrent Managed Access.\n");
-	}
-	
-	
 	///////////////////////////////////////////////////////////////////GPU data out
 	int *GPU_data_out;
 	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(int) * 2));			
@@ -193,8 +178,7 @@ int main(int argc, char **argv)
 	
 		int *CPU_data_in;
 		//CPU_data_in = (int*)malloc(sizeof(int) * data_size);
-		//checkCudaErrors(cudaMallocManaged(&CPU_data_in, sizeof(int) * data_size));/////////////using unified memory
-		checkCudaErrors(cudaHostAlloc((void**)&CPU_data_in, sizeof(int) * data_size, cudaHostAllocDefault));//////////using pinned memory
+		checkCudaErrors(cudaMallocManaged(&CPU_data_in, sizeof(int) * data_size));/////////////using unified memory
 		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
 		
 		int *CPU_data_out_index;
@@ -231,8 +215,7 @@ int main(int argc, char **argv)
 		checkCudaErrors(cudaFree(GPU_data_out_index));
 		checkCudaErrors(cudaFree(GPU_data_out_time));
 		//checkCudaErrors(cudaFree(GPU_data_in));
-		//checkCudaErrors(cudaFree(CPU_data_in));
-		checkCudaErrors(cudaFreeHost(CPU_data_in));//////using pinned memory
+		checkCudaErrors(cudaFree(CPU_data_in));
 		//free(CPU_data_in);
 		free(CPU_data_out_index);
 		free(CPU_data_out_time);
