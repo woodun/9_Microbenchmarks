@@ -53,8 +53,8 @@ __device__ void P_chasing1(int mark, int *A, int iterations, int *B, int *C, lon
 __device__ void P_chasing2(int mark, int *A, int iterations, int *B, int *C, long long int *D, int starting_index, float clock_rate, int data_stride){//////what is the effect of warmup outside vs inside?
 	
 	//////shared memory: 65536 Bytes = 64KB
-	__shared__ long long int s_tvalue[1024 * 6];/////must be enough to contain the number of iterations.
-	__shared__ int s_index[1024 * 6];
+	__shared__ long long int s_tvalue[1024 * 5];/////must be enough to contain the number of iterations.
+	__shared__ int s_index[1024 * 5];
 	//__shared__ int s_index[1];
 	
 	int j = starting_index;/////make them in the same page, and miss near in cache lines
