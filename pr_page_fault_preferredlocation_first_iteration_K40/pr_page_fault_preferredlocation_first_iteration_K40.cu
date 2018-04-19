@@ -162,12 +162,9 @@ int main(int argc, char **argv)
 		printf("This device does not support concurrent Managed Access.\n");
 	}
 	
-	if (device_prop.cudaDevAttrConcurrentManagedAccess == 1){
-		printf("This device supports concurrent Managed Access.\n");
-    }else{
-		printf("This device does not support concurrent Managed Access.\n");
-	}
-	
+	int value1 = 1;
+	checkCudaErrors(cudaDeviceGetAttribute(&value1, cudaDevAttrConcurrentManagedAccess, dev_id));
+	printf("cudaDevAttrConcurrentManagedAccess = %d\n", value1);	
 	
 	///////////////////////////////////////////////////////////////////GPU data out
 	int *GPU_data_out;
@@ -190,8 +187,8 @@ int main(int argc, char **argv)
 		long long int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256
 	
 		int *CPU_data_in;
-		//CPU_data_in = (int*)malloc(sizeof(int) * data_size);
-		checkCudaErrors(cudaMalloc(&CPU_data_in, sizeof(int) * data_size));////////test if this works with advise
+		CPU_data_in = (int*)malloc(sizeof(int) * data_size);
+		//checkCudaErrors(cudaMalloc(&CPU_data_in, sizeof(int) * data_size));////////test if this works with advise
 		//checkCudaErrors(cudaMallocManaged(&CPU_data_in, sizeof(int) * data_size));/////////////using unified memory
 		checkCudaErrors(cudaMemAdvise(CPU_data_in, sizeof(int) * data_size, cudaMemAdviseSetPreferredLocation, cudaCpuDeviceId));//////////////////////////////////////using hint
 		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
