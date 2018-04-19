@@ -7,7 +7,11 @@
 #include <helper_cuda.h>
 #include <time.h>
 
-///////////per request timing. L1 enabled. L1 tlb misses commonly occur when data size reach 4gb. L2 tlb misses sparsely appear at data size 8gb. Page table context switches also appear more often at data size 8gb.
+///////////per request timing. L1 enabled. 
+///////////Both the first and second iteration have almost same latencies and miss patterns as the plain managed case.
+///////////Only slightly different in the 800s patterns.
+///////////cudaMemAdviseSetPreferredLocation doesn't seem to have noticeable effect on K40.
+
 
 //typedef unsigned char byte;
 
