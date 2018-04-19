@@ -7,7 +7,10 @@
 #include <helper_cuda.h>
 #include <time.h>
 
-///////////per request timing. L1 enabled. L1 tlb misses commonly occur when data size reach 4gb. L2 tlb misses sparsely appear at data size 8gb. Page table context switches also appear more often at data size 8gb.
+///////////per request timing. L1 enabled. 
+///////////cudaMemAdviseSetAccessedBy is not supported for K40 using dev_id (because cudaDevAttrConcurrentManagedAccess = 0).
+///////////cudaCpuDeviceId
+
 
 //typedef unsigned char byte;
 
@@ -156,6 +159,16 @@ int main(int argc, char **argv)
         exit(EXIT_WAIVED);
     }
 	
+	if (device_prop.concurrentManagedAccess == 1){
+		printf("This device supports concurrent Managed Access.\n");
+    }else{
+		printf("This device does not support concurrent Managed Access.\n");
+	}
+	
+	int value1 = 1;
+	checkCudaErrors(cudaDeviceGetAttribute(&value1, cudaDevAttrConcurrentManagedAccess, dev_id));
+	printf("cudaDevAttrConcurrentManagedAccess = %d\n", value1);	
+	
 	///////////////////////////////////////////////////////////////////GPU data out
 	int *GPU_data_out;
 	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(int) * 2));			
@@ -177,8 +190,11 @@ int main(int argc, char **argv)
 		long long int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256
 	
 		int *CPU_data_in;
-		//CPU_data_in = (int*)malloc(sizeof(int) * data_size);
+		//CPU_data_in = (int*)malloc(sizeof(int) * data_size);//////////code=11(cudaErrorInvalidValue)
+		//checkCudaErrors(cudaMalloc(&CPU_data_in, sizeof(int) * data_size));////////code=11(cudaErrorInvalidValue)
 		checkCudaErrors(cudaMallocManaged(&CPU_data_in, sizeof(int) * data_size));/////////////using unified memory
+		//checkCudaErrors(cudaMemAdvise(CPU_data_in, sizeof(int) * data_size, cudaMemAdviseSetPreferredLocation, cudaCpuDeviceId));//////////////////////////////////////using hint
+		checkCudaErrors(cudaMemAdvise(CPU_data_in, sizeof(int) * data_size, cudaMemAdviseSetAccessedBy, cudaCpuDeviceId));//////////////////////////////////////using hint
 		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
 		
 		int *CPU_data_out_index;
