@@ -15,7 +15,7 @@
 ///////////(Moreover, in the second iteration the L2 tlb miss rate is much less. 
 ///////////So is the latency observed in the first iteration really l2 tlb miss latency or is it also a page table context switch latency?)
 ///////////Sometimes there are requests with even greater latency than the l2 tlb miss.
-///////////It could be the l3 tlb on the host or still the page table context switch.
+///////////It could be the l3 tlb on the host or still the page table context switch. (Actually the 1200s happens randomly. Thus it is not another condition.)
 
 //typedef unsigned char byte;
 

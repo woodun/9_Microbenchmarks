@@ -9,8 +9,8 @@
 
 ///////////per request timing. L1 enabled. 
 ///////////Both the first and second iteration have almost same latencies and miss patterns as the plain managed case.
-///////////Only slightly different in the 800s patterns.
 ///////////cudaMemAdviseSetPreferredLocation doesn't seem to have noticeable effect on K40.
+///////////P.S. The 800s actually happens randomly. Thus it is not another condition.
 
 
 //typedef unsigned char byte;

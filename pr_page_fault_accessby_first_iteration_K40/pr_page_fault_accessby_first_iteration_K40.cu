@@ -9,7 +9,9 @@
 
 ///////////per request timing. L1 enabled. 
 ///////////cudaMemAdviseSetAccessedBy is not supported for K40 using dev_id (because cudaDevAttrConcurrentManagedAccess = 0).
-///////////cudaCpuDeviceId
+///////////When using cudaCpuDeviceId, both first and second iteration are the same as the cudaMemAdviseSetPreferredLocation case.
+///////////cudaMemAdviseSetPreferredLocation doesn't seem to have noticeable effect on K40.
+///////////P.S. The 800s actually happens randomly. Thus it is not another condition.
 
 
 //typedef unsigned char byte;
