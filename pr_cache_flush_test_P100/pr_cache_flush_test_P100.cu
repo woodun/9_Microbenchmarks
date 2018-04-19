@@ -164,10 +164,10 @@ int main(int argc, char **argv)
 	FILE * pFile;
     pFile = fopen ("output.txt","w");		
 	
-	for(int data_stride = 32; data_stride <= 32; data_stride = data_stride + 1){/////////stride shall be L1 cache line size.
+	for(int data_stride = 8; data_stride <= 8; data_stride = data_stride + 1){/////////stride shall be L1 cache line size.
 		//printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m
-	for(int mod = 1024 * 2; mod <= 1024 * 2; mod = mod + 32){/////kepler L2 1.5m /////kepler L1 16KB ////////saturate the L1 not L2
+	for(int mod = 1024 * 4; mod <= 1024 * 4; mod = mod + 32){/////kepler L2 1.5m /////kepler L1 16KB ////////saturate the L1 not L2
 		///////////////////////////////////////////////////////////////////CPU data begin
 		int data_size = 512 * 1024 * 30;/////size = iteration * stride = 30 2mb pages.		
 		//int iterations = data_size / data_stride;

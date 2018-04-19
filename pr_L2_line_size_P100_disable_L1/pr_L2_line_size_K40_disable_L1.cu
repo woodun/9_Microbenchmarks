@@ -7,7 +7,7 @@
 #include <helper_cuda.h>
 #include <time.h>
 
-///////////per request timing. L1 enabled. P100 L1 line size is 8 * 4 = 32 Bytes.
+///////////per request timing. L1 enabled. P100 L2 line size is 8 * 4 = 32 Bytes.
 
 //typedef unsigned char byte;
 
