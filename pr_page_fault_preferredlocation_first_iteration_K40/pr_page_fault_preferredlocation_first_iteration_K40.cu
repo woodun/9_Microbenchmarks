@@ -188,8 +188,8 @@ int main(int argc, char **argv)
 	
 		int *CPU_data_in;
 		//CPU_data_in = (int*)malloc(sizeof(int) * data_size);//////////code=11(cudaErrorInvalidValue)
-		checkCudaErrors(cudaMalloc(&CPU_data_in, sizeof(int) * data_size));////////test if this works with advise
-		//checkCudaErrors(cudaMallocManaged(&CPU_data_in, sizeof(int) * data_size));/////////////using unified memory
+		//checkCudaErrors(cudaMalloc(&CPU_data_in, sizeof(int) * data_size));////////code=11(cudaErrorInvalidValue)
+		checkCudaErrors(cudaMallocManaged(&CPU_data_in, sizeof(int) * data_size));/////////////using unified memory
 		checkCudaErrors(cudaMemAdvise(CPU_data_in, sizeof(int) * data_size, cudaMemAdviseSetPreferredLocation, cudaCpuDeviceId));//////////////////////////////////////using hint
 		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
 		
