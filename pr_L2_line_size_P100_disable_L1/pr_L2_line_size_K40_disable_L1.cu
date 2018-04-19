@@ -7,7 +7,7 @@
 #include <helper_cuda.h>
 #include <time.h>
 
-///////////per request timing. L1 disabled. k40 L2 line size is 8 * 4 = 32 Bytes.
+///////////per request timing. L1 enabled. P100 L1 line size is 8 * 4 = 32 Bytes.
 
 //typedef unsigned char byte;
 
@@ -33,29 +33,29 @@ __device__ void P_chasing1(int mark, int *A, int iterations, int *B, int *C, lon
 	
 	int j = starting_index;/////make them in the same page, and miss near in cache lines
 	
-	long long int start_time = 0;//////clock
-	long long int end_time = 0;//////clock
-	start_time = clock64();//////clock
+	//long long int start_time = 0;//////clock
+	//long long int end_time = 0;//////clock
+	//start_time = clock64();//////clock
 			
 	for (int it = 0; it < iterations; it++){
 		j = A[j];
 	}
 	
-	end_time=clock64();//////clock
-	long long int total_time = end_time - start_time;//////clock
+	//end_time=clock64();//////clock
+	//long long int total_time = end_time - start_time;//////clock
 	//printf("inside%d:%fms\n", mark, (total_time / (float)clock_rate) / ((float)iterations));//////clock, average latency //////////the print will flush the L1?! (
 	
 	B[0] = j;
-	B[1] = (int) total_time;
+	//B[1] = (int) total_time;
 }
 
 //////////min page size 4kb = 4096b = 32 * 128.
 __device__ void P_chasing2(int mark, int *A, int iterations, int *B, int *C, long long int *D, int starting_index, float clock_rate, int data_stride){//////what is the effect of warmup outside vs inside?
 	
-	//////shared memory: 0xc000 max (49152 Bytes = 48KB)
-	__shared__ long long int s_tvalue[1024 * 4];/////must be enough to contain the number of iterations.
-	__shared__ int s_index[1024 * 4];
-	//__shared__ int s_index[1];
+	//////shared memory: 65536 Bytes = 64KB
+	__shared__ long long int s_tvalue[1024 * 5];/////must be enough to contain the number of iterations.
+	//__shared__ int s_index[1024 * 5];
+	__shared__ int s_index[1];
 	
 	int j = starting_index;/////make them in the same page, and miss near in cache lines
 	//int j = B[0];
@@ -96,7 +96,7 @@ __device__ void P_chasing2(int mark, int *A, int iterations, int *B, int *C, lon
 		"ld.global.u32 	%1, [t2];\n\t"		
 		: "=l"(start_time), "=r"(j) : "r"(j), "l"(A), "r"(4));
 		
-		s_index[it] = j;////what if without this? ///Then it is not accurate and cannot get the access time at all, due to the ILP. (another way is to use average time, but inevitably containing other instructions:setp, add).
+		s_index[0] = j;////what if without this? ///Then it is not accurate and cannot get the access time at all, due to the ILP. (another way is to use average time, but inevitably containing other instructions:setp, add).
 		
 		asm volatile ("mov.u64 %0, %clock64;": "=l"(end_time));
 		
@@ -111,16 +111,13 @@ __device__ void P_chasing2(int mark, int *A, int iterations, int *B, int *C, lon
 	B[0] = j;
 	
 	for (int it = 0; it < iterations; it++){		
-		C[it] = s_index[it];
+		C[it] = s_index[0];
 		D[it] = s_tvalue[it];
 	}
 }
 
 __global__ void tlb_latency_test(int *A, int iterations, int *B, int *C, long long int *D, float clock_rate, int mod, int data_stride){
 	
-	//P_chasing0(0, A, iterations, B, C, D, 0, clock_rate, data_stride);
-	//P_chasing1(0, A, iterations, B, C, D, 0, clock_rate, data_stride);
-	//P_chasing1(0, A, iterations, B, C, D, 0, clock_rate, data_stride);////////saturate the L1 not L2
 	//P_chasing1(0, A, iterations, B, C, D, 0, clock_rate, data_stride);////////saturate the L1 not L2
 	P_chasing2(0, A, iterations, B, C, D, 0, clock_rate, data_stride);////////saturate the L1 not L2
 	
@@ -168,12 +165,12 @@ int main(int argc, char **argv)
 	for(int data_stride = 64; data_stride >= 4; data_stride = data_stride / 2){/////////stride shall be L1 cache line size.
 	//printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m
-	for(int mod = 1024 * 4; mod <= 1024 * 4; mod = mod + 32){/////kepler L2 1.5m /////kepler L1 16KB ////////saturate the L1 not L2
+	for(int mod = 1024 * 16; mod <= 1024 * 16; mod = mod + 32){/////kepler L2 4MB /////pascal L1 64KB ////////saturate the L1 not L2
 		///////////////////////////////////////////////////////////////////CPU data begin
 		int data_size = 512 * 1024 * 30;/////size = iteration * stride = 30 2mb pages.		
 		//int iterations = data_size / data_stride;
 		//int iterations = 1024 * 256 * 8;
-		int iterations = mod / data_stride * 2;////32 * 32 * 4 / 32 * 2 = 256
+		int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256
 	
 		int *CPU_data_in;
 		CPU_data_in = (int*)malloc(sizeof(int) * data_size);	
