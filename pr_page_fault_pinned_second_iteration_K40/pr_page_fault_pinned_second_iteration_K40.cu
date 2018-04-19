@@ -185,7 +185,8 @@ int main(int argc, char **argv)
 	
 		int *CPU_data_in;
 		//CPU_data_in = (int*)malloc(sizeof(int) * data_size);
-		checkCudaErrors(cudaMallocManaged(&CPU_data_in, sizeof(int) * data_size));/////////////using unified memory
+		//checkCudaErrors(cudaMallocManaged(&CPU_data_in, sizeof(int) * data_size));/////////////using unified memory
+		checkCudaErrors(cudaHostAlloc((void**)&CPU_data_in, sizeof(int) * data_size, cudaHostAllocDefault));//////////using pinned memory
 		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
 		
 		int *CPU_data_out_index;
