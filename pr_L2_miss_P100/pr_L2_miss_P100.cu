@@ -7,7 +7,7 @@
 #include <helper_cuda.h>
 #include <time.h>
 
-///////////per request timing. L1 enabled. L2 has misses even when data size is less than 1024 * 384 (1.5m). So the eviction policy seems not to be LRU.
+///////////per request timing. L1 enabled. Pascal L2 has misses even when data size is less than 1024 * 1024 (4m). So the eviction policy seems not to be LRU.
 
 //typedef unsigned char byte;
 
@@ -166,7 +166,7 @@ int main(int argc, char **argv)
 	for(int data_stride = 8; data_stride <= 8; data_stride = data_stride + 1){/////////stride shall be L1 cache line size.
 		//printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m
-	for(int mod = 1024 * 1024; mod <= 1024 * 1024 + 8 * 64; mod = mod + 8){/////pascal L2 4m /////pascal L1 24KB ////////saturate the L2
+	for(int mod = 1024 * 512; mod <= 1024 * 512 + 8 * 64; mod = mod + 8){/////pascal L2 4m /////pascal L1 24KB ////////saturate the L2
 		///////////////////////////////////////////////////////////////////CPU data begin
 		int data_size = 512 * 1024 * 30;/////size = iteration * stride = 30 2mb pages.		
 		//int iterations = data_size / data_stride;
