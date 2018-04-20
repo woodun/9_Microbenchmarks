@@ -128,9 +128,14 @@ __device__ void P_chasing2(int mark, int *A, long long int iterations, int *B, i
 
 __global__ void tlb_latency_test(int *A, long long int iterations, int *B, int *C, long long int *D, float clock_rate, long long int mod, int data_stride){
 	
+	int reduced_iter = iterations;
+	if(reduced_iter > 512){
+		reduced_iter = 512;
+	}
+	
 	///////////kepler L2 has 48 * 1024 = 49152 cache lines. But we only have 1024 * 4 slots in shared memory.
 	P_chasing1(0, A, iterations + 0, B, C, D, 0, clock_rate, data_stride);////////saturate the L2
-	P_chasing2(0, A, 512, B, C, D, 0, clock_rate, data_stride);////////partially print the data
+	P_chasing2(0, A, reduced_iter, B, C, D, 0, clock_rate, data_stride);////////partially print the data
 	
 	 __syncthreads();
 }
@@ -216,7 +221,7 @@ int main(int argc, char **argv)
 				
 		fprintf(pFile, "###################data_stride%d#########################\n", data_stride);
 		fprintf (pFile, "###############Mod%lld##############iterations%lld\n", mod, iterations);
-		for (long long int it = 0; it < 512; it++){			
+		for (long long int it = 0; it < iterations; it++){			
 			fprintf (pFile, "%d %fms %lldcycles\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate, CPU_data_out_time[it]);
 			//fprintf (pFile, "%d %fms\n", it, CPU_data_out_time[it] / (float)clock_rate);
 			//printf ("%d %fms\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate);
