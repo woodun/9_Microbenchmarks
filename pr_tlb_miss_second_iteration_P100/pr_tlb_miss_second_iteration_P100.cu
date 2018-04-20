@@ -11,7 +11,7 @@
 ///////////In the first iteration, L2 tlb does prefetch, while L1 tlb doesn't.
 ///////////When data size reaches 512 MB, L2 tlb becomes saturated and starts to miss.
 ///////////Because when changing the data stride, the tlb miss latency does not change, so it is actually not prefetching but the page size is 32MB.
-///////////In the second iteration, 
+///////////In the second iteration, L2 cache seems to never miss.
 ///////////
 ///////////The 400s, some of the 600s, 900s are appearing randomly.
 
@@ -170,7 +170,7 @@ int main(int argc, char **argv)
     pFile = fopen ("output.txt","w");		
 	
 	int counter = 0;
-	for(int data_stride = 1 * 64 * 1024; data_stride <= 1 * 64 * 1024; data_stride = data_stride + 1){/////////2mb stride
+	for(int data_stride = 1 * 16 * 1024; data_stride <= 1 * 16 * 1024; data_stride = data_stride + 1){/////////2mb stride
 		//printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m
 	for(long long int mod = 2 * 256 * 1024 * 32; mod <= 2147483648; mod = mod * 2){////1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb.
