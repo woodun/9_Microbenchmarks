@@ -7,10 +7,12 @@
 #include <helper_cuda.h>
 #include <time.h>
 
-///////////per request timing. L1 enabled. L2 prefetching exists. L1 prefetching does not. The data found in cache depends on the data size. So the prefetching is caused by the memcpy which goes through the L2 as well. 
-////////////////However, since 4mb (largest data size used) is far less to saturate the tlbs, if tlbs show misses using it, it means that both L1 and L2 tlbs does not prefetch.
-
-///////question: when using managed memory and not using explicit prefetching, does the prefetching still exist?
+///////////per request timing. L1 enabled. 
+///////////For K40, when using managed memory and not using explicit prefetching, L2 prefetching exists. L1 prefetching does not. 
+///////////The data found in cache depends on the data size. So the prefetching is caused by the memcpy which goes through the L2 as well. 
+///////////Since 4mb (largest data size used) is far less to saturate the tlbs, if tlbs show misses using it, it means that both L1 and L2 tlbs does not prefetch.
+///////////However, when data size gets smaller (when it starts to fit in L2), L2 tlbs seems to prefetch. L1 tlbs doesn't.
+///////////Question: what about pinned memory, preferred location and accessby?
 
 //typedef unsigned char byte;
 
@@ -176,7 +178,8 @@ int main(int argc, char **argv)
 		int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256 ////////we only need to see the first time if it is prefetched or not.
 	
 		int *CPU_data_in;
-		CPU_data_in = (int*)malloc(sizeof(int) * data_size);	
+		//CPU_data_in = (int*)malloc(sizeof(int) * data_size);
+		checkCudaErrors(cudaMallocManaged(&CPU_data_in, sizeof(int) * data_size));/////////////using unified memory		
 		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
 		
 		int *CPU_data_out_index;
@@ -186,9 +189,9 @@ int main(int argc, char **argv)
 		///////////////////////////////////////////////////////////////////CPU data end	
 	
 		///////////////////////////////////////////////////////////////////GPU data in	
-		int *GPU_data_in;
-		checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));	
-		cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
+		//int *GPU_data_in;
+		//checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));	
+		//cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
 		
 		///////////////////////////////////////////////////////////////////GPU data out
 		int *GPU_data_out_index;
@@ -196,7 +199,7 @@ int main(int argc, char **argv)
 		long long int *GPU_data_out_time;
 		checkCudaErrors(cudaMalloc(&GPU_data_out_time, sizeof(long long int) * iterations));
 		
-		tlb_latency_test<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, GPU_data_out_index, GPU_data_out_time, clock_rate, mod, data_stride);///////////////kernel is here	
+		tlb_latency_test<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, GPU_data_out_index, GPU_data_out_time, clock_rate, mod, data_stride);///////////////kernel is here	
 		cudaDeviceSynchronize();
 				
 		cudaMemcpy(CPU_data_out_index, GPU_data_out_index, sizeof(int) * iterations, cudaMemcpyDeviceToHost);
@@ -213,13 +216,14 @@ int main(int argc, char **argv)
 		
 		checkCudaErrors(cudaFree(GPU_data_out_index));
 		checkCudaErrors(cudaFree(GPU_data_out_time));
-		checkCudaErrors(cudaFree(GPU_data_in));
-		free(CPU_data_in);
+		//checkCudaErrors(cudaFree(GPU_data_in));
+		checkCudaErrors(cudaFree(CPU_data_in));
+		//free(CPU_data_in);
 		free(CPU_data_out_index);
 		free(CPU_data_out_time);
 	}
 	
-		for(int mod = 1024 * 2; mod <= 1024 * 2; mod = mod + 32){/////kepler L2 1.5m /////kepler L1 16KB ////////saturate the L1 not L2
+	for(int mod = 1024 * 2; mod <= 1024 * 2; mod = mod + 32){/////kepler L2 1.5m /////kepler L1 16KB ////////saturate the L1 not L2
 		///////////////////////////////////////////////////////////////////CPU data begin
 		int data_size = 1024 * 256 * 2;/////2mb.		
 		//int iterations = data_size / data_stride;
@@ -227,7 +231,8 @@ int main(int argc, char **argv)
 		int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256 ////////we only need to see the first time if it is prefetched or not.
 	
 		int *CPU_data_in;
-		CPU_data_in = (int*)malloc(sizeof(int) * data_size);	
+		//CPU_data_in = (int*)malloc(sizeof(int) * data_size);
+		checkCudaErrors(cudaMallocManaged(&CPU_data_in, sizeof(int) * data_size));/////////////using unified memory		
 		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
 		
 		int *CPU_data_out_index;
@@ -237,9 +242,9 @@ int main(int argc, char **argv)
 		///////////////////////////////////////////////////////////////////CPU data end	
 	
 		///////////////////////////////////////////////////////////////////GPU data in	
-		int *GPU_data_in;
-		checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));	
-		cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
+		//int *GPU_data_in;
+		//checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));	
+		//cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
 		
 		///////////////////////////////////////////////////////////////////GPU data out
 		int *GPU_data_out_index;
@@ -247,7 +252,7 @@ int main(int argc, char **argv)
 		long long int *GPU_data_out_time;
 		checkCudaErrors(cudaMalloc(&GPU_data_out_time, sizeof(long long int) * iterations));
 		
-		tlb_latency_test<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, GPU_data_out_index, GPU_data_out_time, clock_rate, mod, data_stride);///////////////kernel is here	
+		tlb_latency_test<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, GPU_data_out_index, GPU_data_out_time, clock_rate, mod, data_stride);///////////////kernel is here	
 		cudaDeviceSynchronize();
 				
 		cudaMemcpy(CPU_data_out_index, GPU_data_out_index, sizeof(int) * iterations, cudaMemcpyDeviceToHost);
@@ -264,72 +269,23 @@ int main(int argc, char **argv)
 		
 		checkCudaErrors(cudaFree(GPU_data_out_index));
 		checkCudaErrors(cudaFree(GPU_data_out_time));
-		checkCudaErrors(cudaFree(GPU_data_in));
-		free(CPU_data_in);
-		free(CPU_data_out_index);
-		free(CPU_data_out_time);
-	}
-	
-		for(int mod = 1024 * 2; mod <= 1024 * 2; mod = mod + 32){/////kepler L2 1.5m /////kepler L1 16KB ////////saturate the L1 not L2
-		///////////////////////////////////////////////////////////////////CPU data begin
-		int data_size = 1024 * 256 * 1.5;/////size = iteration * stride = 30 2mb pages.		
-		//int iterations = data_size / data_stride;
-		//int iterations = 1024 * 256 * 8;
-		int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256 ////////we only need to see the first time if it is prefetched or not.
-	
-		int *CPU_data_in;
-		CPU_data_in = (int*)malloc(sizeof(int) * data_size);	
-		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
-		
-		int *CPU_data_out_index;
-		CPU_data_out_index = (int*)malloc(sizeof(int) * iterations);
-		long long int *CPU_data_out_time;
-		CPU_data_out_time = (long long int*)malloc(sizeof(long long int) * iterations);
-		///////////////////////////////////////////////////////////////////CPU data end	
-	
-		///////////////////////////////////////////////////////////////////GPU data in	
-		int *GPU_data_in;
-		checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));	
-		cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
-		
-		///////////////////////////////////////////////////////////////////GPU data out
-		int *GPU_data_out_index;
-		checkCudaErrors(cudaMalloc(&GPU_data_out_index, sizeof(int) * iterations));
-		long long int *GPU_data_out_time;
-		checkCudaErrors(cudaMalloc(&GPU_data_out_time, sizeof(long long int) * iterations));
-		
-		tlb_latency_test<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, GPU_data_out_index, GPU_data_out_time, clock_rate, mod, data_stride);///////////////kernel is here	
-		cudaDeviceSynchronize();
-				
-		cudaMemcpy(CPU_data_out_index, GPU_data_out_index, sizeof(int) * iterations, cudaMemcpyDeviceToHost);
-		cudaMemcpy(CPU_data_out_time, GPU_data_out_time, sizeof(long long int) * iterations, cudaMemcpyDeviceToHost);
-				
-		fprintf(pFile, "############data_size%d#########################\n", data_size);
-		fprintf(pFile, "###################data_stride%d#########################\n", data_stride);
-		fprintf (pFile, "###############Mod%d##############%d\n", mod, (mod - 1024 * 4) / 32);
-		for (int it = 0; it < iterations; it++){			
-			fprintf (pFile, "%d %fms %lldcycles\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate, CPU_data_out_time[it]);
-			//fprintf (pFile, "%d %fms\n", it, CPU_data_out_time[it] / (float)clock_rate);
-			//printf ("%d %fms\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate);
-		}
-		
-		checkCudaErrors(cudaFree(GPU_data_out_index));
-		checkCudaErrors(cudaFree(GPU_data_out_time));
-		checkCudaErrors(cudaFree(GPU_data_in));
-		free(CPU_data_in);
+		//checkCudaErrors(cudaFree(GPU_data_in));
+		checkCudaErrors(cudaFree(CPU_data_in));
+		//free(CPU_data_in);
 		free(CPU_data_out_index);
 		free(CPU_data_out_time);
 	}
 	
 	for(int mod = 1024 * 2; mod <= 1024 * 2; mod = mod + 32){/////kepler L2 1.5m /////kepler L1 16KB ////////saturate the L1 not L2
 		///////////////////////////////////////////////////////////////////CPU data begin
-		int data_size = 1024 * 256;/////size = iteration * stride = 30 2mb pages.		
+		int data_size = 1024 * 256 * 1.5;/////1.5mb.		
 		//int iterations = data_size / data_stride;
 		//int iterations = 1024 * 256 * 8;
 		int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256 ////////we only need to see the first time if it is prefetched or not.
 	
 		int *CPU_data_in;
-		CPU_data_in = (int*)malloc(sizeof(int) * data_size);	
+		//CPU_data_in = (int*)malloc(sizeof(int) * data_size);
+		checkCudaErrors(cudaMallocManaged(&CPU_data_in, sizeof(int) * data_size));/////////////using unified memory		
 		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
 		
 		int *CPU_data_out_index;
@@ -339,9 +295,9 @@ int main(int argc, char **argv)
 		///////////////////////////////////////////////////////////////////CPU data end	
 	
 		///////////////////////////////////////////////////////////////////GPU data in	
-		int *GPU_data_in;
-		checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));	
-		cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
+		//int *GPU_data_in;
+		//checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));	
+		//cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
 		
 		///////////////////////////////////////////////////////////////////GPU data out
 		int *GPU_data_out_index;
@@ -349,7 +305,7 @@ int main(int argc, char **argv)
 		long long int *GPU_data_out_time;
 		checkCudaErrors(cudaMalloc(&GPU_data_out_time, sizeof(long long int) * iterations));
 		
-		tlb_latency_test<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, GPU_data_out_index, GPU_data_out_time, clock_rate, mod, data_stride);///////////////kernel is here	
+		tlb_latency_test<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, GPU_data_out_index, GPU_data_out_time, clock_rate, mod, data_stride);///////////////kernel is here	
 		cudaDeviceSynchronize();
 				
 		cudaMemcpy(CPU_data_out_index, GPU_data_out_index, sizeof(int) * iterations, cudaMemcpyDeviceToHost);
@@ -366,8 +322,62 @@ int main(int argc, char **argv)
 		
 		checkCudaErrors(cudaFree(GPU_data_out_index));
 		checkCudaErrors(cudaFree(GPU_data_out_time));
-		checkCudaErrors(cudaFree(GPU_data_in));
-		free(CPU_data_in);
+		//checkCudaErrors(cudaFree(GPU_data_in));
+		checkCudaErrors(cudaFree(CPU_data_in));
+		//free(CPU_data_in);
+		free(CPU_data_out_index);
+		free(CPU_data_out_time);
+	}
+	
+	for(int mod = 1024 * 2; mod <= 1024 * 2; mod = mod + 32){/////kepler L2 1.5m /////kepler L1 16KB ////////saturate the L1 not L2
+		///////////////////////////////////////////////////////////////////CPU data begin
+		int data_size = 1024 * 256;/////1mb.		
+		//int iterations = data_size / data_stride;
+		//int iterations = 1024 * 256 * 8;
+		int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256 ////////we only need to see the first time if it is prefetched or not.
+	
+		int *CPU_data_in;
+		//CPU_data_in = (int*)malloc(sizeof(int) * data_size);
+		checkCudaErrors(cudaMallocManaged(&CPU_data_in, sizeof(int) * data_size));/////////////using unified memory		
+		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
+		
+		int *CPU_data_out_index;
+		CPU_data_out_index = (int*)malloc(sizeof(int) * iterations);
+		long long int *CPU_data_out_time;
+		CPU_data_out_time = (long long int*)malloc(sizeof(long long int) * iterations);
+		///////////////////////////////////////////////////////////////////CPU data end	
+	
+		///////////////////////////////////////////////////////////////////GPU data in	
+		//int *GPU_data_in;
+		//checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));	
+		//cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
+		
+		///////////////////////////////////////////////////////////////////GPU data out
+		int *GPU_data_out_index;
+		checkCudaErrors(cudaMalloc(&GPU_data_out_index, sizeof(int) * iterations));
+		long long int *GPU_data_out_time;
+		checkCudaErrors(cudaMalloc(&GPU_data_out_time, sizeof(long long int) * iterations));
+		
+		tlb_latency_test<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, GPU_data_out_index, GPU_data_out_time, clock_rate, mod, data_stride);///////////////kernel is here	
+		cudaDeviceSynchronize();
+				
+		cudaMemcpy(CPU_data_out_index, GPU_data_out_index, sizeof(int) * iterations, cudaMemcpyDeviceToHost);
+		cudaMemcpy(CPU_data_out_time, GPU_data_out_time, sizeof(long long int) * iterations, cudaMemcpyDeviceToHost);
+				
+		fprintf(pFile, "############data_size%d#########################\n", data_size);
+		fprintf(pFile, "###################data_stride%d#########################\n", data_stride);
+		fprintf (pFile, "###############Mod%d##############%d\n", mod, (mod - 1024 * 4) / 32);
+		for (int it = 0; it < iterations; it++){			
+			fprintf (pFile, "%d %fms %lldcycles\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate, CPU_data_out_time[it]);
+			//fprintf (pFile, "%d %fms\n", it, CPU_data_out_time[it] / (float)clock_rate);
+			//printf ("%d %fms\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate);
+		}
+		
+		checkCudaErrors(cudaFree(GPU_data_out_index));
+		checkCudaErrors(cudaFree(GPU_data_out_time));
+		//checkCudaErrors(cudaFree(GPU_data_in));
+		checkCudaErrors(cudaFree(CPU_data_in));
+		//free(CPU_data_in);
 		free(CPU_data_out_index);
 		free(CPU_data_out_time);
 	}
@@ -380,7 +390,8 @@ int main(int argc, char **argv)
 		int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256 ////////we only need to see the first time if it is prefetched or not.
 	
 		int *CPU_data_in;
-		CPU_data_in = (int*)malloc(sizeof(int) * data_size);	
+		//CPU_data_in = (int*)malloc(sizeof(int) * data_size);
+		checkCudaErrors(cudaMallocManaged(&CPU_data_in, sizeof(int) * data_size));/////////////using unified memory		
 		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
 		
 		int *CPU_data_out_index;
@@ -390,9 +401,9 @@ int main(int argc, char **argv)
 		///////////////////////////////////////////////////////////////////CPU data end	
 	
 		///////////////////////////////////////////////////////////////////GPU data in	
-		int *GPU_data_in;
-		checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));	
-		cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
+		//int *GPU_data_in;
+		//checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));	
+		//cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
 		
 		///////////////////////////////////////////////////////////////////GPU data out
 		int *GPU_data_out_index;
@@ -400,7 +411,7 @@ int main(int argc, char **argv)
 		long long int *GPU_data_out_time;
 		checkCudaErrors(cudaMalloc(&GPU_data_out_time, sizeof(long long int) * iterations));
 		
-		tlb_latency_test<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, GPU_data_out_index, GPU_data_out_time, clock_rate, mod, data_stride);///////////////kernel is here	
+		tlb_latency_test<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, GPU_data_out_index, GPU_data_out_time, clock_rate, mod, data_stride);///////////////kernel is here	
 		cudaDeviceSynchronize();
 				
 		cudaMemcpy(CPU_data_out_index, GPU_data_out_index, sizeof(int) * iterations, cudaMemcpyDeviceToHost);
@@ -417,8 +428,9 @@ int main(int argc, char **argv)
 		
 		checkCudaErrors(cudaFree(GPU_data_out_index));
 		checkCudaErrors(cudaFree(GPU_data_out_time));
-		checkCudaErrors(cudaFree(GPU_data_in));
-		free(CPU_data_in);
+		//checkCudaErrors(cudaFree(GPU_data_in));
+		checkCudaErrors(cudaFree(CPU_data_in));
+		//free(CPU_data_in);
 		free(CPU_data_out_index);
 		free(CPU_data_out_time);
 	}
@@ -431,7 +443,8 @@ int main(int argc, char **argv)
 		int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256 ////////we only need to see the first time if it is prefetched or not.
 	
 		int *CPU_data_in;
-		CPU_data_in = (int*)malloc(sizeof(int) * data_size);	
+		//CPU_data_in = (int*)malloc(sizeof(int) * data_size);
+		checkCudaErrors(cudaMallocManaged(&CPU_data_in, sizeof(int) * data_size));/////////////using unified memory		
 		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
 		
 		int *CPU_data_out_index;
@@ -441,9 +454,9 @@ int main(int argc, char **argv)
 		///////////////////////////////////////////////////////////////////CPU data end	
 	
 		///////////////////////////////////////////////////////////////////GPU data in	
-		int *GPU_data_in;
-		checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));	
-		cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
+		//int *GPU_data_in;
+		//checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));	
+		//cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
 		
 		///////////////////////////////////////////////////////////////////GPU data out
 		int *GPU_data_out_index;
@@ -451,7 +464,7 @@ int main(int argc, char **argv)
 		long long int *GPU_data_out_time;
 		checkCudaErrors(cudaMalloc(&GPU_data_out_time, sizeof(long long int) * iterations));
 		
-		tlb_latency_test<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, GPU_data_out_index, GPU_data_out_time, clock_rate, mod, data_stride);///////////////kernel is here	
+		tlb_latency_test<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, GPU_data_out_index, GPU_data_out_time, clock_rate, mod, data_stride);///////////////kernel is here	
 		cudaDeviceSynchronize();
 				
 		cudaMemcpy(CPU_data_out_index, GPU_data_out_index, sizeof(int) * iterations, cudaMemcpyDeviceToHost);
@@ -468,8 +481,9 @@ int main(int argc, char **argv)
 		
 		checkCudaErrors(cudaFree(GPU_data_out_index));
 		checkCudaErrors(cudaFree(GPU_data_out_time));
-		checkCudaErrors(cudaFree(GPU_data_in));
-		free(CPU_data_in);
+		//checkCudaErrors(cudaFree(GPU_data_in));
+		checkCudaErrors(cudaFree(CPU_data_in));
+		//free(CPU_data_in);
 		free(CPU_data_out_index);
 		free(CPU_data_out_time);
 	}
@@ -482,7 +496,8 @@ int main(int argc, char **argv)
 		int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256 ////////we only need to see the first time if it is prefetched or not.
 	
 		int *CPU_data_in;
-		CPU_data_in = (int*)malloc(sizeof(int) * data_size);	
+		//CPU_data_in = (int*)malloc(sizeof(int) * data_size);
+		checkCudaErrors(cudaMallocManaged(&CPU_data_in, sizeof(int) * data_size));/////////////using unified memory		
 		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
 		
 		int *CPU_data_out_index;
@@ -492,9 +507,9 @@ int main(int argc, char **argv)
 		///////////////////////////////////////////////////////////////////CPU data end	
 	
 		///////////////////////////////////////////////////////////////////GPU data in	
-		int *GPU_data_in;
-		checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));	
-		cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
+		//int *GPU_data_in;
+		//checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));	
+		//cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
 		
 		///////////////////////////////////////////////////////////////////GPU data out
 		int *GPU_data_out_index;
@@ -502,7 +517,7 @@ int main(int argc, char **argv)
 		long long int *GPU_data_out_time;
 		checkCudaErrors(cudaMalloc(&GPU_data_out_time, sizeof(long long int) * iterations));
 		
-		tlb_latency_test<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, GPU_data_out_index, GPU_data_out_time, clock_rate, mod, data_stride);///////////////kernel is here	
+		tlb_latency_test<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, GPU_data_out_index, GPU_data_out_time, clock_rate, mod, data_stride);///////////////kernel is here	
 		cudaDeviceSynchronize();
 				
 		cudaMemcpy(CPU_data_out_index, GPU_data_out_index, sizeof(int) * iterations, cudaMemcpyDeviceToHost);
@@ -519,8 +534,9 @@ int main(int argc, char **argv)
 		
 		checkCudaErrors(cudaFree(GPU_data_out_index));
 		checkCudaErrors(cudaFree(GPU_data_out_time));
-		checkCudaErrors(cudaFree(GPU_data_in));
-		free(CPU_data_in);
+		//checkCudaErrors(cudaFree(GPU_data_in));
+		checkCudaErrors(cudaFree(CPU_data_in));
+		//free(CPU_data_in);
 		free(CPU_data_out_index);
 		free(CPU_data_out_time);
 	}
