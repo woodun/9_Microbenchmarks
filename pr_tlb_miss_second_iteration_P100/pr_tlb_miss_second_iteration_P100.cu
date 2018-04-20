@@ -8,6 +8,7 @@
 #include <time.h>
 
 ///////////per request timing. L1 enabled. L1 tlb misses commonly occur when data size reach 4gb. L2 tlb misses sparsely appear at data size 8gb. Page table context switches also appear more often at data size 8gb.
+///////////The 400s are actually errors.
 
 //typedef unsigned char byte;
 
