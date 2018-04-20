@@ -216,7 +216,7 @@ int main(int argc, char **argv)
 				
 		fprintf(pFile, "###################data_stride%d#########################\n", data_stride);
 		fprintf (pFile, "###############Mod%lld##############iterations%lld\n", mod, iterations);
-		for (long long int it = 0; it < iterations; it++){			
+		for (long long int it = 0; it < 512; it++){			
 			fprintf (pFile, "%d %fms %lldcycles\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate, CPU_data_out_time[it]);
 			//fprintf (pFile, "%d %fms\n", it, CPU_data_out_time[it] / (float)clock_rate);
 			//printf ("%d %fms\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate);
