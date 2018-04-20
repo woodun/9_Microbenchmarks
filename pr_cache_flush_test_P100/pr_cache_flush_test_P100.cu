@@ -8,7 +8,7 @@
 #include <time.h>
 
 ///////////per request timing. L1 enabled.
-///////////onclusion: For P100, only when using both the same cpu and gpu data, cache hits can be generated between two kernels. And it is limited to L2. L1 will be flushed.
+///////////For P100, only when using both the same cpu and gpu data, cache hits can be generated between two kernels. And it is limited to L2. L1 will be flushed.
 
 //typedef unsigned char byte;
 
