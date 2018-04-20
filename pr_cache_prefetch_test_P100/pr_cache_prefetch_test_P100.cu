@@ -8,10 +8,9 @@
 #include <time.h>
 
 ///////////per request timing. L1 enabled. 
-///////////For P100, L2 prefetching exists. L1 prefetching does not. 
-///////////The data found in cache depends on the data size. So the prefetching is caused by the memcpy which goes through the L2 as well. 
-///////////Since 8mb (largest data size used) is far less to saturate the tlbs, if tlbs show misses using it, it means that both L1 and L2 tlbs does not prefetch.
-///////////However, when data size gets smaller (when it starts to fit in L2), L2 tlbs seems to prefetch (or is it tlb miss + l2 hit? see tlb miss for answer).
+///////////For P100, L2 cache prefetch exists. L1 cache prefetch does not. 
+///////////The data found in cache depends on the data size. So the prefetch is caused by the memcpy which goes through the L2 as well. 
+///////////Since 8mb (largest data size used) is far less to saturate the tlbs, if tlbs show misses using it, it means that just L1 or L1 and L2 tlbs does not prefetch.
 
 
 //typedef unsigned char byte;

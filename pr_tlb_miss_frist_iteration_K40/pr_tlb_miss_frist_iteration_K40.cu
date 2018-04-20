@@ -170,7 +170,7 @@ int main(int argc, char **argv)
 	for(int data_stride = 2 * 256 * 1024; data_stride <= 2 * 256 * 1024; data_stride = data_stride + 1){/////////2mb stride
 		//printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m
-	for(long long int mod = 2 * 256 * 1024 * 32; mod <= 2147483648; mod = mod * 2){////1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb.
+	for(long long int mod = 2 * 256 * 1024 * 8; mod <= 2147483648; mod = mod * 2){////1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb.
 		counter++;
 		///////////////////////////////////////////////////////////////////CPU data begin
 		//int data_size = 2 * 256 * 1024 * 32;/////size = iteration * stride = 32 2mb pages.
