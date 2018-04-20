@@ -198,7 +198,7 @@ int main(int argc, char **argv)
 		long long int *GPU_data_out_time;
 		checkCudaErrors(cudaMalloc(&GPU_data_out_time, sizeof(long long int) * iterations));
 		
-		tlb_latency_test<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, GPU_data_out_index, GPU_data_out_time, clock_rate, mod, data_stride);///////////////kernel is here	
+		tlb_latency_test<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, GPU_data_out_index, GPU_data_out_time, clock_rate, mod, data_stride);///////////////kernel is here	
 		cudaDeviceSynchronize();
 				
 		cudaMemcpy(CPU_data_out_index, GPU_data_out_index, sizeof(int) * iterations, cudaMemcpyDeviceToHost);
@@ -213,8 +213,9 @@ int main(int argc, char **argv)
 		
 		checkCudaErrors(cudaFree(GPU_data_out_index));
 		checkCudaErrors(cudaFree(GPU_data_out_time));
-		checkCudaErrors(cudaFree(GPU_data_in));
-		free(CPU_data_in);
+		//checkCudaErrors(cudaFree(GPU_data_in));
+		checkCudaErrors(cudaFree(CPU_data_in));
+		//free(CPU_data_in);
 		free(CPU_data_out_index);
 		free(CPU_data_out_time);
 	}

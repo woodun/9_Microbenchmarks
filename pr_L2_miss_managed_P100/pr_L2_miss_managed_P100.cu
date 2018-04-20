@@ -174,7 +174,8 @@ int main(int argc, char **argv)
 		int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256
 	
 		int *CPU_data_in;
-		CPU_data_in = (int*)malloc(sizeof(int) * data_size);	
+		//CPU_data_in = (int*)malloc(sizeof(int) * data_size);
+		checkCudaErrors(cudaMallocManaged(&CPU_data_in, sizeof(int) * data_size));/////////////using unified memory
 		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
 		
 		int *CPU_data_out_index;
@@ -184,9 +185,9 @@ int main(int argc, char **argv)
 		///////////////////////////////////////////////////////////////////CPU data end	
 	
 		///////////////////////////////////////////////////////////////////GPU data in	
-		int *GPU_data_in;
-		checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));	
-		cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
+		//int *GPU_data_in;
+		//checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));	
+		//cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
 		
 		///////////////////////////////////////////////////////////////////GPU data out
 		int *GPU_data_out_index;
@@ -194,7 +195,7 @@ int main(int argc, char **argv)
 		long long int *GPU_data_out_time;
 		checkCudaErrors(cudaMalloc(&GPU_data_out_time, sizeof(long long int) * iterations));
 		
-		tlb_latency_test<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, GPU_data_out_index, GPU_data_out_time, clock_rate, mod, data_stride);///////////////kernel is here	
+		tlb_latency_test<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, GPU_data_out_index, GPU_data_out_time, clock_rate, mod, data_stride);///////////////kernel is here	
 		cudaDeviceSynchronize();
 				
 		cudaMemcpy(CPU_data_out_index, GPU_data_out_index, sizeof(int) * iterations, cudaMemcpyDeviceToHost);
@@ -210,8 +211,9 @@ int main(int argc, char **argv)
 		
 		checkCudaErrors(cudaFree(GPU_data_out_index));
 		checkCudaErrors(cudaFree(GPU_data_out_time));
-		checkCudaErrors(cudaFree(GPU_data_in));
-		free(CPU_data_in);
+		//checkCudaErrors(cudaFree(GPU_data_in));
+		checkCudaErrors(cudaFree(CPU_data_in));
+		//free(CPU_data_in);
 		free(CPU_data_out_index);
 		free(CPU_data_out_time);
 	}
