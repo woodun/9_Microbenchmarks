@@ -53,9 +53,9 @@ __device__ void P_chasing1(int mark, int *A, int iterations, int *B, int *C, lon
 __device__ void P_chasing2(int mark, int *A, int iterations, int *B, int *C, long long int *D, int starting_index, float clock_rate, int data_stride){//////what is the effect of warmup outside vs inside?
 	
 	//////shared memory: 0xc000 max (49152 Bytes = 48KB)
-	__shared__ long long int s_tvalue[1024 * 4];/////must be enough to contain the number of iterations.
-	__shared__ int s_index[1024 * 4];
-	//__shared__ int s_index[1];
+	__shared__ long long int s_tvalue[1024 * 5];/////must be enough to contain the number of iterations.
+	//__shared__ int s_index[1024 * 4];
+	__shared__ int s_index[1];
 	
 	int j = starting_index;/////make them in the same page, and miss near in cache lines
 	//int j = B[0];
@@ -96,7 +96,7 @@ __device__ void P_chasing2(int mark, int *A, int iterations, int *B, int *C, lon
 		"ld.global.u32 	%1, [t2];\n\t"		
 		: "=l"(start_time), "=r"(j) : "r"(j), "l"(A), "r"(4));
 		
-		s_index[it] = j;////what if without this? ///Then it is not accurate and cannot get the access time at all, due to the ILP. (another way is to use average time, but inevitably containing other instructions:setp, add).
+		s_index[0] = j;////what if without this? ///Then it is not accurate and cannot get the access time at all, due to the ILP. (another way is to use average time, but inevitably containing other instructions:setp, add).
 		
 		asm volatile ("mov.u64 %0, %clock64;": "=l"(end_time));
 		
@@ -111,18 +111,18 @@ __device__ void P_chasing2(int mark, int *A, int iterations, int *B, int *C, lon
 	B[0] = j;
 	
 	for (int it = 0; it < iterations; it++){		
-		C[it] = s_index[it];
+		C[it] = s_index[0];
 		D[it] = s_tvalue[it];
 	}
 }
 
 __global__ void tlb_latency_test(int *A, int iterations, int *B, int *C, long long int *D, float clock_rate, int mod, int data_stride){
 	
-	///////////kepler L2 has 48 * 1024 = 49152 cache lines. But we only have 1024 * 4 slots in shared memory.
+	///////////psacal L2 has 128 * 1024 = 131072 128B cache lines. But we only have 1024 * 4 slots in shared memory.
 	P_chasing1(0, A, iterations + 0, B, C, D, 0, clock_rate, data_stride);////////saturate the L2
 	P_chasing2(0, A, 512, B, C, D, B[0], clock_rate, data_stride);////////partially print the data
 	
-	 __syncthreads();
+	__syncthreads();
 }
 
 int main(int argc, char **argv)
@@ -163,10 +163,10 @@ int main(int argc, char **argv)
 	FILE * pFile;
     pFile = fopen ("output.txt","w");		
 	
-	for(int data_stride = 32; data_stride <= 32; data_stride = data_stride + 1){/////////stride shall be L1 cache line size.
+	for(int data_stride = 8; data_stride <= 8; data_stride = data_stride + 1){/////////stride shall be L1 cache line size.
 		//printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m
-	for(int mod = 1024 * 384; mod <= 1024 * 384 + 32 * 64; mod = mod + 32){/////kepler L2 1.5m /////kepler L1 16KB ////////saturate the L1 not L2
+	for(int mod = 1024 * 1024; mod <= 1024 * 1024 + 8 * 64; mod = mod + 8){/////pascal L2 4m /////pascal L1 24KB ////////saturate the L2
 		///////////////////////////////////////////////////////////////////CPU data begin
 		int data_size = 512 * 1024 * 30;/////size = iteration * stride = 30 2mb pages.		
 		//int iterations = data_size / data_stride;

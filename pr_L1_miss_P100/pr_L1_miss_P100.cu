@@ -8,6 +8,7 @@
 #include <time.h>
 
 ///////////per request timing. L1 enabled.
+///////////Pascal L1 cache size is 24 KB.
 
 //typedef unsigned char byte;
 

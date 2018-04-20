@@ -11,7 +11,7 @@
 ///////////For P100, L2 prefetching exists. L1 prefetching does not. 
 ///////////The data found in cache depends on the data size. So the prefetching is caused by the memcpy which goes through the L2 as well. 
 ///////////Since 8mb (largest data size used) is far less to saturate the tlbs, if tlbs show misses using it, it means that both L1 and L2 tlbs does not prefetch.
-///////////However, when data size gets smaller (when it starts to fit in L2), L2 tlbs seems to prefetch (or is it tlb miss + l2 hit?).
+///////////However, when data size gets smaller (when it starts to fit in L2), L2 tlbs seems to prefetch (or is it tlb miss + l2 hit? see tlb miss for answer).
 
 
 //typedef unsigned char byte;
@@ -325,7 +325,7 @@ int main(int argc, char **argv)
 	
 		for(int mod = 1024 * 2; mod <= 1024 * 2; mod = mod + 32){/////kepler L2 1.5m /////kepler L1 16KB ////////saturate the L1 not L2
 		///////////////////////////////////////////////////////////////////CPU data begin
-		int data_size = 1024 * 256 * 1.5;/////size = iteration * stride = 30 2mb pages.		
+		int data_size = 1024 * 256 * 1.5;/////1.5mb.		
 		//int iterations = data_size / data_stride;
 		//int iterations = 1024 * 256 * 8;
 		int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256 ////////we only need to see the first time if it is prefetched or not.
@@ -376,7 +376,7 @@ int main(int argc, char **argv)
 	
 	for(int mod = 1024 * 2; mod <= 1024 * 2; mod = mod + 32){/////kepler L2 1.5m /////kepler L1 16KB ////////saturate the L1 not L2
 		///////////////////////////////////////////////////////////////////CPU data begin
-		int data_size = 1024 * 256;/////size = iteration * stride = 30 2mb pages.		
+		int data_size = 1024 * 256;/////1mb.		
 		//int iterations = data_size / data_stride;
 		//int iterations = 1024 * 256 * 8;
 		int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256 ////////we only need to see the first time if it is prefetched or not.
@@ -427,7 +427,7 @@ int main(int argc, char **argv)
 	
 	for(int mod = 1024 * 2; mod <= 1024 * 2; mod = mod + 32){/////kepler L2 1.5m /////kepler L1 16KB ////////saturate the L1 not L2
 		///////////////////////////////////////////////////////////////////CPU data begin
-		int data_size = 1024 * 8;/////size = iteration * stride = 30 2mb pages.		
+		int data_size = 1024 * 8;/////32kb.		
 		//int iterations = data_size / data_stride;
 		//int iterations = 1024 * 256 * 8;
 		int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256 ////////we only need to see the first time if it is prefetched or not.
@@ -478,7 +478,7 @@ int main(int argc, char **argv)
 	
 	for(int mod = 1024 * 2; mod <= 1024 * 2; mod = mod + 32){/////kepler L2 1.5m /////kepler L1 16KB ////////saturate the L1 not L2
 		///////////////////////////////////////////////////////////////////CPU data begin
-		int data_size = 1024 * 4;/////size = iteration * stride = 30 2mb pages.		
+		int data_size = 1024 * 4;/////16kb.		
 		//int iterations = data_size / data_stride;
 		//int iterations = 1024 * 256 * 8;
 		int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256 ////////we only need to see the first time if it is prefetched or not.
@@ -529,7 +529,7 @@ int main(int argc, char **argv)
 	
 	for(int mod = 1024 * 2; mod <= 1024 * 2; mod = mod + 32){/////kepler L2 1.5m /////kepler L1 16KB ////////saturate the L1 not L2
 		///////////////////////////////////////////////////////////////////CPU data begin
-		int data_size = 1024 * 2;/////size = iteration * stride = 30 2mb pages.		
+		int data_size = 1024 * 2;/////8kb.		
 		//int iterations = data_size / data_stride;
 		//int iterations = 1024 * 256 * 8;
 		int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256 ////////we only need to see the first time if it is prefetched or not.
