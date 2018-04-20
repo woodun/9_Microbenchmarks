@@ -8,11 +8,16 @@
 #include <time.h>
 
 ///////////per request timing. L1 enabled. P100.
-///////////For the second iteration, after data size 8gb when L2 tlb misses sparsely appear, managed and copied memory start to show a little difference in tlb miss patterns. 
+///////////For the second iteration, after data size 1gb, L2 tlb misses sparsely appear.
+///////////After data size 512MB, L1 tlb misses sparsely appear.
+
+
 ///////////Before that their tlb miss patterns are the same.
 ///////////For the first iteration, for Kepler(pre-Pascal), managed memory migrates all pages before kernel launch. 
 ///////////It does warm up the L2 tlb while copied memory doesn't, so it will only cause L1 tlb misses. 
 ///////////However, its L1 tlb miss latency is always higher than normal L1 tlb misses in the first iteration. It might need a page table context switch for each L1 tlb miss.
+///////////1700s and 1900s are coincidence, but 1600s is not.
+
 
 //typedef unsigned char byte;
 
@@ -125,7 +130,7 @@ __global__ void tlb_latency_test(int *A, long long int iterations, int *B, int *
 	
 	///////////kepler L2 has 48 * 1024 = 49152 cache lines. But we only have 1024 * 4 slots in shared memory.
 	P_chasing1(0, A, iterations + 0, B, C, D, 0, clock_rate, data_stride);////////saturate the L2
-	P_chasing2(0, A, iterations, B, C, D, 0, clock_rate, data_stride);////////partially print the data
+	P_chasing2(0, A, 512, B, C, D, 0, clock_rate, data_stride);////////partially print the data
 	
 	 __syncthreads();
 }
@@ -169,7 +174,7 @@ int main(int argc, char **argv)
     pFile = fopen ("output.txt","w");		
 	
 	int counter = 0;
-	for(int data_stride = 2 * 256 * 1024; data_stride <= 32 * 256 * 1024; data_stride = data_stride * 2){/////////32mb stride
+	for(int data_stride = 2 * 32 * 1024; data_stride <= 32 * 256 * 1024; data_stride = data_stride * 2){/////////32mb stride
 		//printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m
 	for(long long int mod = 2 * 256 * 1024 * 8; mod <= 2147483648; mod = mod * 2){////268435456 = 1gb, 536870912 = 2gb, 1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb.
