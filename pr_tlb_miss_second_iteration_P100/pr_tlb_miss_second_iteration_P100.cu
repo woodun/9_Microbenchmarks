@@ -7,8 +7,14 @@
 #include <helper_cuda.h>
 #include <time.h>
 
-///////////per request timing. L1 enabled. L1 tlb misses commonly occur when data size reach 4gb. L2 tlb misses sparsely appear at data size 8gb. Page table context switches also appear more often at data size 8gb.
-///////////The 400s are actually errors.
+///////////per request timing. L1 enabled. 
+///////////In the first iteration, L2 tlb does prefetch, while L1 tlb doesn't.
+///////////When data size reaches 512 MB, L2 tlb becomes saturated and starts to miss.
+///////////Because when changing the data stride, the tlb miss latency does not change, so it is actually not prefetching but the page size is large.
+///////////In the second iteration, 
+///////////L1 tlb misses commonly occur when data size reach 4gb. L2 tlb misses sparsely appear at data size 8gb.
+///////////
+///////////The 400s, some of the 600s, 900s are actually errors.
 
 //typedef unsigned char byte;
 
