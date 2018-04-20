@@ -7,7 +7,9 @@
 #include <helper_cuda.h>
 #include <time.h>
 
-///////////per request timing. L1 enabled. Pascal L2 has misses even when data size is less than 1024 * 1024 (4m). So the eviction policy seems not to be LRU.
+///////////per request timing. L1 enabled. 
+///////////When Pascal is using managed memory, the L2 cache shows very different miss and prefetch patterns than when using copied memory.
+///////////However, the hit and miss latencies tends to be the same.
 
 //typedef unsigned char byte;
 
