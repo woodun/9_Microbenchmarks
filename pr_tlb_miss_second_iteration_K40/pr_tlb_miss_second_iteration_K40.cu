@@ -8,7 +8,9 @@
 #include <time.h>
 
 ///////////per request timing. L1 enabled. 
-///////////L1 tlb misses commonly occur when data size reach 4gb. L2 tlb misses sparsely appear at data size 8gb. 
+///////////L1 tlb misses commonly occur when data size reaches 512MB. 
+///////////L2 cache misses commonly occur when data size reaches 4gb (iteration reaches 2048).
+///////////L2 tlb misses sparsely appear at data size 8gb. 
 ///////////Page table context switches (600s and 900s, they are not error) also appear more often at data size 8gb.
 ///////////page size is 2mb.
 

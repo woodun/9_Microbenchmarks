@@ -7,7 +7,7 @@
 #include <helper_cuda.h>
 #include <time.h>
 
-///////////per request timing. L1 enabled. 
+///////////per request timing. L1 enabled. P100.
 ///////////For the second iteration, after data size 8gb when L2 tlb misses sparsely appear, managed and copied memory start to show a little difference in tlb miss patterns. 
 ///////////Before that their tlb miss patterns are the same.
 ///////////For the first iteration, for Kepler(pre-Pascal), managed memory migrates all pages before kernel launch. 
@@ -169,10 +169,10 @@ int main(int argc, char **argv)
     pFile = fopen ("output.txt","w");		
 	
 	int counter = 0;
-	for(int data_stride = 2 * 256 * 1024; data_stride <= 2 * 256 * 1024; data_stride = data_stride + 1){/////////2mb stride
+	for(int data_stride = 16 * 256 * 1024; data_stride <= 32 * 256 * 1024; data_stride = data_stride * 2){/////////32mb stride
 		//printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m
-	for(long long int mod = 2 * 256 * 1024 * 32; mod <= 2147483648; mod = mod * 2){////1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb.
+	for(long long int mod = 2 * 256 * 1024 * 8; mod <= 2147483648; mod = mod * 2){////1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb.
 		counter++;
 		///////////////////////////////////////////////////////////////////CPU data begin
 		//int data_size = 2 * 256 * 1024 * 32;/////size = iteration * stride = 32 2mb pages.
@@ -210,7 +210,7 @@ int main(int argc, char **argv)
 		cudaMemcpy(CPU_data_out_time, GPU_data_out_time, sizeof(long long int) * iterations, cudaMemcpyDeviceToHost);
 				
 		fprintf(pFile, "###################data_stride%d#########################\n", data_stride);
-		fprintf (pFile, "###############Mod%d##############%d\n", mod, mod / (2 * 256 * 1024));
+		fprintf (pFile, "###############Mod%lld##############iterations%lld\n", mod, iterations);
 		for (long long int it = 0; it < iterations; it++){			
 			fprintf (pFile, "%d %fms %lldcycles\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate, CPU_data_out_time[it]);
 			//fprintf (pFile, "%d %fms\n", it, CPU_data_out_time[it] / (float)clock_rate);
