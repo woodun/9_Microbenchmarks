@@ -53,8 +53,8 @@ __device__ void P_chasing1(int mark, int *A, int iterations, int *B, int *C, lon
 __device__ void P_chasing2(int mark, int *A, int iterations, int *B, int *C, long long int *D, int starting_index, float clock_rate, int data_stride){//////what is the effect of warmup outside vs inside?
 	
 	//////shared memory: 0xc000 max (49152 Bytes = 48KB)
-	__shared__ long long int s_tvalue[1024 * 4];/////must be enough to contain the number of iterations.
-	__shared__ int s_index[1024 * 4];
+	__shared__ long long int s_tvalue[1024 * 5];/////must be enough to contain the number of iterations.
+	__shared__ int s_index[1024 * 5];
 	//__shared__ int s_index[1];
 	
 	int j = starting_index;/////make them in the same page, and miss near in cache lines
@@ -168,7 +168,7 @@ int main(int argc, char **argv)
 	for(int data_stride = 32; data_stride <= 32; data_stride = data_stride + 1){/////////stride shall be L1 cache line size.
 		printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m
-	for(int mod = 1024 * 4; mod <= 1024 * 4 + 32 * 64; mod = mod + 32){/////kepler L2 1.5m /////kepler L1 16KB ////////saturate the L1 not L2
+	for(int mod = 1024 * 8; mod <= 1024 * 8 + 32 * 64; mod = mod + 32){/////kepler L2 1.5m /////kepler L1 16KB ////////saturate the L1 not L2
 		///////////////////////////////////////////////////////////////////CPU data begin
 		int data_size = 512 * 1024 * 30;/////size = iteration * stride = 30 2mb pages.		
 		//int iterations = data_size / data_stride;
