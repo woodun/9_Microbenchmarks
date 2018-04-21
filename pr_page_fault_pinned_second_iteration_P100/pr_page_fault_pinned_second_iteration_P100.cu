@@ -7,15 +7,18 @@
 #include <helper_cuda.h>
 #include <time.h>
 
-///////////per request timing. L1 enabled. Pinned memory experience similar latency patterns with plain managed & copied memory. 
-///////////However, as shown in the second iteration, it does not produce L2 cache hits. Meanwhile its memory access latency is much longer.
-///////////It's probably because it's accessing the host memory directly.
-///////////In the first iteration, it seems that the host does prefetch the L2 tlb on the host side.
+///////////per request timing. L1 enabled. P100.
+///////////As shown in the second iteration, it does produce L2 cache hits, however, it is much longer. (is it using L2 on the host?)
+///////////Meanwhile its L2 cache miss latency is even longer.
+///////////Likely appearing sequence of miss: L1 cache hit -> L1 cache miss -> L1 tlb miss -> L2 tlb miss -> L2 cache miss (or -> L2 cache miss -> L2 tlb miss)
+///////////2000s appear at 4mb here seems to be L2 cache misses.
+
+///////////In the first iteration, it seems that the host does prefetch both the L1 tlb and L2 tlb on the host side.
 ///////////However, with increased data size eventually the L2 tlb will also be missed by almost all requests. 
 ///////////(Moreover, in the second iteration the L2 tlb miss rate is much less. 
 ///////////So is the latency observed in the first iteration really l2 tlb miss latency or is it also a page table context switch latency?)
-///////////Sometimes there are requests with even greater latency than the l2 tlb miss.
-///////////It could be the l3 tlb on the host or still the page table context switch. (Actually the 1200s happens randomly. Thus it is not another condition.)
+///////////1900s here are errors.
+
 
 //typedef unsigned char byte;
 
