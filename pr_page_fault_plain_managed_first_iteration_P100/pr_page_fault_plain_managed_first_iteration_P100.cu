@@ -8,11 +8,11 @@
 #include <time.h>
 
 ///////////per request timing. L1 enabled. P100.
-///////////For the second iteration, after data size 8gb when L2 tlb misses sparsely appear, managed and copied memory start to show a little difference in tlb miss patterns. 
-///////////Before that their tlb miss patterns are the same.
-///////////For the first iteration, for Kepler(pre-Pascal), managed memory migrates all pages before kernel launch. 
-///////////It does warm up the L2 tlb while copied memory doesn't, so it will only cause L1 tlb misses. 
-///////////However, its L1 tlb miss latency is always higher than normal L1 tlb misses in the first iteration. It might need a page table context switch for each L1 tlb miss.
+///////////For the second iteration, after data size 1gb, L2 tlb misses sparsely appear.
+///////////After data size 512MB, L1 tlb misses sparsely appear.
+///////////For the first iteration, managed memory migrates pages on demand. 
+///////////After the migration, L1 and L2 tlbs of the page will be filled, L2 cache will also be prefetched. 
+///////////1700s and 1900s are coincidence, but 1600s is not.
 
 //typedef unsigned char byte;
 
