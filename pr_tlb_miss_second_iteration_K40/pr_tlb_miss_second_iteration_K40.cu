@@ -20,6 +20,10 @@ void init_cpu_data(int* A, long long int size, int stride, long long int mod){
 	for (long long int i = 0; i < size; i = i + stride){
 		A[i]=(i + stride) % mod;
    	}
+	
+	for (long long int i = 32; i < size; i = i + stride){
+		A[i]=(i + stride) % mod;
+   	}
 }
 
 __device__ void P_chasing0(int mark, int *A, int iterations, int *B, int *C, long long int *D, int starting_index, float clock_rate, int data_stride){	
