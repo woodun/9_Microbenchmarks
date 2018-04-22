@@ -17,7 +17,7 @@
 //typedef unsigned char byte;
 
 void init_cpu_data(int* A, long long int size, int stride, long long int mod){
-	for (long int i = 0; i < size; i = i + stride){
+	for (long long int i = 0; i < size; i = i + stride){
 		A[i]=(i + stride) % mod;
    	}
 }
