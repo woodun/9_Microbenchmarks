@@ -132,7 +132,7 @@ __global__ void tlb_latency_test(int *A, long long int iterations, int *B, int *
 	
 	///////////kepler L2 has 48 * 1024 = 49152 cache lines. But we only have 1024 * 4 slots in shared memory.
 	P_chasing1(0, A, iterations + 0, B, C, D, 0, clock_rate, data_stride);////////saturate the L2
-	P_chasing2(0, A, reduced_iter, B, C, D, B[0], clock_rate, data_stride);////////partially print the data
+	P_chasing2(0, A, reduced_iter, B, C, D, 0, clock_rate, data_stride);////////partially print the data
 	
 	 __syncthreads();
 }
@@ -193,10 +193,18 @@ int main(int argc, char **argv)
 		CPU_data_in = (int*)malloc(sizeof(int) * data_size);
 		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
 		
+		
+		int reduced_iter = iterations;
+		if(reduced_iter > 512){
+			reduced_iter = 512;
+		}else if(reduced_iter < 16){
+			reduced_iter = 16;
+		}
+		
 		int *CPU_data_out_index;
-		CPU_data_out_index = (int*)malloc(sizeof(int) * iterations);
+		CPU_data_out_index = (int*)malloc(sizeof(int) * reduced_iter);
 		long long int *CPU_data_out_time;
-		CPU_data_out_time = (long long int*)malloc(sizeof(long long int) * iterations);
+		CPU_data_out_time = (long long int*)malloc(sizeof(long long int) * reduced_iter);
 		///////////////////////////////////////////////////////////////////CPU data end	
 	
 		///////////////////////////////////////////////////////////////////GPU data in	
@@ -206,22 +214,17 @@ int main(int argc, char **argv)
 		
 		///////////////////////////////////////////////////////////////////GPU data out
 		int *GPU_data_out_index;
-		checkCudaErrors(cudaMalloc(&GPU_data_out_index, sizeof(int) * iterations));
+		checkCudaErrors(cudaMalloc(&GPU_data_out_index, sizeof(int) * reduced_iter));
 		long long int *GPU_data_out_time;
-		checkCudaErrors(cudaMalloc(&GPU_data_out_time, sizeof(long long int) * iterations));
+		checkCudaErrors(cudaMalloc(&GPU_data_out_time, sizeof(long long int) * reduced_iter));
 		
 		tlb_latency_test<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, GPU_data_out_index, GPU_data_out_time, clock_rate, mod, data_stride);///////////////kernel is here	
 		cudaDeviceSynchronize();
 				
-		cudaMemcpy(CPU_data_out_index, GPU_data_out_index, sizeof(int) * iterations, cudaMemcpyDeviceToHost);
-		cudaMemcpy(CPU_data_out_time, GPU_data_out_time, sizeof(long long int) * iterations, cudaMemcpyDeviceToHost);
+		cudaMemcpy(CPU_data_out_index, GPU_data_out_index, sizeof(int) * reduced_iter, cudaMemcpyDeviceToHost);
+		cudaMemcpy(CPU_data_out_time, GPU_data_out_time, sizeof(long long int) * reduced_iter, cudaMemcpyDeviceToHost);
 				
-		int reduced_iter = iterations;
-		if(reduced_iter > 512){
-			reduced_iter = 512;
-		}else if(reduced_iter < 16){
-			reduced_iter = 16;
-		}
+
 		fprintf(pFile, "###################data_stride%d#########################\n", data_stride);
 		fprintf (pFile, "###############Mod%lld##############%lld\n", mod, iterations);
 		for (long long int it = 0; it < reduced_iter; it++){		
