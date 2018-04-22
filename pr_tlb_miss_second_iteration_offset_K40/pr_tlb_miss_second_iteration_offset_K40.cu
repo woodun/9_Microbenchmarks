@@ -132,7 +132,7 @@ __global__ void tlb_latency_test(int *A, long long int iterations, int *B, int *
 	
 	///////////kepler L2 has 48 * 1024 = 49152 cache lines. But we only have 1024 * 4 slots in shared memory.
 	P_chasing1(0, A, iterations + 0, B, C, D, 0, clock_rate, data_stride);////////saturate the L2
-	P_chasing2(0, A, reduced_iter, B, C, D, B[0], clock_rate, data_stride);////////partially print the data
+	P_chasing2(0, A, reduced_iter, B, C, D, 32, clock_rate, data_stride);////////partially print the data
 	
 	 __syncthreads();
 }
@@ -177,7 +177,7 @@ int main(int argc, char **argv)
 	
 	int counter = 0;
 	for(int data_stride = 2 * 16 * 1024; data_stride <= 2 * 256 * 1024; data_stride = data_stride * 2){/////////32mb stride
-		data_stride = data_stride + 32;///offset a cache line, trying to cause L2 miss but tlb hit.
+		//data_stride = data_stride + 32;///offset a cache line, trying to cause L2 miss but tlb hit.
 		//printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m = 12288 cache lines, L1 16k = 128 cache lines.
 	for(long long int mod = 4 * 256 * 1024; mod <= 2147483648; mod = mod * 2){////268435456 = 1gb, 536870912 = 2gb, 1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb.
