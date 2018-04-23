@@ -205,7 +205,7 @@ int main(int argc, char **argv)
 		
 		int reduced_iter = iterations;
 		if(reduced_iter > 4096){
-			reduced_iter = 512;
+			reduced_iter = 4096;
 		}else if(reduced_iter < 16){
 			reduced_iter = 16;
 		}
