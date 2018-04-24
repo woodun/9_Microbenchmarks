@@ -291,7 +291,7 @@ endif
 # Target rules
 all: build
 
-build: pr_L2_miss_P100
+build: pr_L2_size_K40
 
 check.deps:
 ifeq ($(SAMPLE_ENABLED),0)
@@ -300,19 +300,19 @@ else
 	@echo "Sample is ready - all dependencies have been met"
 endif
 
-pr_L2_miss_P100.o:pr_L2_miss_P100.cu
+pr_L2_size_K40.o:pr_L2_size_K40.cu
 	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
-pr_L2_miss_P100: pr_L2_miss_P100.o
+pr_L2_size_K40: pr_L2_size_K40.o
 	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
 	$(EXEC) mkdir -p ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 	$(EXEC) cp $@ ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 
 run: build
-	$(EXEC) ./pr_L2_miss_P100
+	$(EXEC) ./pr_L2_size_K40
 
 clean:
-	rm -f pr_L2_miss_P100 pr_L2_miss_P100.o
-	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/pr_L2_miss_P100
+	rm -f pr_L2_size_K40 pr_L2_size_K40.o
+	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/pr_L2_size_K40
 
 clobber: clean
