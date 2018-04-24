@@ -41,7 +41,7 @@ __device__ void P_chasing0(int mark, int *A, int iterations, int *B, int *C, lon
 }
 
 //////////min page size 4kb = 4096b = 32 * 128.
-__device__ void P_chasing1(int mark, int *A, int iterations, int *B, int *C, long long int *D, int starting_index, float clock_rate, int data_stride){	
+__device__ void P_chasing1(int mark, int *A, long long int iterations, int *B, int *C, long long int *D, int starting_index, float clock_rate, int data_stride){	
 	
 	int j = starting_index;/////make them in the same page, and miss near in cache lines
 	
@@ -130,7 +130,7 @@ __device__ void P_chasing2(int mark, int *A, long long int iterations, int *B, i
 
 __global__ void tlb_latency_test(int *A, long long int iterations, int *B, int *C, long long int *D, float clock_rate, long long int mod, int data_stride){
 	
-	int reduced_iter = iterations;
+	long long int reduced_iter = iterations;
 	if(reduced_iter > 4096){
 		reduced_iter = 4096;
 	}else if(reduced_iter < 16){
@@ -209,8 +209,7 @@ int main(int argc, char **argv)
 		checkCudaErrors(cudaHostAlloc((void**)&CPU_data_in, sizeof(int) * data_size, cudaHostAllocDefault));//////////using pinned memory
 		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
 		
-		
-		int reduced_iter = iterations;
+		long long int reduced_iter = iterations;
 		if(reduced_iter > 4096){
 			reduced_iter = 4096;
 		}else if(reduced_iter < 16){
