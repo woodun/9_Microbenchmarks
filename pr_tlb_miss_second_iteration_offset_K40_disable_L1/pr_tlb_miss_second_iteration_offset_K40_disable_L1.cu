@@ -184,10 +184,14 @@ int main(int argc, char **argv)
 		//data_stride = data_stride + 32;///offset a cache line, trying to cause L2 miss but tlb hit.
 		//printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m = 12288 cache lines, L1 16k = 128 cache lines.
-	for(long long int mod = 1 * 16 * 1024; mod <= 2147483648; mod = mod * 2){////268435456 = 1gb, 536870912 = 2gb, 1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb.
+	for(long long int mod2 = 1 * 16 * 1024; mod2 <= 2147483648; mod2 = mod2 * 2){////268435456 = 1gb, 536870912 = 2gb, 1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb.
 		counter++;
 		///////////////////////////////////////////////////////////////////CPU data begin
 		//int data_size = 2 * 256 * 1024 * 32;/////size = iteration * stride = 32 2mb pages.
+		long long int mod = mod2;
+		if(mod > 2415919104){
+			mod = 2415919104;
+		}
 		long long int data_size = mod;
 		if(data_size < 4194304){//////////data size at least 16mb to prevent L2 prefetch
 			data_size = 4194304;
@@ -199,7 +203,6 @@ int main(int argc, char **argv)
 		int *CPU_data_in;
 		CPU_data_in = (int*)malloc(sizeof(int) * data_size);
 		init_cpu_data(CPU_data_in, mod, data_stride, mod);
-		
 		
 		int reduced_iter = iterations;
 		if(reduced_iter > 512){
@@ -234,7 +237,7 @@ int main(int argc, char **argv)
 
 		fprintf(pFile, "###################data_stride%d#########################\n", data_stride);
 		fprintf (pFile, "###############Mod%lld##############%lld\n", mod, iterations);
-		for (long long int it = 0; it < reduced_iter; it++){		
+		for (long long int it = 0; it < reduced_iter; it++){
 			fprintf (pFile, "%d %fms %lldcycles\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate, CPU_data_out_time[it]);
 			//fprintf (pFile, "%d %fms\n", it, CPU_data_out_time[it] / (float)clock_rate);
 			//printf ("%d %fms\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate);
