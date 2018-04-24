@@ -219,7 +219,7 @@ ALL_CCFLAGS += $(EXTRA_NVCCFLAGS)
 ALL_CCFLAGS += $(addprefix -Xcompiler ,$(CCFLAGS))
 ALL_CCFLAGS += $(addprefix -Xcompiler ,$(EXTRA_CCFLAGS))
 ALL_CCFLAGS += -keep
-ALL_CCFLAGS += -Xptxas -dlcm=ca
+ALL_CCFLAGS += -Xptxas -dlcm=cg
 
 UBUNTU = $(shell lsb_release -i -s 2>/dev/null | grep -i ubuntu)
 
@@ -291,7 +291,7 @@ endif
 # Target rules
 all: build
 
-build: pr_page_fault_pinned_second_iteration_K40
+build: pr_page_fault_pinned_second_iteration_K40_disable_L1
 
 check.deps:
 ifeq ($(SAMPLE_ENABLED),0)
@@ -300,19 +300,19 @@ else
 	@echo "Sample is ready - all dependencies have been met"
 endif
 
-pr_page_fault_pinned_second_iteration_K40.o:pr_page_fault_pinned_second_iteration_K40.cu
+pr_page_fault_pinned_second_iteration_K40_disable_L1.o:pr_page_fault_pinned_second_iteration_K40_disable_L1.cu
 	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
-pr_page_fault_pinned_second_iteration_K40: pr_page_fault_pinned_second_iteration_K40.o
+pr_page_fault_pinned_second_iteration_K40_disable_L1: pr_page_fault_pinned_second_iteration_K40_disable_L1.o
 	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
 	$(EXEC) mkdir -p ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 	$(EXEC) cp $@ ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 
 run: build
-	$(EXEC) ./pr_page_fault_pinned_second_iteration_K40
+	$(EXEC) ./pr_page_fault_pinned_second_iteration_K40_disable_L1
 
 clean:
-	rm -f pr_page_fault_pinned_second_iteration_K40 pr_page_fault_pinned_second_iteration_K40.o
-	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/pr_page_fault_pinned_second_iteration_K40
+	rm -f pr_page_fault_pinned_second_iteration_K40_disable_L1 pr_page_fault_pinned_second_iteration_K40_disable_L1.o
+	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/pr_page_fault_pinned_second_iteration_K40_disable_L1
 
 clobber: clean
