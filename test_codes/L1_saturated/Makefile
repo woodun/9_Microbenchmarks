@@ -288,7 +288,7 @@ endif
 
 ################################################################################
 # Get the current folder's name
-result=$(shell echo "${PWD\#\#*/}")
+result=$(shell basename $(CURDIR))
 
 # Target rules
 all: build
