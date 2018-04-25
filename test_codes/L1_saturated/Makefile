@@ -256,7 +256,7 @@ ALL_LDFLAGS += $(addprefix -Xlinker ,$(LDFLAGS))
 ALL_LDFLAGS += $(addprefix -Xlinker ,$(EXTRA_LDFLAGS))
 
 # Common includes and paths for CUDA
-INCLUDES  := -I../../common/inc
+INCLUDES  := -I$(CUDA_PATH)/samples/common/inc/
 LIBRARIES :=
 
 ################################################################################
@@ -288,7 +288,7 @@ endif
 
 ################################################################################
 # Get the current folder's name
-result=$(shell basename $(CURDIR))
+result=$(shell echo "${PWD##*/}")
 
 # Target rules
 all: build
