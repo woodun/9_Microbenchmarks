@@ -256,7 +256,7 @@ ALL_LDFLAGS += $(addprefix -Xlinker ,$(LDFLAGS))
 ALL_LDFLAGS += $(addprefix -Xlinker ,$(EXTRA_LDFLAGS))
 
 # Common includes and paths for CUDA
-INCLUDES  := -I../../common/inc
+INCLUDES  := -I$(CUDA_PATH)/samples/common/inc/
 LIBRARIES :=
 
 ################################################################################
@@ -287,11 +287,13 @@ EXEC ?= @echo "[@]"
 endif
 
 ################################################################################
+# Get the current folder's name
+result=$(shell basename $(CURDIR))
 
 # Target rules
 all: build
 
-build: pr_page_fault_plain_managed_first_iteration_P100
+build: $(result)
 
 check.deps:
 ifeq ($(SAMPLE_ENABLED),0)
@@ -300,19 +302,16 @@ else
 	@echo "Sample is ready - all dependencies have been met"
 endif
 
-pr_page_fault_plain_managed_first_iteration_P100.o:pr_page_fault_plain_managed_first_iteration_P100.cu
+$(result).o:$(result).cu
 	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
-pr_page_fault_plain_managed_first_iteration_P100: pr_page_fault_plain_managed_first_iteration_P100.o
+$(result): $(result).o
 	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
-	$(EXEC) mkdir -p ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
-	$(EXEC) cp $@ ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
-
+	
 run: build
-	$(EXEC) ./pr_page_fault_plain_managed_first_iteration_P100
+	$(EXEC) ./$(result)
 
 clean:
-	rm -f pr_page_fault_plain_managed_first_iteration_P100 pr_page_fault_plain_managed_first_iteration_P100.o
-	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/pr_page_fault_plain_managed_first_iteration_P100
-
+	rm -f $(result) $(result).o
+	
 clobber: clean
