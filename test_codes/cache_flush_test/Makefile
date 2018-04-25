@@ -287,11 +287,13 @@ EXEC ?= @echo "[@]"
 endif
 
 ################################################################################
+# Get the current folder's name
+result=$(shell basename $(CURDIR))
 
 # Target rules
 all: build
 
-build: cache_flush_test
+build: $(result)
 
 check.deps:
 ifeq ($(SAMPLE_ENABLED),0)
@@ -300,16 +302,16 @@ else
 	@echo "Sample is ready - all dependencies have been met"
 endif
 
-cache_flush_test.o:cache_flush_test.cu
+$(result).o:$(result).cu
 	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
-cache_flush_test: cache_flush_test.o
-	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)	
-
+$(result): $(result).o
+	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
+	
 run: build
-	$(EXEC) ./cache_flush_test
+	$(EXEC) ./$(result)
 
 clean:
-	rm -f cache_flush_test cache_flush_test.o	
-
+	rm -f $(result) $(result).o
+	
 clobber: clean
