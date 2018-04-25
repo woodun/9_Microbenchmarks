@@ -287,11 +287,13 @@ EXEC ?= @echo "[@]"
 endif
 
 ################################################################################
+# Get the current folder's name
+result=$(shell basename $(CURDIR))
 
 # Target rules
 all: build
 
-build: cache_line_size_validation_L2_only
+build: $(result)
 
 check.deps:
 ifeq ($(SAMPLE_ENABLED),0)
@@ -300,16 +302,16 @@ else
 	@echo "Sample is ready - all dependencies have been met"
 endif
 
-cache_line_size_validation_L2_only.o:cache_line_size_validation_L2_only.cu
+$(result).o:$(result).cu
 	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
-cache_line_size_validation_L2_only: cache_line_size_validation_L2_only.o
+$(result): $(result).o
 	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
 	
 run: build
-	$(EXEC) ./cache_line_size_validation_L2_only
+	$(EXEC) ./$(result)
 
 clean:
-	rm -f cache_line_size_validation_L2_only cache_line_size_validation_L2_only.o
+	rm -f $(result) $(result).o
 	
 clobber: clean

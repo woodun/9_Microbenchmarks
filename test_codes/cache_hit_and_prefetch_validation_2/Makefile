@@ -287,11 +287,13 @@ EXEC ?= @echo "[@]"
 endif
 
 ################################################################################
+# Get the current folder's name
+result=$(shell basename $(CURDIR))
 
 # Target rules
 all: build
 
-build: cache_hit_and_prefetch_validation_2
+build: $(result)
 
 check.deps:
 ifeq ($(SAMPLE_ENABLED),0)
@@ -300,16 +302,16 @@ else
 	@echo "Sample is ready - all dependencies have been met"
 endif
 
-cache_hit_and_prefetch_validation_2.o:cache_hit_and_prefetch_validation_2.cu
+$(result).o:$(result).cu
 	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
-cache_hit_and_prefetch_validation_2: cache_hit_and_prefetch_validation_2.o
+$(result): $(result).o
 	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
 	
 run: build
-	$(EXEC) ./cache_hit_and_prefetch_validation_2
+	$(EXEC) ./$(result)
 
 clean:
-	rm -f cache_hit_and_prefetch_validation_2 cache_hit_and_prefetch_validation_2.o
+	rm -f $(result) $(result).o
 	
 clobber: clean
