@@ -256,7 +256,7 @@ ALL_LDFLAGS += $(addprefix -Xlinker ,$(LDFLAGS))
 ALL_LDFLAGS += $(addprefix -Xlinker ,$(EXTRA_LDFLAGS))
 
 # Common includes and paths for CUDA
-INCLUDES  := -I../../common/inc
+INCLUDES  := -I$(CUDA_PATH)/samples/common/inc/
 LIBRARIES :=
 
 ################################################################################
@@ -305,14 +305,11 @@ pr_tlb_miss_first_iteration_P100.o:pr_tlb_miss_first_iteration_P100.cu
 
 pr_tlb_miss_first_iteration_P100: pr_tlb_miss_first_iteration_P100.o
 	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
-	$(EXEC) mkdir -p ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
-	$(EXEC) cp $@ ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 
 run: build
 	$(EXEC) ./pr_tlb_miss_first_iteration_P100
 
 clean:
-	rm -f pr_tlb_miss_first_iteration_P100 pr_tlb_miss_first_iteration_P100.o
-	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/pr_tlb_miss_first_iteration_P100
+	rm -f pr_tlb_miss_first_iteration_P100 pr_tlb_miss_first_iteration_P100.o	
 
 clobber: clean
