@@ -219,7 +219,7 @@ ALL_CCFLAGS += $(EXTRA_NVCCFLAGS)
 ALL_CCFLAGS += $(addprefix -Xcompiler ,$(CCFLAGS))
 ALL_CCFLAGS += $(addprefix -Xcompiler ,$(EXTRA_CCFLAGS))
 ALL_CCFLAGS += -keep
-ALL_CCFLAGS += -Xptxas -dlcm=cg
+ALL_CCFLAGS += -Xptxas -dlcm=ca
 
 UBUNTU = $(shell lsb_release -i -s 2>/dev/null | grep -i ubuntu)
 
@@ -256,7 +256,7 @@ ALL_LDFLAGS += $(addprefix -Xlinker ,$(LDFLAGS))
 ALL_LDFLAGS += $(addprefix -Xlinker ,$(EXTRA_LDFLAGS))
 
 # Common includes and paths for CUDA
-INCLUDES  := -I../../common/inc
+INCLUDES  := -I$(CUDA_PATH)/samples/common/inc/
 LIBRARIES :=
 
 ################################################################################
@@ -287,11 +287,13 @@ EXEC ?= @echo "[@]"
 endif
 
 ################################################################################
+# Get the current folder's name
+result=$(shell basename $(CURDIR))
 
 # Target rules
 all: build
 
-build: pr_tlb_miss_second_iteration_offset_K40_disable_L1
+build: $(result)
 
 check.deps:
 ifeq ($(SAMPLE_ENABLED),0)
@@ -300,19 +302,16 @@ else
 	@echo "Sample is ready - all dependencies have been met"
 endif
 
-pr_tlb_miss_second_iteration_offset_K40_disable_L1.o:pr_tlb_miss_second_iteration_offset_K40_disable_L1.cu
+$(result).o:$(result).cu
 	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
-pr_tlb_miss_second_iteration_offset_K40_disable_L1: pr_tlb_miss_second_iteration_offset_K40_disable_L1.o
+$(result): $(result).o
 	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
-	$(EXEC) mkdir -p ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
-	$(EXEC) cp $@ ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
-
+	
 run: build
-	$(EXEC) ./pr_tlb_miss_second_iteration_offset_K40_disable_L1
+	$(EXEC) ./$(result)
 
 clean:
-	rm -f pr_tlb_miss_second_iteration_offset_K40_disable_L1 pr_tlb_miss_second_iteration_offset_K40_disable_L1.o
-	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/pr_tlb_miss_second_iteration_offset_K40_disable_L1
-
+	rm -f $(result) $(result).o
+	
 clobber: clean
