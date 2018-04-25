@@ -288,7 +288,7 @@ endif
 
 ################################################################################
 # Get the current folder's name
-result=$(shell echo "${PWD##*/}")
+result=$(shell echo "${PWD\#\#*/}")
 
 # Target rules
 all: build
