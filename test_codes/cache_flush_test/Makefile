@@ -256,7 +256,7 @@ ALL_LDFLAGS += $(addprefix -Xlinker ,$(LDFLAGS))
 ALL_LDFLAGS += $(addprefix -Xlinker ,$(EXTRA_LDFLAGS))
 
 # Common includes and paths for CUDA
-INCLUDES  := -I../../common/inc
+INCLUDES  := -I$(CUDA_PATH)/samples/common/inc/
 LIBRARIES :=
 
 ################################################################################
@@ -291,7 +291,7 @@ endif
 # Target rules
 all: build
 
-build: cache_hit_and_prefetch_validation
+build: cache_flush_test
 
 check.deps:
 ifeq ($(SAMPLE_ENABLED),0)
@@ -300,19 +300,16 @@ else
 	@echo "Sample is ready - all dependencies have been met"
 endif
 
-cache_hit_and_prefetch_validation.o:cache_hit_and_prefetch_validation.cu
+cache_flush_test.o:cache_flush_test.cu
 	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
-cache_hit_and_prefetch_validation: cache_hit_and_prefetch_validation.o
-	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
-	$(EXEC) mkdir -p ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
-	$(EXEC) cp $@ ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
+cache_flush_test: cache_flush_test.o
+	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)	
 
 run: build
-	$(EXEC) ./cache_hit_and_prefetch_validation
+	$(EXEC) ./cache_flush_test
 
 clean:
-	rm -f cache_hit_and_prefetch_validation cache_hit_and_prefetch_validation.o
-	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/cache_hit_and_prefetch_validation
+	rm -f cache_flush_test cache_flush_test.o	
 
 clobber: clean

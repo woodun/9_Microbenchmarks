@@ -256,7 +256,7 @@ ALL_LDFLAGS += $(addprefix -Xlinker ,$(LDFLAGS))
 ALL_LDFLAGS += $(addprefix -Xlinker ,$(EXTRA_LDFLAGS))
 
 # Common includes and paths for CUDA
-INCLUDES  := -I../../common/inc
+INCLUDES  := -I$(CUDA_PATH)/samples/common/inc/
 LIBRARIES :=
 
 ################################################################################
@@ -305,14 +305,11 @@ cache_hit_and_prefetch_validation_2.o:cache_hit_and_prefetch_validation_2.cu
 
 cache_hit_and_prefetch_validation_2: cache_hit_and_prefetch_validation_2.o
 	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
-	$(EXEC) mkdir -p ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
-	$(EXEC) cp $@ ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
-
+	
 run: build
 	$(EXEC) ./cache_hit_and_prefetch_validation_2
 
 clean:
 	rm -f cache_hit_and_prefetch_validation_2 cache_hit_and_prefetch_validation_2.o
-	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/cache_hit_and_prefetch_validation_2
-
+	
 clobber: clean
