@@ -5,6 +5,6 @@ for configs in pr_page_fault_pinned_second_iteration_offset_P100 pr_cache_prefet
 
 do
 cd $configs
-cp ../makefile .
+cp ../Makefile .
 cd ..
 done

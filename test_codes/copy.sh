@@ -5,6 +5,6 @@ for configs in $(ls -d *)
 
 do
 cd $configs
-cp ../makefile .
+cp ../Makefile .
 cd ..
 done
