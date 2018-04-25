@@ -291,7 +291,7 @@ endif
 # Target rules
 all: build
 
-build: pr_tlb_miss_frist_iteration_P100
+build: pr_tlb_miss_first_iteration_P100
 
 check.deps:
 ifeq ($(SAMPLE_ENABLED),0)
@@ -300,19 +300,19 @@ else
 	@echo "Sample is ready - all dependencies have been met"
 endif
 
-pr_tlb_miss_frist_iteration_P100.o:pr_tlb_miss_frist_iteration_P100.cu
+pr_tlb_miss_first_iteration_P100.o:pr_tlb_miss_first_iteration_P100.cu
 	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
-pr_tlb_miss_frist_iteration_P100: pr_tlb_miss_frist_iteration_P100.o
+pr_tlb_miss_first_iteration_P100: pr_tlb_miss_first_iteration_P100.o
 	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
 	$(EXEC) mkdir -p ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 	$(EXEC) cp $@ ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 
 run: build
-	$(EXEC) ./pr_tlb_miss_frist_iteration_P100
+	$(EXEC) ./pr_tlb_miss_first_iteration_P100
 
 clean:
-	rm -f pr_tlb_miss_frist_iteration_P100 pr_tlb_miss_frist_iteration_P100.o
-	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/pr_tlb_miss_frist_iteration_P100
+	rm -f pr_tlb_miss_first_iteration_P100 pr_tlb_miss_first_iteration_P100.o
+	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/pr_tlb_miss_first_iteration_P100
 
 clobber: clean
