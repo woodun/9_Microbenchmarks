@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <stdlib.h>
 // utilities
-//#include <helper_cuda.h>
+#include <helper_cuda.h>
 #include <time.h>
 
 ///////////per request timing. L1 enabled. P100.
