@@ -7,12 +7,12 @@
 #include <helper_cuda.h>
 #include <time.h>
 
-///////////per request timing. L1 enabled. P100.
-///////////In the first iteration, L2 tlb does prefetch, while L1 tlb doesn't.
-///////////When data size reaches 512 MB, L2 tlb becomes saturated and starts to miss.
-///////////Because when changing the data stride, the tlb miss latency does not change, so it is actually not prefetching but the page size is 32MB.
-///////////In the second iteration, however, L2 cache seems to never miss.
-///////////The 400s, some of the 600s, 900s are appearing randomly.
+///////////per request timing. L1 enabled. 
+///////////L1 tlb misses commonly occur when data size reaches 512MB. 
+///////////L2 cache misses commonly occur when data size reaches 4gb (iteration reaches 2048).
+///////////L2 tlb misses sparsely appear at data size 8gb. 
+///////////Page table context switches (600s and 900s, they are not error) also appear more often at data size 8gb.
+///////////page size is 2mb.
 
 //typedef unsigned char byte;
 
@@ -136,7 +136,7 @@ __global__ void tlb_latency_test(int *A, long long int iterations, int *B, int *
 	
 	///////////kepler L2 has 48 * 1024 = 49152 cache lines. But we only have 1024 * 4 slots in shared memory.
 	P_chasing1(0, A, iterations + 0, B, C, D, 0, clock_rate, data_stride);////////saturate the L2
-	P_chasing2(0, A, reduced_iter, B, C, D, 0, clock_rate, data_stride);////////partially print the data
+	P_chasing2(0, A, reduced_iter, B, C, D, 32, clock_rate, data_stride);////////partially print the data
 	
 	 __syncthreads();
 }
@@ -189,13 +189,13 @@ int main(int argc, char **argv)
 		///////////////////////////////////////////////////////////////////CPU data begin
 		//int data_size = 2 * 256 * 1024 * 32;/////size = iteration * stride = 32 2mb pages.
 		long long int mod = mod2;
-		if(mod > 2684354560){
-			mod = 2684354560;
+		if(mod > 2415919104){
+			mod = 2415919104;
 		}
 		long long int data_size = mod;
 		if(data_size < 4194304){//////////data size at least 16mb to prevent L2 prefetch
 			data_size = 4194304;
-		}	
+		}		
 		//int iterations = data_size / data_stride;
 		//int iterations = 1024 * 256 * 8;
 		long long int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256
@@ -203,7 +203,6 @@ int main(int argc, char **argv)
 		int *CPU_data_in;
 		CPU_data_in = (int*)malloc(sizeof(int) * data_size);
 		init_cpu_data(CPU_data_in, mod, data_stride, mod);
-		
 		
 		long long int reduced_iter = iterations;
 		if(reduced_iter > 512){
@@ -238,7 +237,7 @@ int main(int argc, char **argv)
 
 		fprintf(pFile, "###################data_stride%d#########################\n", data_stride);
 		fprintf (pFile, "###############Mod%lld##############%lld\n", mod, iterations);
-		for (long long int it = 0; it < reduced_iter; it++){		
+		for (long long int it = 0; it < reduced_iter; it++){
 			fprintf (pFile, "%d %fms %lldcycles\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate, CPU_data_out_time[it]);
 			//fprintf (pFile, "%d %fms\n", it, CPU_data_out_time[it] / (float)clock_rate);
 			//printf ("%d %fms\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate);
