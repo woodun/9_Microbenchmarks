@@ -38,7 +38,7 @@ __device__ void P_chasing0(int mark, unsigned *A, int iterations, int *B, int *C
 }
 
 //////////min page size 4kb = 4096b = 32 * 128.
-__device__ void P_chasing1(int mark, unsigned *A, unsigned iterations, unsigned *B, unsigned *C, unsigned *D, unsigned starting_index, float clock_rate, unsigned data_stride){	
+__device__ void P_chasing1(int mark, unsigned *A, unsigned iterations, unsigned *B, unsigned *C, long long int *D, unsigned starting_index, float clock_rate, unsigned data_stride){
 	
 	unsigned j = starting_index;/////make them in the same page, and miss near in cache lines
 	
@@ -59,19 +59,19 @@ __device__ void P_chasing1(int mark, unsigned *A, unsigned iterations, unsigned 
 }
 
 //////////min page size 4kb = 4096b = 32 * 128.
-__device__ void P_chasing2(int mark, unsigned *A, unsigned iterations, unsigned *B, unsigned *C, unsigned *D, unsigned starting_index, float clock_rate, unsigned data_stride){//////what is the effect of warmup outside vs inside?
+__device__ void P_chasing2(int mark, unsigned *A, unsigned iterations, unsigned *B, unsigned *C, long long int *D, unsigned starting_index, float clock_rate, unsigned data_stride){//////what is the effect of warmup outside vs inside?
 	
 	//////shared memory: 0xc000 max (49152 Bytes = 48KB)
-	__shared__ unsigned s_tvalue[1024 * 4];/////must be enough to contain the number of iterations.
+	__shared__ long long int s_tvalue[1024 * 4];/////must be enough to contain the number of iterations.
 	__shared__ unsigned s_index[1024 * 4];
 	//__shared__ unsigned s_index[1];
 	
 	unsigned j = starting_index;/////make them in the same page, and miss near in cache lines
 	//int j = B[0];
 	
-	unsigned start_time = 0;//////clock
-	unsigned end_time = 0;//////clock
-	unsigned time_interval = 0;//////clock
+	long long int start_time = 0;//////clock
+	long long int end_time = 0;//////clock
+	long long int time_interval = 0;//////clock
 	//unsigned total_time = end_time - start_time;//////clock
 	
 	/*		
@@ -103,7 +103,7 @@ __device__ void P_chasing2(int mark, unsigned *A, unsigned iterations, unsigned 
 		"add.u64 	t2, t1, %3;\n\t"		
 		"mov.u64 	%0, %clock64;\n\t"		
 		"ld.global.u32 	%1, [t2];\n\t"		
-		: "=l"(start_time), "=r"(j) : "r"(j), "r"(A), "r"(4));
+		: "=l"(start_time), "=r"(j) : "r"(j), "l"(A), "r"(4));
 		
 		s_index[it] = j;////what if without this? ///Then it is not accurate and cannot get the access time at all, due to the ILP. (another way is to use average time, but inevitably containing other instructions:setp, add).
 		
@@ -125,7 +125,7 @@ __device__ void P_chasing2(int mark, unsigned *A, unsigned iterations, unsigned 
 	}
 }
 
-__global__ void tlb_latency_test(unsigned *A, unsigned iterations, unsigned *B, unsigned *C, unsigned *D, float clock_rate, unsigned mod, int data_stride){
+__global__ void tlb_latency_test(unsigned *A, unsigned iterations, unsigned *B, unsigned *C, long long int *D, float clock_rate, unsigned mod, int data_stride){
 	
 	unsigned reduced_iter = iterations;
 	if(reduced_iter > 512){
@@ -216,8 +216,8 @@ int main(int argc, char **argv)
 		
 		unsigned *CPU_data_out_index;
 		CPU_data_out_index = (unsigned*)malloc(sizeof(unsigned) * reduced_iter);
-		unsigned *CPU_data_out_time;
-		CPU_data_out_time = (unsigned*)malloc(sizeof(unsigned) * reduced_iter);
+		long long int *CPU_data_out_time;
+		CPU_data_out_time = (long long int*)malloc(sizeof(long long int) * reduced_iter);
 		///////////////////////////////////////////////////////////////////CPU data end	
 	
 		///////////////////////////////////////////////////////////////////GPU data in	
@@ -228,14 +228,14 @@ int main(int argc, char **argv)
 		///////////////////////////////////////////////////////////////////GPU data out
 		unsigned *GPU_data_out_index;
 		checkCudaErrors(cudaMalloc(&GPU_data_out_index, sizeof(unsigned) * reduced_iter));
-		unsigned *GPU_data_out_time;
-		checkCudaErrors(cudaMalloc(&GPU_data_out_time, sizeof(unsigned) * reduced_iter));
+		long long int *GPU_data_out_time;
+		checkCudaErrors(cudaMalloc(&GPU_data_out_time, sizeof(long long int) * reduced_iter));
 		
 		tlb_latency_test<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, GPU_data_out_index, GPU_data_out_time, clock_rate, mod, data_stride);///////////////kernel is here	
 		cudaDeviceSynchronize();
 				
 		cudaMemcpy(CPU_data_out_index, GPU_data_out_index, sizeof(unsigned) * reduced_iter, cudaMemcpyDeviceToHost);
-		cudaMemcpy(CPU_data_out_time, GPU_data_out_time, sizeof(unsigned) * reduced_iter, cudaMemcpyDeviceToHost);
+		cudaMemcpy(CPU_data_out_time, GPU_data_out_time, sizeof(long long int) * reduced_iter, cudaMemcpyDeviceToHost);
 				
 
 		fprintf(pFile, "###################data_stride%d#########################\n", data_stride);
