@@ -16,7 +16,7 @@
 
 //typedef unsigned char byte;
 
-void init_cpu_data(int* A, long long int size, int stride, long long int mod){
+void init_cpu_data(long long int *A, long long int size, int stride, long long int mod){
 	for (long long int i = 0; i < size; i++){
 		A[i]=(i + stride) % mod;
    	}
@@ -26,7 +26,7 @@ void init_cpu_data(int* A, long long int size, int stride, long long int mod){
    	//}
 }
 
-__device__ void P_chasing0(int mark, int *A, int iterations, int *B, int *C, long long int *D, int starting_index, float clock_rate, int data_stride){	
+__device__ void P_chasing0(int mark, long long int *A, int iterations, int *B, int *C, long long int *D, int starting_index, float clock_rate, int data_stride){	
 	
 	int j = starting_index;/////make them in the same page, and miss near in cache lines
 			
@@ -38,9 +38,9 @@ __device__ void P_chasing0(int mark, int *A, int iterations, int *B, int *C, lon
 }
 
 //////////min page size 4kb = 4096b = 32 * 128.
-__device__ void P_chasing1(int mark, int *A, long long int iterations, int *B, int *C, long long int *D, int starting_index, float clock_rate, int data_stride){	
+__device__ void P_chasing1(int mark, long long int *A, long long int iterations, long long int *B, long long int *C, long long int *D, long long int starting_index, float clock_rate, int data_stride){	
 	
-	int j = starting_index;/////make them in the same page, and miss near in cache lines
+	long long int j = starting_index;/////make them in the same page, and miss near in cache lines
 	
 	//long long int start_time = 0;//////clock
 	//long long int end_time = 0;//////clock
@@ -59,12 +59,12 @@ __device__ void P_chasing1(int mark, int *A, long long int iterations, int *B, i
 }
 
 //////////min page size 4kb = 4096b = 32 * 128.
-__device__ void P_chasing2(int mark, int *A, long long int iterations, int *B, int *C, long long int *D, int starting_index, float clock_rate, int data_stride){//////what is the effect of warmup outside vs inside?
+__device__ void P_chasing2(int mark, long long int *A, long long int iterations, long long int *B, long long int *C, long long int *D, long long int starting_index, float clock_rate, int data_stride){//////what is the effect of warmup outside vs inside?
 	
 	//////shared memory: 0xc000 max (49152 Bytes = 48KB)
 	__shared__ long long int s_tvalue[1024 * 4];/////must be enough to contain the number of iterations.
-	__shared__ int s_index[1024 * 4];
-	//__shared__ int s_index[1];
+	//__shared__ int s_index[1024 * 4];
+	__shared__ long long int s_index[1];
 	
 	int j = starting_index;/////make them in the same page, and miss near in cache lines
 	//int j = B[0];
@@ -125,7 +125,7 @@ __device__ void P_chasing2(int mark, int *A, long long int iterations, int *B, i
 	}
 }
 
-__global__ void tlb_latency_test(int *A, long long int iterations, int *B, int *C, long long int *D, float clock_rate, long long int mod, int data_stride){
+__global__ void tlb_latency_test(long long int *A, long long int iterations, long long int *B, long long int *C, long long int *D, float clock_rate, long long int mod, int data_stride){
 	
 	long long int reduced_iter = iterations;
 	if(reduced_iter > 512){
@@ -212,27 +212,27 @@ int main(int argc, char **argv)
 			reduced_iter = 16;
 		}
 		
-		int *CPU_data_out_index;
-		CPU_data_out_index = (int*)malloc(sizeof(int) * 1024);
+		long long int *CPU_data_out_index;
+		CPU_data_out_index = (long long int*)malloc(sizeof(int) * reduced_iter);
 		long long int *CPU_data_out_time;
 		CPU_data_out_time = (long long int*)malloc(sizeof(long long int) * reduced_iter);
 		///////////////////////////////////////////////////////////////////CPU data end	
 	
 		///////////////////////////////////////////////////////////////////GPU data in	
-		int *GPU_data_in;
-		checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));	
-		cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
+		long long int *GPU_data_in;
+		checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(long long int) * data_size));	
+		cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(long long int) * data_size, cudaMemcpyHostToDevice);
 		
 		///////////////////////////////////////////////////////////////////GPU data out
 		int *GPU_data_out_index;
-		checkCudaErrors(cudaMalloc(&GPU_data_out_index, sizeof(int) * 1024));
+		checkCudaErrors(cudaMalloc(&GPU_data_out_index, sizeof(long long int) * reduced_iter));
 		long long int *GPU_data_out_time;
 		checkCudaErrors(cudaMalloc(&GPU_data_out_time, sizeof(long long int) * reduced_iter));
 		
 		tlb_latency_test<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, GPU_data_out_index, GPU_data_out_time, clock_rate, mod, data_stride);///////////////kernel is here	
 		cudaDeviceSynchronize();
 				
-		cudaMemcpy(CPU_data_out_index, GPU_data_out_index, sizeof(int) * 1024, cudaMemcpyDeviceToHost);
+		cudaMemcpy(CPU_data_out_index, GPU_data_out_index, sizeof(long long int) * reduced_iter, cudaMemcpyDeviceToHost);
 		cudaMemcpy(CPU_data_out_time, GPU_data_out_time, sizeof(long long int) * reduced_iter, cudaMemcpyDeviceToHost);
 				
 
