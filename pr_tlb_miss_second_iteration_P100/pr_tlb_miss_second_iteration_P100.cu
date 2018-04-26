@@ -172,8 +172,6 @@ int main(int argc, char **argv)
         exit(EXIT_WAIVED);
     }
 	
-	printf("%d\n",sizeof(unsigned));
-	exit(0);
 	///////////////////////////////////////////////////////////////////GPU data out
 	unsigned *GPU_data_out;
 	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(unsigned) * 2));			
