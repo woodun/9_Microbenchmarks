@@ -19,9 +19,6 @@
 void init_cpu_data(int* A, long long int size, int stride, long long int mod){
 	for (long long int i = 0; i < size; i++){
 		A[i]=(i + stride) % mod;
-		if(A[i]>mod){
-			printf("0\n");
-		}
    	}
 	
 	//for (long long int i = 32; i < size; i = i + stride){
@@ -183,7 +180,7 @@ int main(int argc, char **argv)
     pFile = fopen ("output.txt","w");		
 	
 	int counter = 0;
-	for(int data_stride = 1 * 1 * 1024; data_stride <= 2 * 256 * 1024; data_stride = data_stride * 2){/////////32mb stride
+	for(int data_stride = 2 * 256 * 1024; data_stride <= 2 * 256 * 1024; data_stride = data_stride * 2){/////////32mb stride
 		//data_stride = data_stride + 32;///offset a cache line, trying to cause L2 miss but tlb hit.
 		//printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m = 12288 cache lines, L1 16k = 128 cache lines.
@@ -198,7 +195,7 @@ int main(int argc, char **argv)
 		long long int data_size = mod;
 		if(data_size < 4194304){//////////data size at least 16mb to prevent L2 prefetch
 			data_size = 4194304;
-		}	
+		}
 		//int iterations = data_size / data_stride;
 		//int iterations = 1024 * 256 * 8;
 		long long int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256
