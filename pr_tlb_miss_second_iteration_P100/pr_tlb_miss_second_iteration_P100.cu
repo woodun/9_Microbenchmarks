@@ -103,7 +103,7 @@ __device__ void P_chasing2(int mark, unsigned *A, unsigned iterations, unsigned 
 		"add.u64 	t2, t1, %3;\n\t"		
 		"mov.u64 	%0, %clock64;\n\t"		
 		"ld.global.u32 	%1, [t2];\n\t"		
-		: "=l"(start_time), "=r"(j) : "r"(j), "l"(A), "r"(4));
+		: "=l"(start_time), "=r"(j) : "r"(j), "r"(A), "r"(4));
 		
 		s_index[it] = j;////what if without this? ///Then it is not accurate and cannot get the access time at all, due to the ILP. (another way is to use average time, but inevitably containing other instructions:setp, add).
 		
@@ -172,6 +172,8 @@ int main(int argc, char **argv)
         exit(EXIT_WAIVED);
     }
 	
+	printf("%d\n",sizeof(unsigned));
+	exit(0);
 	///////////////////////////////////////////////////////////////////GPU data out
 	unsigned *GPU_data_out;
 	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(unsigned) * 2));			
