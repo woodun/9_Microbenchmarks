@@ -17,10 +17,6 @@
 //typedef unsigned char byte;
 
 void init_cpu_data(int* A, long long int size, int stride, long long int mod){
-	for (long long int i = 0; i < size; i++){
-		A[i]=(i + stride) % mod;
-   	}
-	/*
 	for (long long int i = 0; i < size; i = i + stride){
 		A[i]=(i + stride) % mod;
    	}
@@ -28,7 +24,6 @@ void init_cpu_data(int* A, long long int size, int stride, long long int mod){
 	for (long long int i = 32; i < size; i = i + stride){
 		A[i]=(i + stride) % mod;
    	}
-	*/
 }
 
 __device__ void P_chasing0(int mark, int *A, int iterations, int *B, int *C, long long int *D, int starting_index, float clock_rate, int data_stride){	
@@ -218,7 +213,7 @@ int main(int argc, char **argv)
 		}
 		
 		int *CPU_data_out_index;
-		CPU_data_out_index = (int*)malloc(sizeof(int) * reduced_iter);
+		CPU_data_out_index = (int*)malloc(sizeof(int) * 1024);
 		long long int *CPU_data_out_time;
 		CPU_data_out_time = (long long int*)malloc(sizeof(long long int) * reduced_iter);
 		///////////////////////////////////////////////////////////////////CPU data end	
@@ -230,14 +225,14 @@ int main(int argc, char **argv)
 		
 		///////////////////////////////////////////////////////////////////GPU data out
 		int *GPU_data_out_index;
-		checkCudaErrors(cudaMalloc(&GPU_data_out_index, sizeof(int) * reduced_iter));
+		checkCudaErrors(cudaMalloc(&GPU_data_out_index, sizeof(int) * 1024));
 		long long int *GPU_data_out_time;
 		checkCudaErrors(cudaMalloc(&GPU_data_out_time, sizeof(long long int) * reduced_iter));
 		
 		tlb_latency_test<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, GPU_data_out_index, GPU_data_out_time, clock_rate, mod, data_stride);///////////////kernel is here	
 		cudaDeviceSynchronize();
 				
-		cudaMemcpy(CPU_data_out_index, GPU_data_out_index, sizeof(int) * reduced_iter, cudaMemcpyDeviceToHost);
+		cudaMemcpy(CPU_data_out_index, GPU_data_out_index, sizeof(int) * 1024, cudaMemcpyDeviceToHost);
 		cudaMemcpy(CPU_data_out_time, GPU_data_out_time, sizeof(long long int) * reduced_iter, cudaMemcpyDeviceToHost);
 				
 
