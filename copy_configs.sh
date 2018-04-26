@@ -10,9 +10,9 @@
 for configs in pr_page_fault_pinned_second_iteration_offset_ 
 
 do
-mkdir ($configs)V100
-cd ($configs)V100
-cp ../($configs)K40/Makefile Makefile
-cp ../($configs)K40/($configs)K40 ($configs)V100
+mkdir $configsV100
+cd $configsV100
+cp ../$configsK40/Makefile Makefile
+cp ../$configsK40/$configsK40 $configsV100
 cd ..
 done
