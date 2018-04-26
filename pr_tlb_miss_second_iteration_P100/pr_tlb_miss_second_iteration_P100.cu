@@ -16,17 +16,17 @@
 
 //typedef unsigned char byte;
 
-void init_cpu_data(long long int *A, long long int size, int stride, long long int mod){
-	for (long long int i = 0; i < size; i++){
+void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod){
+	for (unsigned i = 0; i < size; i++){
 		A[i]=(i + stride) % mod;
    	}
 	
-	//for (long long int i = 32; i < size; i = i + stride){
+	//for (unsigned i = 32; i < size; i = i + stride){
 	//	A[i]=(i + stride) % mod;
    	//}
 }
 
-__device__ void P_chasing0(int mark, long long int *A, int iterations, int *B, int *C, long long int *D, int starting_index, float clock_rate, int data_stride){	
+__device__ void P_chasing0(int mark, unsigned *A, int iterations, int *B, int *C, unsigned *D, int starting_index, float clock_rate, int data_stride){	
 	
 	int j = starting_index;/////make them in the same page, and miss near in cache lines
 			
@@ -38,20 +38,20 @@ __device__ void P_chasing0(int mark, long long int *A, int iterations, int *B, i
 }
 
 //////////min page size 4kb = 4096b = 32 * 128.
-__device__ void P_chasing1(int mark, long long int *A, long long int iterations, long long int *B, long long int *C, long long int *D, long long int starting_index, float clock_rate, int data_stride){	
+__device__ void P_chasing1(int mark, unsigned *A, unsigned iterations, unsigned *B, unsigned *C, unsigned *D, unsigned starting_index, float clock_rate, unsigned data_stride){	
 	
-	long long int j = starting_index;/////make them in the same page, and miss near in cache lines
+	unsigned j = starting_index;/////make them in the same page, and miss near in cache lines
 	
-	//long long int start_time = 0;//////clock
-	//long long int end_time = 0;//////clock
+	//unsigned start_time = 0;//////clock
+	//unsigned end_time = 0;//////clock
 	//start_time = clock64();//////clock
 			
-	for (int it = 0; it < iterations; it++){
+	for (unsigned it = 0; it < iterations; it++){
 		j = A[j];
 	}
 	
 	//end_time=clock64();//////clock
-	//long long int total_time = end_time - start_time;//////clock
+	//unsigned total_time = end_time - start_time;//////clock
 	//printf("inside%d:%fms\n", mark, (total_time / (float)clock_rate) / ((float)iterations));//////clock, average latency //////////the print will flush the L1?! (
 	
 	B[0] = j;
@@ -59,20 +59,20 @@ __device__ void P_chasing1(int mark, long long int *A, long long int iterations,
 }
 
 //////////min page size 4kb = 4096b = 32 * 128.
-__device__ void P_chasing2(int mark, long long int *A, long long int iterations, long long int *B, long long int *C, long long int *D, long long int starting_index, float clock_rate, int data_stride){//////what is the effect of warmup outside vs inside?
+__device__ void P_chasing2(int mark, unsigned *A, unsigned iterations, unsigned *B, unsigned *C, unsigned *D, unsigned starting_index, float clock_rate, unsigned data_stride){//////what is the effect of warmup outside vs inside?
 	
 	//////shared memory: 0xc000 max (49152 Bytes = 48KB)
-	__shared__ long long int s_tvalue[1024 * 4];/////must be enough to contain the number of iterations.
-	//__shared__ int s_index[1024 * 4];
-	__shared__ long long int s_index[1];
+	__shared__ unsigned s_tvalue[1024 * 4];/////must be enough to contain the number of iterations.
+	__shared__ unsigned s_index[1024 * 4];
+	//__shared__ unsigned s_index[1];
 	
-	int j = starting_index;/////make them in the same page, and miss near in cache lines
+	unsigned j = starting_index;/////make them in the same page, and miss near in cache lines
 	//int j = B[0];
 	
-	long long int start_time = 0;//////clock
-	long long int end_time = 0;//////clock
-	long long int time_interval = 0;//////clock
-	//long long int total_time = end_time - start_time;//////clock
+	unsigned start_time = 0;//////clock
+	unsigned end_time = 0;//////clock
+	unsigned time_interval = 0;//////clock
+	//unsigned total_time = end_time - start_time;//////clock
 	
 	/*		
 	for (int it = 0; it < iterations; it++){
@@ -88,7 +88,7 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 		asm(".reg .u64 t1;\n\t"
 		".reg .u64 t2;\n\t");
 	
-	for (long long int it = 0; it < iterations; it++){
+	for (unsigned it = 0; it < iterations; it++){
 		
 		/*
 		asm("mul.wide.u32 	t1, %3, %5;\n\t"	
@@ -119,15 +119,15 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 	
 	B[0] = j;
 	
-	for (long long int it = 0; it < iterations; it++){		
+	for (unsigned it = 0; it < iterations; it++){		
 		C[it] = s_index[it];
 		D[it] = s_tvalue[it];
 	}
 }
 
-__global__ void tlb_latency_test(long long int *A, long long int iterations, long long int *B, long long int *C, long long int *D, float clock_rate, long long int mod, int data_stride){
+__global__ void tlb_latency_test(unsigned *A, unsigned iterations, unsigned *B, unsigned *C, unsigned *D, float clock_rate, unsigned mod, int data_stride){
 	
-	long long int reduced_iter = iterations;
+	unsigned reduced_iter = iterations;
 	if(reduced_iter > 512){
 		reduced_iter = 512;
 	}else if(reduced_iter < 16){
@@ -173,72 +173,72 @@ int main(int argc, char **argv)
     }
 	
 	///////////////////////////////////////////////////////////////////GPU data out
-	long long int *GPU_data_out;
-	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(long long int) * 2));			
+	unsigned *GPU_data_out;
+	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(unsigned) * 2));			
 	
 	FILE * pFile;
     pFile = fopen ("output.txt","w");		
 	
-	int counter = 0;
-	for(int data_stride = 2 * 256 * 1024; data_stride <= 2 * 256 * 1024; data_stride = data_stride * 2){/////////32mb stride
+	unsigned counter = 0;
+	for(unsigned data_stride = 2 * 256 * 1024; data_stride <= 2 * 256 * 1024; data_stride = data_stride * 2){/////////32mb stride
 		//data_stride = data_stride + 32;///offset a cache line, trying to cause L2 miss but tlb hit.
 		//printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m = 12288 cache lines, L1 16k = 128 cache lines.
-	for(long long int mod2 = 1 * 16 * 1024; mod2 <= 4294967296; mod2 = mod2 * 2){////268435456 = 1gb, 536870912 = 2gb, 1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb.
+	for(unsigned mod2 = 1 * 16 * 1024; mod2 <= 4294967296; mod2 = mod2 * 2){////268435456 = 1gb, 536870912 = 2gb, 1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb.
 		counter++;
 		///////////////////////////////////////////////////////////////////CPU data begin
 		//int data_size = 2 * 256 * 1024 * 32;/////size = iteration * stride = 32 2mb pages.
-		long long int mod = mod2;
+		unsigned mod = mod2;
 		if(mod > 3221225472){
 			mod = 3221225472;
 		}
-		long long int data_size = mod;
+		unsigned data_size = mod;
 		if(data_size < 4194304){//////////data size at least 16mb to prevent L2 prefetch
 			data_size = 4194304;
 		}
 		//int iterations = data_size / data_stride;
 		//int iterations = 1024 * 256 * 8;
-		long long int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256
+		unsigned iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256
 	
-		long long int *CPU_data_in;
-		CPU_data_in = (long long int*)malloc(sizeof(long long int) * data_size);
+		unsigned *CPU_data_in;
+		CPU_data_in = (unsigned*)malloc(sizeof(unsigned) * data_size);
 		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
 		
 		
-		long long int reduced_iter = iterations;
+		unsigned reduced_iter = iterations;
 		if(reduced_iter > 512){
 			reduced_iter = 512;
 		}else if(reduced_iter < 16){
 			reduced_iter = 16;
 		}
 		
-		long long int *CPU_data_out_index;
-		CPU_data_out_index = (long long int*)malloc(sizeof(int) * reduced_iter);
-		long long int *CPU_data_out_time;
-		CPU_data_out_time = (long long int*)malloc(sizeof(long long int) * reduced_iter);
+		unsigned *CPU_data_out_index;
+		CPU_data_out_index = (unsigned*)malloc(sizeof(unsigned) * reduced_iter);
+		unsigned *CPU_data_out_time;
+		CPU_data_out_time = (unsigned*)malloc(sizeof(unsigned) * reduced_iter);
 		///////////////////////////////////////////////////////////////////CPU data end	
 	
 		///////////////////////////////////////////////////////////////////GPU data in	
-		long long int *GPU_data_in;
-		checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(long long int) * data_size));	
-		cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(long long int) * data_size, cudaMemcpyHostToDevice);
+		unsigned *GPU_data_in;
+		checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(unsigned) * data_size));	
+		cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(unsigned) * data_size, cudaMemcpyHostToDevice);
 		
 		///////////////////////////////////////////////////////////////////GPU data out
-		long long int *GPU_data_out_index;
-		checkCudaErrors(cudaMalloc(&GPU_data_out_index, sizeof(long long int) * reduced_iter));
-		long long int *GPU_data_out_time;
-		checkCudaErrors(cudaMalloc(&GPU_data_out_time, sizeof(long long int) * reduced_iter));
+		unsigned *GPU_data_out_index;
+		checkCudaErrors(cudaMalloc(&GPU_data_out_index, sizeof(unsigned) * reduced_iter));
+		unsigned *GPU_data_out_time;
+		checkCudaErrors(cudaMalloc(&GPU_data_out_time, sizeof(unsigned) * reduced_iter));
 		
 		tlb_latency_test<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, GPU_data_out_index, GPU_data_out_time, clock_rate, mod, data_stride);///////////////kernel is here	
 		cudaDeviceSynchronize();
 				
-		cudaMemcpy(CPU_data_out_index, GPU_data_out_index, sizeof(long long int) * reduced_iter, cudaMemcpyDeviceToHost);
-		cudaMemcpy(CPU_data_out_time, GPU_data_out_time, sizeof(long long int) * reduced_iter, cudaMemcpyDeviceToHost);
+		cudaMemcpy(CPU_data_out_index, GPU_data_out_index, sizeof(unsigned) * reduced_iter, cudaMemcpyDeviceToHost);
+		cudaMemcpy(CPU_data_out_time, GPU_data_out_time, sizeof(unsigned) * reduced_iter, cudaMemcpyDeviceToHost);
 				
 
 		fprintf(pFile, "###################data_stride%d#########################\n", data_stride);
 		fprintf (pFile, "###############Mod%lld##############%lld\n", mod, iterations);
-		for (long long int it = 0; it < reduced_iter; it++){		
+		for (unsigned it = 0; it < reduced_iter; it++){		
 			fprintf (pFile, "%lld %fms %lldcycles\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate, CPU_data_out_time[it]);
 			//fprintf (pFile, "%d %fms\n", it, CPU_data_out_time[it] / (float)clock_rate);
 			//printf ("%d %fms\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate);
