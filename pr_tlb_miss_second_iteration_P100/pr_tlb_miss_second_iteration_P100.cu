@@ -173,8 +173,8 @@ int main(int argc, char **argv)
     }
 	
 	///////////////////////////////////////////////////////////////////GPU data out
-	int *GPU_data_out;
-	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(int) * 2));			
+	long long int *GPU_data_out;
+	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(long long int) * 2));			
 	
 	FILE * pFile;
     pFile = fopen ("output.txt","w");		
@@ -200,8 +200,8 @@ int main(int argc, char **argv)
 		//int iterations = 1024 * 256 * 8;
 		long long int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256
 	
-		int *CPU_data_in;
-		CPU_data_in = (int*)malloc(sizeof(int) * data_size);
+		long long int *CPU_data_in;
+		CPU_data_in = (long long int*)malloc(sizeof(long long int) * data_size);
 		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
 		
 		
@@ -224,7 +224,7 @@ int main(int argc, char **argv)
 		cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(long long int) * data_size, cudaMemcpyHostToDevice);
 		
 		///////////////////////////////////////////////////////////////////GPU data out
-		int *GPU_data_out_index;
+		long long int *GPU_data_out_index;
 		checkCudaErrors(cudaMalloc(&GPU_data_out_index, sizeof(long long int) * reduced_iter));
 		long long int *GPU_data_out_time;
 		checkCudaErrors(cudaMalloc(&GPU_data_out_time, sizeof(long long int) * reduced_iter));
