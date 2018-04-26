@@ -202,7 +202,7 @@ int main(int argc, char **argv)
 	
 		int *CPU_data_in;
 		CPU_data_in = (int*)malloc(sizeof(int) * data_size);
-		init_cpu_data(CPU_data_in, mod, data_stride, mod);
+		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
 		
 		
 		long long int reduced_iter = iterations;
