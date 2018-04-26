@@ -194,8 +194,6 @@ int main(int argc, char **argv)
 		long long int mod = mod2;
 		if(mod > 3221225472){
 			mod = 3221225472;
-			561037720
-			3221225472
 		}
 		long long int data_size = mod;
 		if(data_size < 4194304){//////////data size at least 16mb to prevent L2 prefetch
