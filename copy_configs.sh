@@ -13,6 +13,6 @@ do
 mkdir "$configs"V100
 cd "$configs"V100
 cp ../"$configs"K40/Makefile Makefile
-cp ../"$configs"K40/"$configs"K40 "$configs"V100
+cp ../"$configs"K40/"$configs"K40.cu "$configs"V100.cu
 cd ..
 done
