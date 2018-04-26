@@ -20,7 +20,7 @@ void init_cpu_data(int* A, long long int size, int stride, long long int mod){
 	for (long long int i = 0; i < size; i++){
 		A[i]=(i + stride) % mod;
 		if(A[i]>mod){
-			assert(0);
+			printf("0\n");
 		}
    	}
 	
