@@ -19,6 +19,9 @@
 void init_cpu_data(int* A, long long int size, int stride, long long int mod){
 	for (long long int i = 0; i < size; i++){
 		A[i]=(i + stride) % mod;
+		if(A[i]>mod){
+			assert(0);
+		}
    	}
 	
 	//for (long long int i = 32; i < size; i = i + stride){
@@ -63,8 +66,8 @@ __device__ void P_chasing2(int mark, int *A, long long int iterations, int *B, i
 	
 	//////shared memory: 0xc000 max (49152 Bytes = 48KB)
 	__shared__ long long int s_tvalue[1024 * 4];/////must be enough to contain the number of iterations.
-	//__shared__ int s_index[1024 * 4];
-	__shared__ int s_index[1];
+	__shared__ int s_index[1024 * 4];
+	//__shared__ int s_index[1];
 	
 	int j = starting_index;/////make them in the same page, and miss near in cache lines
 	//int j = B[0];
@@ -105,7 +108,7 @@ __device__ void P_chasing2(int mark, int *A, long long int iterations, int *B, i
 		"ld.global.u32 	%1, [t2];\n\t"		
 		: "=l"(start_time), "=r"(j) : "r"(j), "l"(A), "r"(4));
 		
-		s_index[0] = j;////what if without this? ///Then it is not accurate and cannot get the access time at all, due to the ILP. (another way is to use average time, but inevitably containing other instructions:setp, add).
+		s_index[it] = j;////what if without this? ///Then it is not accurate and cannot get the access time at all, due to the ILP. (another way is to use average time, but inevitably containing other instructions:setp, add).
 		
 		asm volatile ("mov.u64 %0, %clock64;": "=l"(end_time));
 		
@@ -120,7 +123,7 @@ __device__ void P_chasing2(int mark, int *A, long long int iterations, int *B, i
 	B[0] = j;
 	
 	for (long long int it = 0; it < iterations; it++){		
-		C[it] = s_index[0];
+		C[it] = s_index[it];
 		D[it] = s_tvalue[it];
 	}
 }
@@ -191,6 +194,8 @@ int main(int argc, char **argv)
 		long long int mod = mod2;
 		if(mod > 3221225472){
 			mod = 3221225472;
+			561037720
+			3221225472
 		}
 		long long int data_size = mod;
 		if(data_size < 4194304){//////////data size at least 16mb to prevent L2 prefetch
