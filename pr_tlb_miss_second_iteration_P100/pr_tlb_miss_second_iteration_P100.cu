@@ -238,10 +238,10 @@ int main(int argc, char **argv)
 		cudaMemcpy(CPU_data_out_time, GPU_data_out_time, sizeof(long long int) * reduced_iter, cudaMemcpyDeviceToHost);
 				
 
-		fprintf(pFile, "###################data_stride%d#########################\n", data_stride);
-		fprintf (pFile, "###############Mod%lld##############%lld\n", mod, iterations);
+		fprintf(pFile, "###################data_stride%u#########################\n", data_stride);
+		fprintf (pFile, "###############Mod%u##############%u\n", mod, iterations);
 		for (unsigned it = 0; it < reduced_iter; it++){		
-			fprintf (pFile, "%lld %fms %lldcycles\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate, CPU_data_out_time[it]);
+			fprintf (pFile, "%u %fms %lldcycles\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate, CPU_data_out_time[it]);
 			//fprintf (pFile, "%d %fms\n", it, CPU_data_out_time[it] / (float)clock_rate);
 			//printf ("%d %fms\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate);
 		}
