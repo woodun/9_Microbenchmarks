@@ -39,7 +39,7 @@ void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod){
 		previous_rand_num = rand_num;		
 		
 		rand_index = rand() % 6140;
-		while(random_sequence[rand_index] = -1){
+		while(random_sequence[rand_index] == -1){
 			rand_index = (rand_index + 1) % 6140;
 		}
 		rand_num = random_sequence[rand_index] * 2 * 256 * 1024 + 32;
