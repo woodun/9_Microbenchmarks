@@ -247,11 +247,79 @@ int main(int argc, char **argv)
 		//data_stride = data_stride + 32;///offset a cache line, trying to cause L2 miss but tlb hit.
 		//printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m = 12288 cache lines, L1 16k = 128 cache lines.
-	for(unsigned mod2 = 2 * 256 * 1024; mod2 <= 2147483648; mod2 = mod2 * 2){////268435456 = 1gb, 536870912 = 2gb, 1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb.
+	for(unsigned mod2 = 2 * 256 * 1024; mod2 <= 1073741824; mod2 = mod2 * 2){////268435456 = 1gb, 536870912 = 2gb, 1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb.
 		counter++;
 		///////////////////////////////////////////////////////////////////CPU data begin
 		//int data_size = 2 * 256 * 1024 * 32;/////size = iteration * stride = 32 2mb pages.
 		unsigned mod = mod2;
+		if(mod > 3221225472){
+			mod = 3221225472;
+		}
+		unsigned data_size = mod;
+		if(data_size < 4194304){//////////data size at least 16mb to prevent L2 prefetch
+			data_size = 4194304;
+		}
+		//int iterations = data_size / data_stride;
+		//int iterations = 1024 * 256 * 8;
+		unsigned iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256
+	
+		unsigned *CPU_data_in;
+		CPU_data_in = (unsigned*)malloc(sizeof(unsigned) * data_size);
+		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
+		
+		
+		unsigned reduced_iter = iterations;
+		if(reduced_iter > 512){
+			reduced_iter = 512;
+		}else if(reduced_iter < 16){
+			reduced_iter = 16;
+		}
+		
+		unsigned *CPU_data_out_index;
+		CPU_data_out_index = (unsigned*)malloc(sizeof(unsigned) * reduced_iter);
+		long long int *CPU_data_out_time;
+		CPU_data_out_time = (long long int*)malloc(sizeof(long long int) * reduced_iter);
+		///////////////////////////////////////////////////////////////////CPU data end	
+	
+		///////////////////////////////////////////////////////////////////GPU data in	
+		unsigned *GPU_data_in;
+		checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(unsigned) * data_size));	
+		cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(unsigned) * data_size, cudaMemcpyHostToDevice);
+		
+		///////////////////////////////////////////////////////////////////GPU data out
+		unsigned *GPU_data_out_index;
+		checkCudaErrors(cudaMalloc(&GPU_data_out_index, sizeof(unsigned) * reduced_iter));
+		long long int *GPU_data_out_time;
+		checkCudaErrors(cudaMalloc(&GPU_data_out_time, sizeof(long long int) * reduced_iter));
+		
+		tlb_latency_test<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, GPU_data_out_index, GPU_data_out_time, clock_rate, mod, data_stride);///////////////kernel is here	
+		cudaDeviceSynchronize();
+				
+		cudaMemcpy(CPU_data_out_index, GPU_data_out_index, sizeof(unsigned) * reduced_iter, cudaMemcpyDeviceToHost);
+		cudaMemcpy(CPU_data_out_time, GPU_data_out_time, sizeof(long long int) * reduced_iter, cudaMemcpyDeviceToHost);
+				
+
+		fprintf(pFile, "###################data_stride%u#########################\n", data_stride);
+		fprintf (pFile, "###############Mod%u##############%u\n", mod, iterations);
+		for (unsigned it = 0; it < reduced_iter; it++){			
+			fprintf (pFile, "%u %fms %lldcycles\n", CPU_data_out_index[it], (double)CPU_data_out_time[it] / (float)clock_rate, CPU_data_out_time[it]);
+			//fprintf (pFile, "%d %fms\n", it, CPU_data_out_time[it] / (float)clock_rate);
+			//printf ("%d %fms\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate);
+		}
+		
+		checkCudaErrors(cudaFree(GPU_data_out_index));
+		checkCudaErrors(cudaFree(GPU_data_out_time));
+		checkCudaErrors(cudaFree(GPU_data_in));
+		free(CPU_data_in);
+		free(CPU_data_out_index);
+		free(CPU_data_out_time);
+	}
+	
+	for(unsigned mod2 = 1; mod2 <= 1; mod2 = mod2 * 2){////268435456 = 1gb, 536870912 = 2gb, 1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb.
+		counter++;
+		///////////////////////////////////////////////////////////////////CPU data begin
+		//int data_size = 2 * 256 * 1024 * 32;/////size = iteration * stride = 32 2mb pages.
+		unsigned mod = 2147483648;
 		if(mod > 3221225472){
 			mod = 3221225472;
 		}
