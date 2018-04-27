@@ -17,7 +17,7 @@ void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod){
 		A[i]=(i + stride);
    	}
 	
-	for (unsigned i = 1; i < size - stride; i = i + stride){
+	for (unsigned i = 31; i < size - stride; i = i + stride){
 		A[i]=(i + stride);
    	}
 	
@@ -168,7 +168,7 @@ __global__ void tlb_latency_test(unsigned *A, unsigned iterations, unsigned *B, 
 	
 	///////////kepler L2 has 48 * 1024 = 49152 cache lines. But we only have 1024 * 4 slots in shared memory.
 	P_chasing1(0, A, iterations + 0, B, C, D, 0, clock_rate, data_stride);////////saturate the L2
-	P_chasing2(0, A, reduced_iter, B, C, D, 1, clock_rate, data_stride);////////partially print the data
+	P_chasing2(0, A, reduced_iter, B, C, D, 31, clock_rate, data_stride);////////partially print the data
 	
 	 __syncthreads();
 }
