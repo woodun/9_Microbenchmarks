@@ -7,7 +7,7 @@
 #include <helper_cuda.h>
 #include <time.h>
 #include <algorithm>    // std::shuffle
-#include <array>        // std::array
+#include <vector>
 #include <random>       // std::default_random_engine
 #include <chrono>       // std::chrono::system_clock
 
@@ -25,7 +25,7 @@ void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod){
 		A[i]=(i + stride);
    	}
 	
-	std::array<int,5> rand_sequence;
+	std::vector<int,6141> rand_sequence;
 	for(int i = 0; i < 6141; i++){
 		rand_sequence[i] = i;
 	} 
