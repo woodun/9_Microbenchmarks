@@ -8,11 +8,7 @@
 #include <time.h>
 
 ///////////per request timing. L1 enabled. P100.
-///////////In the first iteration, L2 tlb does prefetch, while L1 tlb doesn't.
-///////////When data size reaches 512 MB, L2 tlb becomes saturated and starts to miss.
-///////////Because when changing the data stride, the tlb miss latency does not change, so it is actually not prefetching but the page size is 32MB.
-///////////In the second iteration, however, L2 cache seems to never miss.
-///////////The 400s, some of the 600s, 900s are appearing randomly.
+//////////////////////using more than 8gb.
 
 //typedef unsigned char byte;
 
@@ -29,26 +25,27 @@ void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod){
 	unsigned previous_rand_index;
 	srand (time(NULL));
  
-	rand_index = (rand() % 6140) * 2 * 256 * 1024 + 32;
+	/*
+	rand_index = (rand() % 6140) * 2 * 256 * 1024;
 	for(unsigned i = 0; i < 6140; i++){		
 		previous_rand_index = rand_index;
-		rand_index = (rand() % 6140) * 2 * 256 * 1024 + 32;
+		rand_index = (rand() % 6140 + 1) * 2 * 256 * 1024;
 		A[previous_rand_index]=rand_index;
 	}
-  
-	/*
-	///////manually set the nodes
-	A[32]=104333344;
-	A[104333344]=200802336;
-	A[200802336]=353370144;
-	A[353370144]=372244512;
-	A[372244512]=110100512;
-	A[110100512]=182452256;
-	A[182452256]=333971488;
-	A[333971488]=225443872;
-	A[225443872]=155189280;
-	A[155189280]=104333344;
 	*/
+  
+
+	///////manually set the nodes
+	A[32]=104333344 - 32;
+	A[104333344 - 32]=200802336 - 32;
+	A[200802336 - 32]=353370144 - 32;
+	A[353370144 - 32]=372244512 - 32;
+	A[372244512 - 32]=110100512 - 32;
+	A[110100512 - 32]=182452256 - 32;
+	A[182452256 - 32]=333971488 - 32;
+	A[333971488 - 32]=225443872 - 32;
+	A[225443872 - 32]=155189280 - 32;
+	A[155189280 - 32]=0;
 	
 	for (unsigned i = size - stride; i < size; i++){
 		A[i]=0;
