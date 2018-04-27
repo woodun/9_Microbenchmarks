@@ -30,13 +30,13 @@ void shuffle(int *array, size_t n)
 }
 
 void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod, unsigned iterations){
-	for (unsigned i = 0; i < size - stride; i = i + stride){
-		A[i]=(i + stride);
-   	}
+	//for (unsigned i = 0; i < size - stride; i = i + stride){
+	//	A[i]=(i + stride);
+   	//}
 	
-	for (unsigned i = 32; i < size - stride; i = i + stride){
-		A[i]=(i + stride);
-   	}
+	//for (unsigned i = 32; i < size - stride; i = i + stride){
+	//	A[i]=(i + stride);
+   	//}
 	
 	int rand_sequence[iterations];
 	
@@ -45,7 +45,7 @@ void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod, un
 		rand_sequence[i] = i;
 	}
 	//srand (time(NULL));
-	srand (0);
+	srand (1);
 	shuffle(rand_sequence, iterations);
 	
 	unsigned previous_rand_num;
@@ -57,9 +57,9 @@ void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod, un
 	}
 	
 	//////random sequence offset 32	
-	for(int i = 0; i < iterations; i++){
-		rand_sequence[i] = i;
-	}
+	//for(int i = 0; i < iterations; i++){
+	//	rand_sequence[i] = i;
+	//}
 	//srand (time(NULL));
 	//shuffle(rand_sequence, iterations);
 	
@@ -84,9 +84,9 @@ void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod, un
 	A[155189280]=104333344;
 	*/
 	
-	for (unsigned i = size - stride; i < size; i++){
-		A[i]=0;
-   	}
+	//for (unsigned i = size - stride; i < size; i++){
+	//	A[i]=0;
+   	//}
 }
 
 __device__ void P_chasing0(int mark, unsigned *A, int iterations, int *B, int *C, unsigned *D, int starting_index, float clock_rate, int data_stride){	
