@@ -22,15 +22,28 @@ void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod){
    	}
 	
 	unsigned rand_index;
-	unsigned previous_rand_index;
+	unsigned rand_num;
+	unsigned previous_rand_num;
 	srand (time(NULL));
+	int random_sequence[6140];
+	for(int i = 0; i < 6140; i++){
+		random_sequence[i] = i;
+	} 
  
- 
-	rand_index = (rand() % 6140) * 2 * 256 * 1024 + 7;
+	rand_index = rand() % 6140;
+	while(random_sequence[rand_index] = -1){
+		rand_index = (rand_index + 1) % 6140;
+	}
+	rand_num = random_sequence[rand_index] * 2 * 256 * 1024 + 7;
 	for(unsigned i = 0; i < 6140; i++){		
-		previous_rand_index = rand_index;
-		rand_index = (rand() % 6140) * 2 * 256 * 1024 + 7;
-		A[previous_rand_index]=rand_index;
+		previous_rand_num = rand_num;		
+		
+		rand_index = rand() % 6140;
+		while(random_sequence[rand_index] = -1){
+			rand_index = (rand_index + 1) % 6140;
+		}
+		rand_num = random_sequence[rand_index] * 2 * 256 * 1024 + 7;
+		A[previous_rand_num]=rand_num;
 	}
  
 /*	
