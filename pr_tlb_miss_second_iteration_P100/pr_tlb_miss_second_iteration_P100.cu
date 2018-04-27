@@ -6,6 +6,10 @@
 // utilities
 #include <helper_cuda.h>
 #include <time.h>
+#include <algorithm>    // std::shuffle
+#include <array>        // std::array
+#include <random>       // std::default_random_engine
+#include <chrono>       // std::chrono::system_clock
 
 ///////////per request timing. L1 enabled. P100.
 //////////////////////using more than 8gb.
@@ -21,32 +25,21 @@ void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod){
 		A[i]=(i + stride);
    	}
 	
-	unsigned rand_index;
-	unsigned rand_num;
-	unsigned previous_rand_num;
-	srand (time(NULL));
-	int random_sequence[6140];
-	for(int i = 0; i < 6140; i++){
-		random_sequence[i] = i;
+	std::array<int,5> rand_sequence;
+	for(int i = 0; i < 6141; i++){
+		rand_sequence[i] = i;
 	} 
- 
-	rand_index = rand() % 6140;
-	while(random_sequence[rand_index] == -1){
-		rand_index = (rand_index + 1) % 6140;
-	}
-	rand_num = random_sequence[rand_index] * 2 * 256 * 1024 + 7;
-	random_sequence[rand_index] = -1;
+	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+	shuffle (rand_sequence.begin(), rand_sequence.end(), std::default_random_engine(seed));
+	
+	unsigned rand_num;
+	unsigned previous_rand_num = rand_sequence[0];
 	for(unsigned i = 0; i < 6140; i++){		
 		previous_rand_num = rand_num;		
-		
-		rand_index = rand() % 6140;
-		while(random_sequence[rand_index] == -1){
-			rand_index = (rand_index + 1) % 6140;
-		}
-		rand_num = random_sequence[rand_index] * 2 * 256 * 1024 + 7;
-		random_sequence[rand_index] = -1;
+		rand_num = rand_sequence[i + 1] * 2 * 256 * 1024 + 7;		
 		A[previous_rand_num]=rand_num;
 	}
+
  
 /*	
 	///////manually set the nodes
