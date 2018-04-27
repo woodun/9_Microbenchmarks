@@ -62,8 +62,7 @@ void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod){
 	srand (time(NULL));
 	shuffle(rand_sequence, 6141);
 	
-	unsigned previous_rand_num;
-	unsigned rand_num = rand_sequence[0] * 2 * 256 * 1024 + 32;	
+	rand_num = rand_sequence[0] * 2 * 256 * 1024 + 32;	
 	for(unsigned i = 0; i < 6140; i++){		
 		previous_rand_num = rand_num;		
 		rand_num = rand_sequence[i + 1] * 2 * 256 * 1024 + 32;		
