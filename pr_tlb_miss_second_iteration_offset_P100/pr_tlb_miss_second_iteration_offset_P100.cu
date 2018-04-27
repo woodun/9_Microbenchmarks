@@ -6,6 +6,10 @@
 // utilities
 #include <helper_cuda.h>
 #include <time.h>
+#include <algorithm>    // std::shuffle
+#include <array>        // std::array
+#include <random>       // std::default_random_engine
+#include <chrono>       // std::chrono::system_clock
 
 ///////////per request timing. L1 enabled. P100.
 ///////////using more than 8gb.
