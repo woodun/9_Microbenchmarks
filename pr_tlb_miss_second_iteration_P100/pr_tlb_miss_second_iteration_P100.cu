@@ -42,10 +42,10 @@ void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod){
 	for(int i = 0; i < 6141; i++){
 		rand_sequence[i] = i;
 	} 
-	shuffle(rand_sequence, 6141)	
+	shuffle(rand_sequence, 6141);
 	
 	unsigned rand_num;
-	unsigned previous_rand_num = rand_sequence[0];
+	unsigned previous_rand_num = rand_sequence[0] * 2 * 256 * 1024 + 7;
 	for(unsigned i = 0; i < 6140; i++){		
 		previous_rand_num = rand_num;		
 		rand_num = rand_sequence[i + 1] * 2 * 256 * 1024 + 7;		
