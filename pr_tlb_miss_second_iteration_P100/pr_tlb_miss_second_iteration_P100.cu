@@ -35,6 +35,7 @@ void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod){
 		rand_index = (rand_index + 1) % 6140;
 	}
 	rand_num = random_sequence[rand_index] * 2 * 256 * 1024 + 7;
+	random_sequence[rand_index] = -1;
 	for(unsigned i = 0; i < 6140; i++){		
 		previous_rand_num = rand_num;		
 		
@@ -43,6 +44,7 @@ void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod){
 			rand_index = (rand_index + 1) % 6140;
 		}
 		rand_num = random_sequence[rand_index] * 2 * 256 * 1024 + 7;
+		random_sequence[rand_index] = -1;
 		A[previous_rand_num]=rand_num;
 	}
  
