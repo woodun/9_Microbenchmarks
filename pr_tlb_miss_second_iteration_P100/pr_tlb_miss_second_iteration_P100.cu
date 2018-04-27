@@ -6,15 +6,28 @@
 // utilities
 #include <helper_cuda.h>
 #include <time.h>
-#include <algorithm>    // std::shuffle
-#include <vector>
-#include <random>       // std::default_random_engine
-#include <chrono>       // std::chrono::system_clock
+
 
 ///////////per request timing. L1 enabled. P100.
 //////////////////////using more than 8gb.
 
+
 //typedef unsigned char byte;
+
+void shuffle(int *array, size_t n)
+{
+    if (n > 1) 
+    {
+        size_t i;
+        for (i = 0; i < n - 1; i++) 
+        {
+          size_t j = i + rand() / (RAND_MAX / (n - i) + 1);
+          int t = array[j];
+          array[j] = array[i];
+          array[i] = t;
+        }
+    }
+}
 
 void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod){
 	for (unsigned i = 0; i < size - stride; i = i + stride){
@@ -25,12 +38,11 @@ void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod){
 		A[i]=(i + stride);
    	}
 	
-	std::vector<int,6141> rand_sequence;
+	int rand_sequence[6141];
 	for(int i = 0; i < 6141; i++){
 		rand_sequence[i] = i;
 	} 
-	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-	shuffle (rand_sequence.begin(), rand_sequence.end(), std::default_random_engine(seed));
+	shuffle(rand_sequence, 6141)	
 	
 	unsigned rand_num;
 	unsigned previous_rand_num = rand_sequence[0];
