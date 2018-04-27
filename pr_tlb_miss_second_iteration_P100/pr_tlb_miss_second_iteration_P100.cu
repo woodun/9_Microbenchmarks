@@ -17,7 +17,7 @@ void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod){
 		A[i]=(i + stride);
    	}
 	
-	for (unsigned i = 32; i < size - stride; i = i + stride){
+	for (unsigned i = 1; i < size - stride; i = i + stride){
 		A[i]=(i + stride);
    	}
 	
@@ -25,16 +25,14 @@ void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod){
 	unsigned previous_rand_index;
 	srand (time(NULL));
  
-	/*
-	rand_index = (rand() % 6140) * 2 * 256 * 1024;
+	rand_index = (rand() % 6140) * 2 * 256 * 1024 + 1;
 	for(unsigned i = 0; i < 6140; i++){		
 		previous_rand_index = rand_index;
-		rand_index = (rand() % 6140 + 1) * 2 * 256 * 1024;
+		rand_index = (rand() % 6140) * 2 * 256 * 1024 + 1;
 		A[previous_rand_index]=rand_index;
 	}
-	*/
   
-
+	/*
 	///////manually set the nodes
 	A[32]=104333344 - 32;
 	A[104333344 - 32]=200802336 - 32;
@@ -46,6 +44,7 @@ void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod){
 	A[333971488 - 32]=225443872 - 32;
 	A[225443872 - 32]=155189280 - 32;
 	A[155189280 - 32]=0;
+	*/
 	
 	for (unsigned i = size - stride; i < size; i++){
 		A[i]=0;
@@ -162,7 +161,7 @@ __global__ void tlb_latency_test(unsigned *A, unsigned iterations, unsigned *B, 
 	
 	///////////kepler L2 has 48 * 1024 = 49152 cache lines. But we only have 1024 * 4 slots in shared memory.
 	P_chasing1(0, A, iterations + 0, B, C, D, 0, clock_rate, data_stride);////////saturate the L2
-	P_chasing2(0, A, reduced_iter, B, C, D, 32, clock_rate, data_stride);////////partially print the data
+	P_chasing2(0, A, reduced_iter, B, C, D, 1, clock_rate, data_stride);////////partially print the data
 	
 	 __syncthreads();
 }

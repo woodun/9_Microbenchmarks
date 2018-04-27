@@ -26,7 +26,7 @@ void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod){
 	srand (time(NULL));
  
 	rand_index = (rand() % 6140) * 2 * 256 * 1024 + 32;
-	for(unsigned i = 0; i < 6140; i++){		
+	for(unsigned i = 0; i < 6140; i++){
 		previous_rand_index = rand_index;
 		rand_index = (rand() % 6140) * 2 * 256 * 1024 + 32;
 		A[previous_rand_index]=rand_index;
