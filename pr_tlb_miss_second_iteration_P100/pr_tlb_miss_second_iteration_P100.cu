@@ -60,7 +60,7 @@ void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod, un
 	for(int i = 0; i < iterations; i++){
 		rand_sequence[i] = i;
 	}
-	//srand (time(NULL));	
+	//srand (time(NULL));
 	//shuffle(rand_sequence, iterations);
 	
 	rand_num = rand_sequence[0] * stride + 7;	
