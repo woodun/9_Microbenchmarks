@@ -17,9 +17,26 @@
 //typedef unsigned char byte;
 
 void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod){
-	for (unsigned i = 0; i < size - stride; i++){
+	for (unsigned i = 0; i < size - stride; i = i + stride){
 		A[i]=(i + stride);
    	}
+	
+	for (unsigned i = 32; i < size - stride; i = i + stride){
+		A[i]=(i + stride);
+   	}
+	
+	///////manually set the nodes
+	A[32]=104333344;
+	A[104333344]=200802336;
+	A[200802336]=353370144;
+	A[353370144]=372244512;
+	A[372244512]=110100512;
+	A[110100512]=182452256;
+	A[182452256]=333971488;
+	A[333971488]=225443872;
+	A[225443872]=155189280;
+	A[155189280]=104857632;
+	
 	for (unsigned i = size - stride; i < size; i++){
 		A[i]=0;
    	}
@@ -237,9 +254,8 @@ int main(int argc, char **argv)
 
 		fprintf(pFile, "###################data_stride%u#########################\n", data_stride);
 		fprintf (pFile, "###############Mod%u##############%u\n", mod, iterations);
-		for (unsigned it = 0; it < reduced_iter; it++){
-			fprintf (pFile, "%u %lldcycles\n", CPU_data_out_index[it], CPU_data_out_time[it]);
-			//fprintf (pFile, "%u %fms %lldcycles\n", CPU_data_out_index[it], (double)CPU_data_out_time[it] / (float)clock_rate, CPU_data_out_time[it]);
+		for (unsigned it = 0; it < reduced_iter; it++){			
+			fprintf (pFile, "%u %fms %lldcycles\n", CPU_data_out_index[it], (double)CPU_data_out_time[it] / (float)clock_rate, CPU_data_out_time[it]);
 			//fprintf (pFile, "%d %fms\n", it, CPU_data_out_time[it] / (float)clock_rate);
 			//printf ("%d %fms\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate);
 		}
