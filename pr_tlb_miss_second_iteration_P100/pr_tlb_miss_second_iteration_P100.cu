@@ -39,13 +39,31 @@ void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod){
    	}
 	
 	int rand_sequence[6141];
+	
+	//////random sequence offset 0
 	for(int i = 0; i < 6141; i++){
 		rand_sequence[i] = i;
-	} 
+	}
+	srand (time(NULL));
 	shuffle(rand_sequence, 6141);
 	
-	unsigned rand_num;
-	unsigned previous_rand_num = rand_sequence[0] * 2 * 256 * 1024 + 7;
+	unsigned previous_rand_num;
+	unsigned rand_num = rand_sequence[0] * 2 * 256 * 1024;	
+	for(unsigned i = 0; i < 6140; i++){		
+		previous_rand_num = rand_num;		
+		rand_num = rand_sequence[i + 1] * 2 * 256 * 1024;		
+		A[previous_rand_num]=rand_num;
+	}
+	
+	//////random sequence offset 7
+	for(int i = 0; i < 6141; i++){
+		rand_sequence[i] = i;
+	}
+	srand (time(NULL));
+	shuffle(rand_sequence, 6141);
+	
+	unsigned previous_rand_num;
+	unsigned rand_num = rand_sequence[0] * 2 * 256 * 1024 + 7;	
 	for(unsigned i = 0; i < 6140; i++){		
 		previous_rand_num = rand_num;		
 		rand_num = rand_sequence[i + 1] * 2 * 256 * 1024 + 7;		
