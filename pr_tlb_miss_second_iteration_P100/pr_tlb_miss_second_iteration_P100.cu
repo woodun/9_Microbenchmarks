@@ -25,16 +25,15 @@ void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod){
 	unsigned previous_rand_index;
 	srand (time(NULL));
  
- /*
-	rand_index = (rand() % 6140) * 2 * 256 * 1024 + 1;
+ 
+	rand_index = (rand() % 6140) * 2 * 256 * 1024 + 31;
 	for(unsigned i = 0; i < 6140; i++){		
 		previous_rand_index = rand_index;
-		rand_index = (rand() % 6140) * 2 * 256 * 1024 + 1;
+		rand_index = (rand() % 6140) * 2 * 256 * 1024 + 31;
 		A[previous_rand_index]=rand_index;
 	}
- */
  
-	
+/*	
 	///////manually set the nodes
 	A[1]=524288+1;
 	A[524288+1]=1048576 + 1;
@@ -52,7 +51,7 @@ void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod){
 	A[333971488 - 31]=225443872 - 31;
 	A[225443872 - 31]=155189280 - 31;
 	A[155189280 - 31]=0;
-
+*/
 	
 	for (unsigned i = size - stride; i < size; i++){
 		A[i]=0;
