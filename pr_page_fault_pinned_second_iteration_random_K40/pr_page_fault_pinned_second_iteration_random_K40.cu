@@ -56,17 +56,17 @@ void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod, un
 		A[previous_rand_num]=rand_num;
 	}
 	
-	//////random sequence offset 32	
+	//////random sequence offset 7	
 	//for(int i = 0; i < iterations; i++){
 	//	rand_sequence[i] = i;
 	//}
 	//srand (time(NULL));
 	//shuffle(rand_sequence, iterations);
 	
-	rand_num = rand_sequence[0] * stride + 32;	
+	rand_num = rand_sequence[0] * stride + 7;	
 	for(unsigned i = 1; i < iterations; i++){		
 		previous_rand_num = rand_num;		
-		rand_num = rand_sequence[i] * stride + 32;		
+		rand_num = rand_sequence[i] * stride + 7;		
 		A[previous_rand_num]=rand_num;
 	}
   
@@ -199,7 +199,7 @@ __global__ void tlb_latency_test(unsigned *A, unsigned iterations, unsigned *B, 
 	
 	///////////kepler L2 has 48 * 1024 = 49152 cache lines. But we only have 1024 * 4 slots in shared memory.
 	P_chasing1(0, A, iterations + 0, B, C, D, 0, clock_rate, data_stride);////////saturate the L2
-	P_chasing2(0, A, reduced_iter, B, C, D, 32, clock_rate, data_stride);////////partially print the data
+	P_chasing2(0, A, reduced_iter, B, C, D, 7, clock_rate, data_stride);////////partially print the data
 	
 	 __syncthreads();
 }
@@ -243,7 +243,7 @@ int main(int argc, char **argv)
     pFile = fopen ("output.txt","w");		
 	
 	unsigned counter = 0;
-	for(unsigned data_stride = 2 * 256 * 1024; data_stride <= 2 * 256 * 1024; data_stride = data_stride * 2){/////////32mb stride
+	for(unsigned data_stride = 1 * 1 * 1024; data_stride <= 2 * 256 * 1024; data_stride = data_stride * 2){/////////32mb stride
 		//data_stride = data_stride + 32;///offset a cache line, trying to cause L2 miss but tlb hit.
 		//printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m = 12288 cache lines, L1 16k = 128 cache lines.
