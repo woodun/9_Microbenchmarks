@@ -266,7 +266,7 @@ int main(int argc, char **argv)
 		unsigned *CPU_data_in;
 		//CPU_data_in = (int*)malloc(sizeof(int) * data_size);
 		checkCudaErrors(cudaHostAlloc((void**)&CPU_data_in, sizeof(unsigned) * data_size, cudaHostAllocDefault));//////////using pinned memory
-		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
+		init_cpu_data(CPU_data_in, data_size, data_stride, mod, iterations);
 		
 		unsigned reduced_iter = iterations;
 		if(reduced_iter > 512){
@@ -336,7 +336,7 @@ int main(int argc, char **argv)
 				unsigned *CPU_data_in;
 		//CPU_data_in = (int*)malloc(sizeof(int) * data_size);
 		checkCudaErrors(cudaHostAlloc((void**)&CPU_data_in, sizeof(unsigned) * data_size, cudaHostAllocDefault));//////////using pinned memory
-		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
+		init_cpu_data(CPU_data_in, data_size, data_stride, mod, iterations);
 		
 		unsigned reduced_iter = iterations;
 		if(reduced_iter > 512){
@@ -406,7 +406,7 @@ int main(int argc, char **argv)
 		unsigned *CPU_data_in;
 		//CPU_data_in = (int*)malloc(sizeof(int) * data_size);
 		checkCudaErrors(cudaHostAlloc((void**)&CPU_data_in, sizeof(unsigned) * data_size, cudaHostAllocDefault));//////////using pinned memory
-		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
+		init_cpu_data(CPU_data_in, data_size, data_stride, mod, iterations);
 		
 		unsigned reduced_iter = iterations;
 		if(reduced_iter > 512){
