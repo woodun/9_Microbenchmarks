@@ -255,7 +255,7 @@ int main(int argc, char **argv)
 		if(mod > 2684354560){
 			mod = 2684354560;
 		}
-		unsigned data_size = mod;
+		unsigned data_size = 2684354560;
 		if(data_size < 4194304){//////////data size at least 16mb to prevent L2 prefetch
 			data_size = 4194304;
 		}
@@ -325,7 +325,7 @@ int main(int argc, char **argv)
 		if(mod > 3221225472){
 			mod = 3221225472;
 		}
-		unsigned data_size = mod;
+		unsigned data_size = 2684354560;
 		if(data_size < 4194304){//////////data size at least 16mb to prevent L2 prefetch
 			data_size = 4194304;
 		}
@@ -395,7 +395,7 @@ int main(int argc, char **argv)
 		if(mod > 2684354560){
 			mod = 2684354560;
 		}
-		unsigned data_size = mod;
+		unsigned data_size = 2684354560;
 		if(data_size < 4194304){//////////data size at least 16mb to prevent L2 prefetch
 			data_size = 4194304;
 		}
