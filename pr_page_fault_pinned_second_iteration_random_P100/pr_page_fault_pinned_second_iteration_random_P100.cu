@@ -14,61 +14,65 @@
 
 //typedef unsigned char byte;
 
-void shuffle(int *array, size_t n)
+void shuffle(long long int *array, long long int n)
 {
-    if (n > 1) 
-    {
-        size_t i;
-        for (i = 0; i < n - 1; i++) 
-        {
-          size_t j = i + rand() / (RAND_MAX / (n - i) + 1);
-          int t = array[j];
+    if (n > 1){
+        long long int i;
+        for (i = 0; i < n - 1; i++){
+          long long int j = i + rand() / (RAND_MAX / (n - i) + 1);
+          long long int t = array[j];
           array[j] = array[i];
           array[i] = t;
         }
     }
 }
 
-void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod, unsigned iterations){
+void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod, long long int iterations){
 	//for (unsigned i = 0; i < size - stride; i = i + stride){
 	//	A[i]=(i + stride);
    	//}
 	
-	//for (unsigned i = 32; i < size - stride; i = i + stride){
+	//for (unsigned i = 7; i < size - stride; i = i + stride){
 	//	A[i]=(i + stride);
    	//}
 	
-	int rand_sequence[iterations];
+	//for (unsigned i = size - stride; i < size; i++){
+	//	A[i]=0;
+   	//}	
+	
+	long long int *rand_sequence;
+	rand_sequence = (long long int*)malloc(sizeof(long long int) * iterations);
 	
 	//////random sequence offset 0
+	for(long long int i = 0; i < iterations; i++){
+		rand_sequence[i] = i;
+	}
+	//srand (time(NULL));
+	srand(1);
+	shuffle(rand_sequence, iterations);
+		
+	long long int previous_rand_num;
+	long long int rand_num = rand_sequence[0] * stride;	
+	for(long long int i = 1; i < iterations; i++){
+		previous_rand_num = rand_num;		
+		rand_num = rand_sequence[i] * stride;		
+		A[previous_rand_num]=(unsigned)rand_num;
+	}	
+	
+	//////random sequence offset 7	
 	for(int i = 0; i < iterations; i++){
 		rand_sequence[i] = i;
 	}
 	//srand (time(NULL));
-	srand (1);
 	shuffle(rand_sequence, iterations);
 	
-	unsigned previous_rand_num;
-	unsigned rand_num = rand_sequence[0] * stride;	
-	for(unsigned i = 1; i < iterations; i++){		
-		previous_rand_num = rand_num;		
-		rand_num = rand_sequence[i] * stride;		
-		A[previous_rand_num]=rand_num;
-	}
-	
-	//////random sequence offset 7	
-	//for(int i = 0; i < iterations; i++){
-	//	rand_sequence[i] = i;
-	//}
-	//srand (time(NULL));
-	//shuffle(rand_sequence, iterations);
-	
 	rand_num = rand_sequence[0] * stride + 7;	
-	for(unsigned i = 1; i < iterations; i++){		
+	for(long long int i = 1; i < iterations; i++){	
 		previous_rand_num = rand_num;		
 		rand_num = rand_sequence[i] * stride + 7;		
-		A[previous_rand_num]=rand_num;
+		A[previous_rand_num]=(unsigned)rand_num;
 	}
+	
   
 	/*
 	///////manually set the nodes
@@ -83,10 +87,6 @@ void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod, un
 	A[225443872]=155189280;
 	A[155189280]=104333344;
 	*/
-	
-	//for (unsigned i = size - stride; i < size; i++){
-	//	A[i]=0;
-   	//}
 }
 
 __device__ void P_chasing0(int mark, unsigned *A, int iterations, int *B, int *C, unsigned *D, int starting_index, float clock_rate, int data_stride){	
@@ -101,7 +101,7 @@ __device__ void P_chasing0(int mark, unsigned *A, int iterations, int *B, int *C
 }
 
 //////////min page size 4kb = 4096b = 32 * 128.
-__device__ void P_chasing1(int mark, unsigned *A, unsigned iterations, unsigned *B, unsigned *C, long long int *D, unsigned starting_index, float clock_rate, unsigned data_stride){
+__device__ void P_chasing1(int mark, unsigned *A, long long int iterations, unsigned *B, unsigned *C, long long int *D, unsigned starting_index, float clock_rate, unsigned data_stride){
 	
 	unsigned j = starting_index;/////make them in the same page, and miss near in cache lines
 	
@@ -109,7 +109,7 @@ __device__ void P_chasing1(int mark, unsigned *A, unsigned iterations, unsigned 
 	//unsigned end_time = 0;//////clock
 	//start_time = clock64();//////clock
 			
-	for (unsigned it = 0; it < iterations; it++){
+	for (long long int it = 0; it < iterations; it++){
 		j = A[j];
 	}
 	
@@ -122,7 +122,7 @@ __device__ void P_chasing1(int mark, unsigned *A, unsigned iterations, unsigned 
 }
 
 //////////min page size 4kb = 4096b = 32 * 128.
-__device__ void P_chasing2(int mark, unsigned *A, unsigned iterations, unsigned *B, unsigned *C, long long int *D, unsigned starting_index, float clock_rate, unsigned data_stride){//////what is the effect of warmup outside vs inside?
+__device__ void P_chasing2(int mark, unsigned *A, long long int iterations, unsigned *B, unsigned *C, long long int *D, unsigned starting_index, float clock_rate, unsigned data_stride){//////what is the effect of warmup outside vs inside?
 	
 	//////shared memory: 0xc000 max (49152 Bytes = 48KB)
 	__shared__ long long int s_tvalue[1024 * 4];/////must be enough to contain the number of iterations.
@@ -151,7 +151,7 @@ __device__ void P_chasing2(int mark, unsigned *A, unsigned iterations, unsigned 
 		asm(".reg .u64 t1;\n\t"
 		".reg .u64 t2;\n\t");
 	
-	for (unsigned it = 0; it < iterations; it++){
+	for (long long int it = 0; it < iterations; it++){
 		
 		/*
 		asm("mul.wide.u32 	t1, %3, %5;\n\t"	
@@ -182,15 +182,15 @@ __device__ void P_chasing2(int mark, unsigned *A, unsigned iterations, unsigned 
 	
 	B[0] = j;
 	
-	for (unsigned it = 0; it < iterations; it++){		
+	for (long long int it = 0; it < iterations; it++){		
 		C[it] = s_index[it];
 		D[it] = s_tvalue[it];
 	}
 }
 
-__global__ void tlb_latency_test(unsigned *A, unsigned iterations, unsigned *B, unsigned *C, long long int *D, float clock_rate, unsigned mod, int data_stride){
+__global__ void tlb_latency_test(unsigned *A, long long int iterations, unsigned *B, unsigned *C, long long int *D, float clock_rate, unsigned mod, int data_stride){
 	
-	unsigned reduced_iter = iterations;
+	long long int reduced_iter = iterations;
 	if(reduced_iter > 512){
 		reduced_iter = 512;
 	}else if(reduced_iter < 16){
@@ -243,7 +243,7 @@ int main(int argc, char **argv)
     pFile = fopen ("output.txt","w");		
 	
 	unsigned counter = 0;
-	for(unsigned data_stride = 2 * 256 * 1024; data_stride <= 2 * 256 * 1024; data_stride = data_stride * 2){/////////32mb stride
+	for(unsigned data_stride = 1 * 1 * 1024; data_stride <= 2 * 256 * 1024; data_stride = data_stride * 2){/////////32mb stride
 		//data_stride = data_stride + 32;///offset a cache line, trying to cause L2 miss but tlb hit.
 		//printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m = 12288 cache lines, L1 16k = 128 cache lines.
@@ -252,8 +252,8 @@ int main(int argc, char **argv)
 		///////////////////////////////////////////////////////////////////CPU data begin
 		//int data_size = 2 * 256 * 1024 * 32;/////size = iteration * stride = 32 2mb pages.
 		unsigned mod = mod2;
-		if(mod > 3221225472){
-			mod = 3221225472;
+		if(mod > 2684354560){
+			mod = 2684354560;
 		}
 		unsigned data_size = mod;
 		if(data_size < 4194304){//////////data size at least 16mb to prevent L2 prefetch
@@ -261,14 +261,14 @@ int main(int argc, char **argv)
 		}
 		//int iterations = data_size / data_stride;
 		//int iterations = 1024 * 256 * 8;
-		unsigned iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256
+		long long int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256
 	
 		unsigned *CPU_data_in;
 		//CPU_data_in = (int*)malloc(sizeof(int) * data_size);
 		checkCudaErrors(cudaHostAlloc((void**)&CPU_data_in, sizeof(unsigned) * data_size, cudaHostAllocDefault));//////////using pinned memory
 		init_cpu_data(CPU_data_in, data_size, data_stride, mod, iterations);
 		
-		unsigned reduced_iter = iterations;
+		long long int reduced_iter = iterations;
 		if(reduced_iter > 512){
 			reduced_iter = 512;
 		}else if(reduced_iter < 16){
@@ -301,7 +301,7 @@ int main(int argc, char **argv)
 
 		fprintf(pFile, "###################data_stride%d#########################\n", data_stride);
 		fprintf (pFile, "###############Mod%lld##############%lld\n", mod, iterations);
-		for (unsigned it = 0; it < reduced_iter; it++){		
+		for (long long int it = 0; it < reduced_iter; it++){		
 			fprintf (pFile, "%d %fms %lldcycles\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate, CPU_data_out_time[it]);
 			//fprintf (pFile, "%d %fms\n", it, CPU_data_out_time[it] / (float)clock_rate);
 			//printf ("%d %fms\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate);
@@ -331,14 +331,14 @@ int main(int argc, char **argv)
 		}
 		//int iterations = data_size / data_stride;
 		//int iterations = 1024 * 256 * 8;
-		unsigned iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256
+		long long int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256
 	
 				unsigned *CPU_data_in;
 		//CPU_data_in = (int*)malloc(sizeof(int) * data_size);
 		checkCudaErrors(cudaHostAlloc((void**)&CPU_data_in, sizeof(unsigned) * data_size, cudaHostAllocDefault));//////////using pinned memory
 		init_cpu_data(CPU_data_in, data_size, data_stride, mod, iterations);
 		
-		unsigned reduced_iter = iterations;
+		long long int reduced_iter = iterations;
 		if(reduced_iter > 512){
 			reduced_iter = 512;
 		}else if(reduced_iter < 16){
@@ -371,7 +371,7 @@ int main(int argc, char **argv)
 
 		fprintf(pFile, "###################data_stride%d#########################\n", data_stride);
 		fprintf (pFile, "###############Mod%lld##############%lld\n", mod, iterations);
-		for (unsigned it = 0; it < reduced_iter; it++){		
+		for (long long int it = 0; it < reduced_iter; it++){		
 			fprintf (pFile, "%d %fms %lldcycles\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate, CPU_data_out_time[it]);
 			//fprintf (pFile, "%d %fms\n", it, CPU_data_out_time[it] / (float)clock_rate);
 			//printf ("%d %fms\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate);
@@ -391,9 +391,9 @@ int main(int argc, char **argv)
 		counter++;
 		///////////////////////////////////////////////////////////////////CPU data begin
 		//int data_size = 2 * 256 * 1024 * 32;/////size = iteration * stride = 32 2mb pages.
-		unsigned mod = 3221225472;
-		if(mod > 3221225472){
-			mod = 3221225472;
+		unsigned mod = 2684354560;
+		if(mod > 2684354560){
+			mod = 2684354560;
 		}
 		unsigned data_size = mod;
 		if(data_size < 4194304){//////////data size at least 16mb to prevent L2 prefetch
@@ -401,14 +401,14 @@ int main(int argc, char **argv)
 		}
 		//int iterations = data_size / data_stride;
 		//int iterations = 1024 * 256 * 8;
-		unsigned iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256
+		long long int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256
 	
 		unsigned *CPU_data_in;
 		//CPU_data_in = (int*)malloc(sizeof(int) * data_size);
 		checkCudaErrors(cudaHostAlloc((void**)&CPU_data_in, sizeof(unsigned) * data_size, cudaHostAllocDefault));//////////using pinned memory
 		init_cpu_data(CPU_data_in, data_size, data_stride, mod, iterations);
 		
-		unsigned reduced_iter = iterations;
+		long long int reduced_iter = iterations;
 		if(reduced_iter > 512){
 			reduced_iter = 512;
 		}else if(reduced_iter < 16){
@@ -441,7 +441,7 @@ int main(int argc, char **argv)
 
 		fprintf(pFile, "###################data_stride%d#########################\n", data_stride);
 		fprintf (pFile, "###############Mod%lld##############%lld\n", mod, iterations);
-		for (unsigned it = 0; it < reduced_iter; it++){		
+		for (long long int it = 0; it < reduced_iter; it++){		
 			fprintf (pFile, "%d %fms %lldcycles\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate, CPU_data_out_time[it]);
 			//fprintf (pFile, "%d %fms\n", it, CPU_data_out_time[it] / (float)clock_rate);
 			//printf ("%d %fms\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate);
