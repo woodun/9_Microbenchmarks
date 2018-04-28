@@ -14,7 +14,7 @@
 
 //typedef unsigned char byte;
 
-void shuffle(int *array, long long int n)
+void shuffle(long long int *array, long long int n)
 {
     if (n > 1) 
     {
