@@ -16,11 +16,9 @@
 
 void shuffle(long long int *array, long long int n)
 {
-    if (n > 1) 
-    {
+    if (n > 1){
         long long int i;
-        for (i = 0; i < n - 1; i++) 
-        {
+        for (i = 0; i < n - 1; i++){
           long long int j = i + rand() / (RAND_MAX / (n - i) + 1);
           long long int t = array[j];
           array[j] = array[i];
@@ -50,7 +48,13 @@ void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod, lo
 	
 	long long int previous_rand_num;
 	long long int rand_num = rand_sequence[0] * stride;	
-	for(long long int i = 1; i < iterations; i++){		
+	for(long long int i = 1; i < iterations; i++){
+if(rand_num > 3221225472){
+	printf("1%lld\n", i);
+}
+if(rand_num < 0){
+	printf("2%lld\n", i);
+}		
 		previous_rand_num = rand_num;		
 		rand_num = rand_sequence[i] * stride;		
 		A[previous_rand_num]=(unsigned)rand_num;
@@ -66,7 +70,10 @@ void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod, lo
 	rand_num = rand_sequence[0] * stride + 7;	
 	for(long long int i = 1; i < iterations; i++){	
 if(rand_num > 3221225472){
-	printf("%lld\n", i);
+	printf("3%lld\n", i);
+}
+if(rand_num < 0){
+	printf("4%lld\n", i);
 }	
 		previous_rand_num = rand_num;		
 		rand_num = rand_sequence[i] * stride + 7;		
