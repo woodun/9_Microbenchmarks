@@ -51,9 +51,11 @@ void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod, lo
 	for(long long int i = 1; i < iterations; i++){
 if(rand_num > 3221225472){
 	printf("1%lld\n", i);
+	fflush(stdout);
 }
 if(rand_num < 0){
 	printf("2%lld\n", i);
+	fflush(stdout);
 }		
 		previous_rand_num = rand_num;		
 		rand_num = rand_sequence[i] * stride;		
@@ -71,9 +73,11 @@ if(rand_num < 0){
 	for(long long int i = 1; i < iterations; i++){	
 if(rand_num > 3221225472){
 	printf("3%lld\n", i);
+	fflush(stdout);
 }
 if(rand_num < 0){
 	printf("4%lld\n", i);
+	fflush(stdout);
 }	
 		previous_rand_num = rand_num;		
 		rand_num = rand_sequence[i] * stride + 7;		
