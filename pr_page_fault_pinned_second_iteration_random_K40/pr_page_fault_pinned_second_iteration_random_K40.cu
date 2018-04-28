@@ -28,13 +28,17 @@ void shuffle(long long int *array, long long int n)
 }
 
 void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod, long long int iterations){
-	//for (unsigned i = 0; i < size - stride; i = i + stride){
-	//	A[i]=(i + stride);
-   	//}
+	for (unsigned i = 0; i < size - stride; i = i + stride){
+		A[i]=(i + stride);
+   	}
 	
-	//for (unsigned i = 32; i < size - stride; i = i + stride){
-	//	A[i]=(i + stride);
-   	//}
+	for (unsigned i = 7; i < size - stride; i = i + stride){
+		A[i]=(i + stride);
+   	}
+	
+	for (unsigned i = size - stride; i < size; i++){
+		A[i]=0;
+   	}
 	
 	long long int rand_sequence[iterations];
 	
@@ -49,7 +53,7 @@ void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod, lo
 	long long int previous_rand_num;
 	long long int rand_num = rand_sequence[0] * stride;	
 	for(long long int i = 1; i < iterations; i++){
-if(rand_num > 3221225472){
+if(rand_num > 3221225471){
 	printf("1%lld\n", i);
 	fflush(stdout);
 }
@@ -71,7 +75,7 @@ if(rand_num < 0){
 	
 	rand_num = rand_sequence[0] * stride + 7;	
 	for(long long int i = 1; i < iterations; i++){	
-if(rand_num > 3221225472){
+if(rand_num > 3221225471){
 	printf("3%lld\n", i);
 	fflush(stdout);
 }
@@ -97,10 +101,6 @@ if(rand_num < 0){
 	A[225443872]=155189280;
 	A[155189280]=104333344;
 	*/
-	
-	//for (unsigned i = size - stride; i < size; i++){
-	//	A[i]=0;
-   	//}
 }
 
 __device__ void P_chasing0(int mark, unsigned *A, int iterations, int *B, int *C, unsigned *D, int starting_index, float clock_rate, int data_stride){	
