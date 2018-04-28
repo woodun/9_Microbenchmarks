@@ -48,7 +48,7 @@ void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod, lo
 	}
 	//srand (time(NULL));
 	srand (1);
-	shuffle(rand_sequence, iterations);
+	//shuffle(rand_sequence, iterations);
 	
 	long long int previous_rand_num;
 	long long int rand_num = rand_sequence[0] * stride;	
@@ -73,7 +73,7 @@ if(rand_num < 0){
 	//srand (time(NULL));
 	//shuffle(rand_sequence, iterations);
 	
-	/*
+	
 	rand_num = rand_sequence[0] * stride + 7;	
 	for(long long int i = 1; i < iterations; i++){	
 if(rand_num > 3221225471){
@@ -88,7 +88,7 @@ if(rand_num < 0){
 		rand_num = rand_sequence[i] * stride + 7;		
 		A[previous_rand_num]=(unsigned)rand_num;
 	}
-  */
+  
   
 	/*
 	///////manually set the nodes
