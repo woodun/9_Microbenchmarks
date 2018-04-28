@@ -40,6 +40,7 @@ void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod, lo
 		A[i]=0;
    	}
 	
+	/*
 	long long int rand_sequence[iterations];
 	
 	//////random sequence offset 0
@@ -49,6 +50,7 @@ void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod, lo
 	//srand (time(NULL));
 	srand(1);
 	//shuffle(rand_sequence, iterations);
+	*/
 	
 	/*
 	long long int previous_rand_num;
