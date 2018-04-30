@@ -28,51 +28,54 @@ void shuffle(long long int *array, long long int n)
 }
 
 void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod, long long int iterations){
-	//for (unsigned i = 0; i < size - stride; i = i + stride){
-	//	A[i]=(i + stride);
-   	//}
-	
-	//for (unsigned i = 7; i < size - stride; i = i + stride){
-	//	A[i]=(i + stride);
-   	//}
-	
-	//for (unsigned i = size - stride; i < size; i++){
-	//	A[i]=0;
-   	//}	
-	
-	long long int *rand_sequence;
-	rand_sequence = (long long int*)malloc(sizeof(long long int) * iterations);
-	
-	//////random sequence offset 0
-	for(long long int i = 0; i < iterations; i++){
-		rand_sequence[i] = i;
-	}
-	//srand (time(NULL));
-	srand(1);
-	shuffle(rand_sequence, iterations);
+	if(1){
+		for (unsigned i = 0; i < size - stride; i = i + stride){
+			A[i]=(i + stride);
+		}
 		
-	long long int previous_rand_num;
-	long long int rand_num = rand_sequence[0] * stride;	
-	for(long long int i = 1; i < iterations; i++){
-		previous_rand_num = rand_num;		
-		rand_num = rand_sequence[i] * stride;		
-		A[previous_rand_num]=(unsigned)rand_num;
-	}	
-	
-	//////random sequence offset 7	
-	//for(int i = 0; i < iterations; i++){
-	//	rand_sequence[i] = i;
-	//}
-	//srand (time(NULL));
-	//shuffle(rand_sequence, iterations);
-	
-	rand_num = rand_sequence[0] * stride + 7;	
-	for(long long int i = 1; i < iterations; i++){	
-		previous_rand_num = rand_num;		
-		rand_num = rand_sequence[i] * stride + 7;		
-		A[previous_rand_num]=(unsigned)rand_num;
+		for (unsigned i = 7; i < size - stride; i = i + stride){
+			A[i]=(i + stride);
+		}
+		
+		for (unsigned i = size - stride; i < size; i++){
+			A[i]=0;
+		}
 	}
 	
+	if(0){
+		long long int *rand_sequence;
+		rand_sequence = (long long int*)malloc(sizeof(long long int) * iterations);
+		
+		//////random sequence offset 0
+		for(long long int i = 0; i < iterations; i++){
+			rand_sequence[i] = i;
+		}
+		//srand (time(NULL));
+		srand(1);
+		shuffle(rand_sequence, iterations);
+			
+		long long int previous_rand_num;
+		long long int rand_num = rand_sequence[0] * stride;	
+		for(long long int i = 1; i < iterations; i++){
+			previous_rand_num = rand_num;		
+			rand_num = rand_sequence[i] * stride;		
+			A[previous_rand_num]=(unsigned)rand_num;
+		}	
+		
+		//////random sequence offset 7	
+		//for(int i = 0; i < iterations; i++){
+		//	rand_sequence[i] = i;
+		//}
+		//srand (time(NULL));
+		//shuffle(rand_sequence, iterations);
+		
+		rand_num = rand_sequence[0] * stride + 7;	
+		for(long long int i = 1; i < iterations; i++){	
+			previous_rand_num = rand_num;		
+			rand_num = rand_sequence[i] * stride + 7;		
+			A[previous_rand_num]=(unsigned)rand_num;
+		}
+	}
   
 	/*
 	///////manually set the nodes
