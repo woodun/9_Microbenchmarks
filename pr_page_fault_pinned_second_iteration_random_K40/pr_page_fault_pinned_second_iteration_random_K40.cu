@@ -60,11 +60,11 @@ void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod, lo
 	}	
 	
 	//////random sequence offset 7	
-	for(int i = 0; i < iterations; i++){
-		rand_sequence[i] = i;
-	}
+	//for(int i = 0; i < iterations; i++){
+	//	rand_sequence[i] = i;
+	//}
 	//srand (time(NULL));
-	shuffle(rand_sequence, iterations);
+	//shuffle(rand_sequence, iterations);
 	
 	rand_num = rand_sequence[0] * stride + 7;	
 	for(long long int i = 1; i < iterations; i++){	
