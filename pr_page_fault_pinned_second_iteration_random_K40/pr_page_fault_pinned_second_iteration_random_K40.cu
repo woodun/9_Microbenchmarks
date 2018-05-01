@@ -36,13 +36,25 @@ void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod, lo
 		for (unsigned i = 7; i < size - stride; i = i + stride){
 			A[i]=(i + stride);
 		}
-		
-		for (unsigned i = size - stride; i < size; i++){
-			A[i]=0;
-		}
+				
+		A[size - stride]=0;
+		A[size - stride + 7]=0;
 	}
 	
 	if(1){
+		for (unsigned i = 0; i <= size - stride; i = i + stride){
+			A[i]=(i - stride);
+		}
+		
+		for (unsigned i = 7; i <= size - stride + 7; i = i + stride){
+			A[i]=(i - stride);
+		}
+		
+		A[0]=size - stride;
+		A[7]=size - stride + 7;
+	}
+	
+	if(0){
 		long long int *rand_sequence;
 		rand_sequence = (long long int*)malloc(sizeof(long long int) * iterations);
 		
