@@ -28,51 +28,66 @@ void shuffle(long long int *array, long long int n)
 }
 
 void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod, long long int iterations){
-	//for (unsigned i = 0; i < size - stride; i = i + stride){
-	//	A[i]=(i + stride);
-   	//}
-	
-	//for (unsigned i = 7; i < size - stride; i = i + stride){
-	//	A[i]=(i + stride);
-   	//}
-	
-	//for (unsigned i = size - stride; i < size; i++){
-	//	A[i]=0;
-   	//}	
-	
-	long long int *rand_sequence;
-	rand_sequence = (long long int*)malloc(sizeof(long long int) * iterations);
-	
-	//////random sequence offset 0
-	for(long long int i = 0; i < iterations; i++){
-		rand_sequence[i] = i;
-	}
-	//srand (time(NULL));
-	srand(1);
-	shuffle(rand_sequence, iterations);
+	if(0){////////////normal
+		for (unsigned i = 0; i < size - stride; i = i + stride){
+			A[i]=(i + stride);
+		}
 		
-	long long int previous_rand_num;
-	long long int rand_num = rand_sequence[0] * stride;	
-	for(long long int i = 1; i < iterations; i++){
-		previous_rand_num = rand_num;		
-		rand_num = rand_sequence[i] * stride;		
-		A[previous_rand_num]=(unsigned)rand_num;
-	}	
-	
-	//////random sequence offset 7	
-	for(int i = 0; i < iterations; i++){
-		rand_sequence[i] = i;
-	}
-	//srand (time(NULL));
-	shuffle(rand_sequence, iterations);
-	
-	rand_num = rand_sequence[0] * stride + 7;	
-	for(long long int i = 1; i < iterations; i++){	
-		previous_rand_num = rand_num;		
-		rand_num = rand_sequence[i] * stride + 7;		
-		A[previous_rand_num]=(unsigned)rand_num;
+		for (unsigned i = 7; i < size - stride; i = i + stride){
+			A[i]=(i + stride);
+		}
+				
+		A[size - stride]=0;
+		A[size - stride + 7]=0;
 	}
 	
+	if(1){////////////reversed
+		for (unsigned i = 0; i <= size - stride; i = i + stride){
+			A[i]=(i - stride);
+		}
+		
+		for (unsigned i = 7; i <= size - stride + 7; i = i + stride){
+			A[i]=(i - stride);
+		}
+		
+		A[0]=size - stride;
+		A[7]=size - stride + 7;
+	}
+	
+	if(0){////////////random
+		long long int *rand_sequence;
+		rand_sequence = (long long int*)malloc(sizeof(long long int) * iterations);
+		
+		//////random sequence offset 0
+		for(long long int i = 0; i < iterations; i++){
+			rand_sequence[i] = i;
+		}
+		//srand (time(NULL));
+		srand(1);
+		shuffle(rand_sequence, iterations);
+			
+		long long int previous_rand_num;
+		long long int rand_num = rand_sequence[0] * stride;	
+		for(long long int i = 1; i < iterations; i++){
+			previous_rand_num = rand_num;		
+			rand_num = rand_sequence[i] * stride;		
+			A[previous_rand_num]=(unsigned)rand_num;
+		}	
+		
+		//////random sequence offset 7	
+		//for(int i = 0; i < iterations; i++){
+		//	rand_sequence[i] = i;
+		//}
+		//srand (time(NULL));
+		//shuffle(rand_sequence, iterations);
+		
+		rand_num = rand_sequence[0] * stride + 7;	
+		for(long long int i = 1; i < iterations; i++){	
+			previous_rand_num = rand_num;		
+			rand_num = rand_sequence[i] * stride + 7;		
+			A[previous_rand_num]=(unsigned)rand_num;
+		}
+	}
   
 	/*
 	///////manually set the nodes
@@ -199,7 +214,7 @@ __global__ void tlb_latency_test(unsigned *A, long long int iterations, unsigned
 	
 	///////////kepler L2 has 48 * 1024 = 49152 cache lines. But we only have 1024 * 4 slots in shared memory.
 	P_chasing1(0, A, iterations + 0, B, C, D, 0, clock_rate, data_stride);////////saturate the L2
-	P_chasing2(0, A, reduced_iter, B, C, D, 7, clock_rate, data_stride);////////partially print the data
+	P_chasing2(0, A, reduced_iter, B, C, D, 0, clock_rate, data_stride);////////partially print the data
 	
 	 __syncthreads();
 }
@@ -255,6 +270,7 @@ int main(int argc, char **argv)
 		if(mod > 2684354560){
 			mod = 2684354560;
 		}
+		//unsigned data_size = 2684354560;//////when size gets larger than 32MB(8388608), an additional latency is added. Is it prefetching? cpu cache or tlb?
 		unsigned data_size = mod;
 		if(data_size < 4194304){//////////data size at least 16mb to prevent L2 prefetch
 			data_size = 4194304;
@@ -325,6 +341,7 @@ int main(int argc, char **argv)
 		if(mod > 3221225472){
 			mod = 3221225472;
 		}
+		//unsigned data_size = 2684354560;
 		unsigned data_size = mod;
 		if(data_size < 4194304){//////////data size at least 16mb to prevent L2 prefetch
 			data_size = 4194304;
@@ -333,7 +350,7 @@ int main(int argc, char **argv)
 		//int iterations = 1024 * 256 * 8;
 		long long int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256
 	
-				unsigned *CPU_data_in;
+		unsigned *CPU_data_in;
 		//CPU_data_in = (int*)malloc(sizeof(int) * data_size);
 		checkCudaErrors(cudaHostAlloc((void**)&CPU_data_in, sizeof(unsigned) * data_size, cudaHostAllocDefault));//////////using pinned memory
 		init_cpu_data(CPU_data_in, data_size, data_stride, mod, iterations);
@@ -395,6 +412,7 @@ int main(int argc, char **argv)
 		if(mod > 2684354560){
 			mod = 2684354560;
 		}
+		//unsigned data_size = 2684354560;
 		unsigned data_size = mod;
 		if(data_size < 4194304){//////////data size at least 16mb to prevent L2 prefetch
 			data_size = 4194304;

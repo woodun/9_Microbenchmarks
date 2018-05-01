@@ -28,7 +28,7 @@ void shuffle(long long int *array, long long int n)
 }
 
 void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod, long long int iterations){
-	if(0){
+	if(0){////////////normal
 		for (unsigned i = 0; i < size - stride; i = i + stride){
 			A[i]=(i + stride);
 		}
@@ -41,7 +41,7 @@ void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod, lo
 		A[size - stride + 7]=0;
 	}
 	
-	if(1){
+	if(1){////////////reversed
 		for (unsigned i = 0; i <= size - stride; i = i + stride){
 			A[i]=(i - stride);
 		}
@@ -54,7 +54,7 @@ void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod, lo
 		A[7]=size - stride + 7;
 	}
 	
-	if(0){
+	if(0){////////////random
 		long long int *rand_sequence;
 		rand_sequence = (long long int*)malloc(sizeof(long long int) * iterations);
 		
@@ -258,7 +258,7 @@ int main(int argc, char **argv)
     pFile = fopen ("output.txt","w");		
 	
 	unsigned counter = 0;
-	for(unsigned data_stride = 1 * 1 * 1024; data_stride <= 2 * 256 * 1024; data_stride = data_stride * 2){/////////32mb stride
+	for(unsigned data_stride = 1 * 1 * 256; data_stride <= 2 * 256 * 1024; data_stride = data_stride * 2){/////////32mb stride
 		//data_stride = data_stride + 32;///offset a cache line, trying to cause L2 miss but tlb hit.
 		//printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m = 12288 cache lines, L1 16k = 128 cache lines.
