@@ -326,7 +326,7 @@ int main(int argc, char **argv)
 		checkCudaErrors(cudaFree(GPU_data_out_index));
 		checkCudaErrors(cudaFree(GPU_data_out_time));
 		checkCudaErrors(cudaFree(GPU_data_in));
-		checkCudaErrors(cudaFree(CPU_data_in));
+		//checkCudaErrors(cudaFree(CPU_data_in));
 		//checkCudaErrors(cudaFreeHost(CPU_data_in));//////using pinned memory
 		free(CPU_data_in);
 		free(CPU_data_out_index);
@@ -397,7 +397,7 @@ int main(int argc, char **argv)
 		checkCudaErrors(cudaFree(GPU_data_out_index));
 		checkCudaErrors(cudaFree(GPU_data_out_time));
 		checkCudaErrors(cudaFree(GPU_data_in));
-		checkCudaErrors(cudaFree(CPU_data_in));
+		//checkCudaErrors(cudaFree(CPU_data_in));
 		//checkCudaErrors(cudaFreeHost(CPU_data_in));//////using pinned memory
 		free(CPU_data_in);
 		free(CPU_data_out_index);
@@ -468,7 +468,7 @@ int main(int argc, char **argv)
 		checkCudaErrors(cudaFree(GPU_data_out_index));
 		checkCudaErrors(cudaFree(GPU_data_out_time));
 		checkCudaErrors(cudaFree(GPU_data_in));
-		checkCudaErrors(cudaFree(CPU_data_in));
+		//checkCudaErrors(cudaFree(CPU_data_in));
 		//checkCudaErrors(cudaFreeHost(CPU_data_in));//////using pinned memory
 		free(CPU_data_in);
 		free(CPU_data_out_index);
