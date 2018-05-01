@@ -299,8 +299,8 @@ int main(int argc, char **argv)
 	
 		///////////////////////////////////////////////////////////////////GPU data in	
 		int *GPU_data_in;
-		checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));	
-		cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
+		checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(unsigned) * data_size));	
+		cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(unsigned) * data_size, cudaMemcpyHostToDevice);
 		
 		///////////////////////////////////////////////////////////////////GPU data out
 		unsigned *GPU_data_out_index;
@@ -370,8 +370,8 @@ int main(int argc, char **argv)
 	
 		///////////////////////////////////////////////////////////////////GPU data in	
 		int *GPU_data_in;
-		checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));	
-		cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
+		checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(unsigned) * data_size));	
+		cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(unsigned) * data_size, cudaMemcpyHostToDevice);
 		
 		///////////////////////////////////////////////////////////////////GPU data out
 		unsigned *GPU_data_out_index;
@@ -441,8 +441,8 @@ int main(int argc, char **argv)
 	
 		///////////////////////////////////////////////////////////////////GPU data in	
 		int *GPU_data_in;
-		checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));	
-		cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
+		checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(unsigned) * data_size));	
+		cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(unsigned) * data_size, cudaMemcpyHostToDevice);
 		
 		///////////////////////////////////////////////////////////////////GPU data out
 		unsigned *GPU_data_out_index;
