@@ -41,7 +41,7 @@ void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod, lo
 		A[size - stride + 7]=0;
 	}
 	
-	if(1){////////////reversed
+	if(0){////////////reversed
 		for (unsigned i = 0; i <= size - stride; i = i + stride){
 			A[i]=(i - stride);
 		}
@@ -54,7 +54,7 @@ void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod, lo
 		A[7]=size - stride + 7;
 	}
 	
-	if(0){////////////random
+	if(1){////////////random
 		long long int *rand_sequence;
 		rand_sequence = (long long int*)malloc(sizeof(long long int) * iterations);
 		
@@ -318,7 +318,7 @@ int main(int argc, char **argv)
 		fprintf(pFile, "###################data_stride%d#########################\n", data_stride);
 		fprintf (pFile, "###############Mod%lld##############%lld\n", mod, iterations);
 		for (long long int it = 0; it < reduced_iter; it++){		
-			fprintf (pFile, "%d %fms %lldcycles\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate, CPU_data_out_time[it]);
+			fprintf (pFile, "%u %fms %lldcycles\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate, CPU_data_out_time[it]);
 			//fprintf (pFile, "%d %fms\n", it, CPU_data_out_time[it] / (float)clock_rate);
 			//printf ("%d %fms\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate);
 		}
@@ -389,7 +389,7 @@ int main(int argc, char **argv)
 		fprintf(pFile, "###################data_stride%d#########################\n", data_stride);
 		fprintf (pFile, "###############Mod%lld##############%lld\n", mod, iterations);
 		for (long long int it = 0; it < reduced_iter; it++){		
-			fprintf (pFile, "%d %fms %lldcycles\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate, CPU_data_out_time[it]);
+			fprintf (pFile, "%u %fms %lldcycles\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate, CPU_data_out_time[it]);
 			//fprintf (pFile, "%d %fms\n", it, CPU_data_out_time[it] / (float)clock_rate);
 			//printf ("%d %fms\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate);
 		}
@@ -460,7 +460,7 @@ int main(int argc, char **argv)
 		fprintf(pFile, "###################data_stride%d#########################\n", data_stride);
 		fprintf (pFile, "###############Mod%lld##############%lld\n", mod, iterations);
 		for (long long int it = 0; it < reduced_iter; it++){		
-			fprintf (pFile, "%d %fms %lldcycles\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate, CPU_data_out_time[it]);
+			fprintf (pFile, "%u %fms %lldcycles\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate, CPU_data_out_time[it]);
 			//fprintf (pFile, "%d %fms\n", it, CPU_data_out_time[it] / (float)clock_rate);
 			//printf ("%d %fms\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate);
 		}
