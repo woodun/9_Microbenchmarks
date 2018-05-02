@@ -72,7 +72,8 @@ void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod, lo
 			previous_rand_num = rand_num;		
 			rand_num = rand_sequence[i] * stride;		
 			A[previous_rand_num]=(unsigned)rand_num;
-		}	
+		}
+		A[rand_num]=(unsigned)(rand_sequence[0] * stride);////back to beginning
 		
 		//////random sequence offset 7	
 		//for(int i = 0; i < iterations; i++){
@@ -87,6 +88,7 @@ void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod, lo
 			rand_num = rand_sequence[i] * stride + 7;		
 			A[previous_rand_num]=(unsigned)rand_num;
 		}
+		A[rand_num]=(unsigned)(rand_sequence[0] * stride + 7);////back to beginning
 	}
   
 	/*
