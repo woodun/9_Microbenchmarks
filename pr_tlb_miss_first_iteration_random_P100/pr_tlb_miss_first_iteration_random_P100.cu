@@ -209,7 +209,7 @@ __global__ void tlb_latency_test(unsigned *A, long long int iterations, unsigned
 	if(reduced_iter > 512){
 		reduced_iter = 512;
 	}else if(reduced_iter < 16){
-		reduced_iter = 16;
+		//reduced_iter = 16;
 	}
 	
 	///////////kepler L2 has 48 * 1024 = 49152 cache lines. But we only have 1024 * 4 slots in shared memory.
@@ -288,7 +288,7 @@ int main(int argc, char **argv)
 		if(reduced_iter > 512){
 			reduced_iter = 512;
 		}else if(reduced_iter < 16){
-			reduced_iter = 16;
+			//reduced_iter = 16;
 		}
 		
 		unsigned *CPU_data_out_index;
@@ -359,7 +359,7 @@ int main(int argc, char **argv)
 		if(reduced_iter > 512){
 			reduced_iter = 512;
 		}else if(reduced_iter < 16){
-			reduced_iter = 16;
+			//reduced_iter = 16;
 		}
 		
 		unsigned *CPU_data_out_index;
@@ -430,7 +430,7 @@ int main(int argc, char **argv)
 		if(reduced_iter > 512){
 			reduced_iter = 512;
 		}else if(reduced_iter < 16){
-			reduced_iter = 16;
+			//reduced_iter = 16;
 		}
 		
 		unsigned *CPU_data_out_index;
