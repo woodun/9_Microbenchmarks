@@ -192,7 +192,7 @@ int main(int argc, char **argv)
 	
 	int counter = 0;
 	/////////change the data stride as to observe if the latency increase is caused by iteration(cache) or stride(tlb)
-	for(int data_stride = 1 * 1 * 1; data_stride <= 1 * 1 * 1; data_stride = data_stride * 2){/////////32mb stride
+	for(int data_stride = 1 * 1 * 32; data_stride <= 1 * 1 * 32; data_stride = data_stride * 2){/////////32mb stride
 		//data_stride = data_stride + 32;///offset a cache line, trying to cause L2 miss but tlb hit.
 		//printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m = 12288 cache lines, L1 16k = 128 cache lines.
