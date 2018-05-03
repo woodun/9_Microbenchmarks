@@ -112,7 +112,7 @@ __device__ void P_chasing2(int mark, int *A, long long int iterations, int *B, i
 		time_interval = end_time - start_time;
 		if(time_interval > 300000){
 			s_tvalue[counter] = time_interval;
-			counter++
+			counter++;
 		}
 	}
 	
