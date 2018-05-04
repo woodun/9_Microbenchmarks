@@ -38,7 +38,7 @@ void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod, lo
 		}
 				
 		A[size - stride]=0;
-		A[size - stride + 7]=0;
+		A[size - stride + 7]=7;
 	}
 	
 	if(0){////////////reversed
