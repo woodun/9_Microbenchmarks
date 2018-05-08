@@ -70,7 +70,7 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 	long long int time_interval = 0;//////clock
 	//long long int total_time = end_time - start_time;//////clock
 	
-		
+	/*	
 	for (int it = 0; it < iterations; it++){
 		
 		start_time = clock64();//////clock		
@@ -79,9 +79,8 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 		end_time=clock64();//////clock		
 		s_tvalue[it] = end_time - start_time;
 	}
+	*/
 	
-	
-	/*
 	asm(".reg .u64 t1;\n\t"
 	".reg .u64 t2;\n\t");
 	
@@ -89,11 +88,11 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 	
 	for (long long int it = 0; it < iterations; it++){
 		
-		asm("mul.u64 	t1, %2, %4;\n\t"	
+		asm("shl.b64 	t1, %2, 3;\n\t"	
 		"add.u64 	t2, t1, %3;\n\t"		
 		"mov.u64 	%0, %clock64;\n\t"		
 		"ld.global.u32 	%1, [t2];\n\t"		
-		: "=l"(start_time), "=l"(j) : "l"(j), "l"(A), "l"(X));
+		: "=l"(start_time), "=l"(j) : "l"(j), "l"(A));
 		
 		s_index[it] = j;////what if without this? ///Then it is not accurate and cannot get the access time at all, due to the ILP. (another way is to use average time, but inevitably containing other instructions:setp, add).
 		
@@ -104,7 +103,6 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 		s_tvalue[it] = time_interval;
 		//}
 	}
-	*/
 	
 	//printf("inside%d:%fms\n", mark, (total_time / (float)clock_rate) / ((float)iterations));//////clock, average latency
 	
