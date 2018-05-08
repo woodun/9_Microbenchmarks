@@ -87,7 +87,7 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 	for (long long int it = 0; it < iterations; it++){
 		
 		/*
-		asm("mul.wide.u32 	t1, %3, %5;\n\t"	
+		asm("mul.u64 	t1, %3, %5;\n\t"	
 		"add.u64 	t2, t1, %4;\n\t"		
 		"mov.u64 	%0, %clock64;\n\t"		
 		"ld.global.u32 	%2, [t2];\n\t"
@@ -95,11 +95,11 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 		: "=l"(start_time), "=l"(end_time), "=r"(j) : "r"(j), "l"(A), "r"(4));
 		*/
 
-		asm("mul.wide.u32 	t1, %2, %4;\n\t"	
+		asm("mul.u64 	t1, %2, %4;\n\t"	
 		"add.u64 	t2, t1, %3;\n\t"		
 		"mov.u64 	%0, %clock64;\n\t"		
 		"ld.global.u32 	%1, [t2];\n\t"		
-		: "=l"(start_time), "=l"(j) : "l"(j), "l"(A), "r"(4));
+		: "=l"(start_time), "=l"(j) : "l"(j), "l"(A), "l"(4));
 		
 		s_index[it] = j;////what if without this? ///Then it is not accurate and cannot get the access time at all, due to the ILP. (another way is to use average time, but inevitably containing other instructions:setp, add).
 		
