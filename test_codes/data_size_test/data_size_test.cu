@@ -88,19 +88,16 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 	
 	for (long long int it = 0; it < iterations; it++){
 		
-		asm("shl.b64 	t1, %2, 3;\n\t"	
-		"add.u64 	t2, t1, %3;\n\t"
-		"shl.b64 	t3, %5, 3;\n\t"
-		"add.u64 	t4, t3, %4;\n\t"		
+		asm("shl.b64 	t1, %3, 3;\n\t"	
+		"add.u64 	t2, t1, %4;\n\t"
+		"shl.b64 	t3, %6, 3;\n\t"
+		"add.u64 	t4, t3, %5;\n\t"		
 		"mov.u64 	%0, %clock64;\n\t"		
-		"ld.global.u32 	%1, [t2];\n\t"
-		"st.shared.u64 	[t4], %2;\n\t"
-		: "=l"(start_time), "=l"(j) : "l"(j), "l"(A), "l"(s_index), "l"(it));
-		
-		//s_index[it] = j;////what if without this? ///Then it is not accurate and cannot get the access time at all, due to the ILP. (another way is to use average time, but inevitably containing other instructions:setp, add).
-		
-		asm volatile ("mov.u64 %0, %clock64;": "=l"(end_time));
-		
+		"ld.global.u32 	%2, [t2];\n\t"
+		"st.shared.u64 	[t4], %3;\n\t"
+		"mov.u64 %1, %clock64;\n\t"
+		: "=l"(start_time), "=l"(end_time), "=l"(j) : "l"(j), "l"(A), "l"(s_index), "l"(it));		
+				
 		time_interval = end_time - start_time;
 		//if(it >= 4 * 1024){
 		s_tvalue[it] = time_interval;
