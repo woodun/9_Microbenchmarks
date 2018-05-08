@@ -70,33 +70,25 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 	long long int time_interval = 0;//////clock
 	//long long int total_time = end_time - start_time;//////clock
 	
-	/*		
+		
 	for (int it = 0; it < iterations; it++){
 		
 		start_time = clock64();//////clock		
 		j = A[j];
-		//s_index[it] = j;
+		s_index[it] = j;
 		end_time=clock64();//////clock		
 		s_tvalue[it] = end_time - start_time;
 	}
-	*/
 	
-		asm(".reg .u64 t1;\n\t"
-		".reg .u64 t2;\n\t");
+	
+	/*
+	asm(".reg .u64 t1;\n\t"
+	".reg .u64 t2;\n\t");
 	
 	long long int X = 4;
 	
 	for (long long int it = 0; it < iterations; it++){
 		
-		/*
-		asm("mul.u64 	t1, %3, %5;\n\t"	
-		"add.u64 	t2, t1, %4;\n\t"		
-		"mov.u64 	%0, %clock64;\n\t"		
-		"ld.global.u32 	%2, [t2];\n\t"
-		"mov.u64 	%1, %clock64;"
-		: "=l"(start_time), "=l"(end_time), "=r"(j) : "r"(j), "l"(A), "r"(4));
-		*/
-
 		asm("mul.u64 	t1, %2, %4;\n\t"	
 		"add.u64 	t2, t1, %3;\n\t"		
 		"mov.u64 	%0, %clock64;\n\t"		
@@ -112,6 +104,7 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 		s_tvalue[it] = time_interval;
 		//}
 	}
+	*/
 	
 	//printf("inside%d:%fms\n", mark, (total_time / (float)clock_rate) / ((float)iterations));//////clock, average latency
 	
