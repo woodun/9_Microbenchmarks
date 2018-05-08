@@ -99,7 +99,7 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 		"add.u64 	t2, t1, %3;\n\t"		
 		"mov.u64 	%0, %clock64;\n\t"		
 		"ld.global.u32 	%1, [t2];\n\t"		
-		: "=l"(start_time), "=l"(j) : "l"(j), "l"(A), "l"(4));
+		: "=l"(start_time), "=l"(j) : "l"(j), "l"(A), "r"(4));
 		
 		s_index[it] = j;////what if without this? ///Then it is not accurate and cannot get the access time at all, due to the ILP. (another way is to use average time, but inevitably containing other instructions:setp, add).
 		
