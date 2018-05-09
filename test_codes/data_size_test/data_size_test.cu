@@ -191,6 +191,8 @@ int main(int argc, char **argv)
 		//data_stride = data_stride + 32;///offset a cache line, trying to cause L2 miss but tlb hit.
 		//printf("###################data_stride%d#########################\n", data_stride);
 	//plain managed
+	fprintf (pFile,"*\*\n*\nplain managed\n")
+	fflush(pFile);
 	for(long long int mod2 = 1073741824; mod2 <= 4294967296; mod2 = mod2 * 2){////268435456 = 1gb, 536870912 = 2gb, 1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb, 8589934592 = 32gb.
 		counter++;
 		///////////////////////////////////////////////////////////////////CPU data begin
@@ -259,6 +261,8 @@ int main(int argc, char **argv)
 	}
 	
 	//preferredlocation
+	fprintf (pFile,"*\*\n*\npreferredlocation\n")
+	fflush(pFile);
 	for(long long int mod2 = 1073741824; mod2 <= 4294967296; mod2 = mod2 * 2){////268435456 = 1gb, 536870912 = 2gb, 1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb, 8589934592 = 32gb.
 		counter++;
 		///////////////////////////////////////////////////////////////////CPU data begin
@@ -328,6 +332,8 @@ int main(int argc, char **argv)
 	}
 	
 	//accessedby
+	fprintf (pFile,"*\*\n*\naccessedby\n")
+	fflush(pFile);
 	for(long long int mod2 = 1073741824; mod2 <= 4294967296; mod2 = mod2 * 2){////268435456 = 1gb, 536870912 = 2gb, 1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb, 8589934592 = 32gb.
 		counter++;
 		///////////////////////////////////////////////////////////////////CPU data begin
@@ -345,7 +351,7 @@ int main(int argc, char **argv)
 		long long int *CPU_data_in;
 		//CPU_data_in = (int*)malloc(sizeof(int) * data_size);
 		checkCudaErrors(cudaMallocManaged(&CPU_data_in, sizeof(long long int) * data_size));/////////////using unified memory
-		checkCudaErrors(cudaMemAdvise(CPU_data_in, sizeof(int) * data_size, cudaMemAdviseSetAccessedBy, dev_id));//////////using hint	
+		checkCudaErrors(cudaMemAdvise(CPU_data_in, sizeof(long long int) * data_size, cudaMemAdviseSetAccessedBy, dev_id));//////////using hint	
 		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
 		
 		long long int reduced_iter = iterations;
@@ -397,6 +403,8 @@ int main(int argc, char **argv)
 	}
 	
 	//pinned
+	fprintf (pFile,"*\*\n*\npinned\n")
+	fflush(pFile);
 	for(long long int mod2 = 1073741824; mod2 <= 4294967296; mod2 = mod2 * 2){////268435456 = 1gb, 536870912 = 2gb, 1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb, 8589934592 = 32gb.
 		counter++;
 		///////////////////////////////////////////////////////////////////CPU data begin
@@ -413,7 +421,7 @@ int main(int argc, char **argv)
 	
 		long long int *CPU_data_in;
 		//CPU_data_in = (int*)malloc(sizeof(int) * data_size);
-		checkCudaErrors(cudaHostAlloc((void**)&CPU_data_in, sizeof(int) * data_size, cudaHostAllocDefault));//////////using pinned memory	
+		checkCudaErrors(cudaHostAlloc((void**)&CPU_data_in, sizeof(long long int) * data_size, cudaHostAllocDefault));//////////using pinned memory	
 		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
 		
 		long long int reduced_iter = iterations;
@@ -466,6 +474,8 @@ int main(int argc, char **argv)
 	}
 	
 	//memcopy
+	fprintf (pFile,"*\*\n*\nmemcopy\n")
+	fflush(pFile);
 	for(long long int mod2 = 1073741824; mod2 <= 4294967296; mod2 = mod2 * 2){////268435456 = 1gb, 536870912 = 2gb, 1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb, 8589934592 = 32gb.
 		counter++;
 		///////////////////////////////////////////////////////////////////CPU data begin
