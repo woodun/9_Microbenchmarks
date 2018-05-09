@@ -89,9 +89,9 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 	for (long long int it = 0; it < iterations; it++){
 		
 		asm("shl.b64 	t1, %3, 3;\n\t"	
-		"add.u64 	t2, t1, %4;\n\t"
+		"add.s64 	t2, t1, %4;\n\t"
 		"shl.b64 	t3, %6, 3;\n\t"
-		"add.u64 	t4, t3, %5;\n\t"		
+		"add.s64 	t4, t3, %5;\n\t"		
 		"mov.u64 	%0, %clock64;\n\t"		
 		"ld.global.u64 	%2, [t2];\n\t"
 		"st.shared.u64 	[t4], %2;\n\t"
