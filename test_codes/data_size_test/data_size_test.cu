@@ -13,11 +13,11 @@
 //typedef unsigned char byte;
 
 void init_cpu_data(long long int* A, long long int size, int stride, long long int mod){
-	for (ong long int i = 0; i < size - stride; i++){
+	for (long long int i = 0; i < size - stride; i++){
 		A[i]=(i + stride);
 	}
 			
-	for (ong long int i = size - stride; i < size; i++){
+	for (long long int i = size - stride; i < size; i++){
 		A[i]=0;
 	}
 }
