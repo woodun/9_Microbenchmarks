@@ -93,14 +93,16 @@ __device__ void P_chasing2(int mark, int *A, long long int iterations, int *B, i
 	".reg .u32 t4;\n\t"
 	".reg .u64 t5;\n\t"
 	".reg .u32 t6;\n\t"
+	".reg .u64 t7;\n\t"
 	"cvta.to.shared.u64 	t5, %0;\n\t"
 	"cvt.u32.u64 	t6, t5;\n\t"
 	:: "l"(s_index));////////////////////////////////////cvta.to.global.u64 	%rd4, %rd25; needed??
 	
 	for (int it = 0; it < iterations; it++){//////////it here is limited by the size of the shared memory
 		
-		asm("shl.b32 	t1, %3, 2;\n\t"	
-		"add.s64 	t2, t1, %4;\n\t"
+		asm("shl.b32 	t1, %3, 2;\n\t"
+		"cvt.u64.u32 	t7, t1;\n\t"
+		"add.s64 	t2, t7, %4;\n\t"
 		"shl.b32 	t3, %6, 2;\n\t"
 		"add.s32 	t4, t3, t6;\n\t"		
 		"mov.u64 	%0, %clock64;\n\t"
