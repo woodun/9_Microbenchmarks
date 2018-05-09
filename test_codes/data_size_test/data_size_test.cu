@@ -13,11 +13,13 @@
 //typedef unsigned char byte;
 
 void init_cpu_data(long long int* A, long long int size, int stride, long long int mod){
-	for (unsigned i = 0; i < size - stride; i = i + stride){
+	for (ong long int i = 0; i < size - stride; i++){
 		A[i]=(i + stride);
 	}
 			
-	A[size - stride]=0;
+	for (ong long int i = size - stride; i < size; i++){
+		A[i]=0;
+	}
 }
 
 __device__ void P_chasing0(int mark, long long int *A, int iterations, int *B, int *C, long long int *D, int starting_index, float clock_rate, int data_stride){	
