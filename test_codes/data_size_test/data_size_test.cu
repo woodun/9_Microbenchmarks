@@ -82,7 +82,11 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 	}
 	
 	/*
-	cvta.to.global.u64 	%rd4, %rd25;
+	cvt.u64.u32 	%temp, %r20;
+	cvta.shared.u64 	%rd38, %temp;
+	
+	cvta.to.global.u64 	%rd4, %rd25;////////? and cvta.to.shared.u32?
+
 	// inline asm
 	mov.u64 	%rd64, %clock64;
 	// inline asm
@@ -101,15 +105,18 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 		".reg .u64 t2;\n\t"
 		".reg .u32 t3;\n\t"
 		".reg .u32 t4;\n\t"
-		".reg .u32 t5;\n\t");
+		".reg .u32 t5;\n\t"
+		".reg .u32 t6;\n\t"
+		"cvta.to.shared.u64 	t5, %0;\n\t"
+		"cvt.u32.u64 	t6, t5;\n\t"
+		: "l"(s_index));
 		
 		for (int it = 0; it < iterations; it++){//////////it here is limited by the size of the shared memory
 			
-			asm("cvt.u32.u64 	t5, %5;\n\t"
-			"shl.b64 	t1, %3, 3;\n\t"	
+			asm("shl.b64 	t1, %3, 3;\n\t"	
 			"add.s64 	t2, t1, %4;\n\t"
 			"shl.b32 	t3, %6, 3;\n\t"
-			"add.s32 	t4, t3, t5;\n\t"		
+			"add.s32 	t4, t3, t6;\n\t"		
 			"mov.u64 	%0, %clock64;\n\t"		
 			"ld.global.u64 	%2, [t2];\n\t"
 			"st.shared.u64 	[t4], %2;\n\t"
