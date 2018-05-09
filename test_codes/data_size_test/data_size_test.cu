@@ -105,7 +105,7 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 		
 		for (int it = 0; it < iterations; it++){//////////it here is limited by the size of the shared memory
 			
-			asm("mov.u32 	t5, %5;\n\t"
+			asm("cvt.u32.u64 	t5, %5;\n\t"
 			"shl.b64 	t1, %3, 3;\n\t"	
 			"add.s64 	t2, t1, %4;\n\t"
 			"shl.b32 	t3, %6, 3;\n\t"
