@@ -71,7 +71,7 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 	//long long int total_time = end_time - start_time;//////clock
 	
 	if(true){
-		for (int it = 0; it < iterations; it++){
+		for (long long int it = 0; it < iterations; it++){
 			
 			start_time = clock64();//////clock		
 			j = A[j];
@@ -80,6 +80,23 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 			s_tvalue[it] = end_time - start_time;
 		}
 	}
+	
+	/*
+	cvta.to.global.u64 	%rd4, %rd25;
+	// inline asm
+	//mov.u64 	%rd50, %clock64;
+	// inline asm
+	shl.b64 	%rd58, %rd108, 3;
+	add.s64 	%rd59, %rd4, %rd58;
+	ld.global.u64 	%rd60, [%rd59];
+	shl.b32 	%r30, %r63, 3;
+	mov.u32 	%r31, _Z10P_chasing2iPxxS_S_S_xfi$__cuda_local_var_43121_40_non_const_s_index;
+	add.s32 	%r32, %r31, %r30;
+	st.shared.u64 	[%r32], %rd60;
+	// inline asm
+	mov.u64 	%rd51, %clock64;
+	// inline asm
+	*/
 	
 	if(false){
 		asm(".reg .u64 t1;\n\t"
