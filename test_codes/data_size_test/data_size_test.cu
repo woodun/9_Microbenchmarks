@@ -94,7 +94,7 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 		"add.u64 	t4, t3, %5;\n\t"		
 		"mov.u64 	%0, %clock64;\n\t"		
 		"ld.global.u32 	%2, [t2];\n\t"
-		"st.shared.u64 	[t4], %3;\n\t"
+		"st.shared.u64 	[t4], %2;\n\t"
 		"mov.u64 %1, %clock64;"
 		: "=l"(start_time), "=l"(end_time), "=l"(j) : "l"(j), "l"(A), "l"(s_index), "l"(it));		
 				
