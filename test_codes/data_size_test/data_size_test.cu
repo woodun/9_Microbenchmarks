@@ -42,7 +42,7 @@ __device__ void P_chasing1(int mark, long long int *A, long long int iterations,
 	//long long int end_time = 0;//////clock
 	//start_time = clock64();//////clock
 			
-	for (int it = 0; it < iterations; it++){
+	for (long long int it = 0; it < iterations; it++){
 		j = A[j];
 	}
 	
@@ -70,8 +70,8 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 	long long int time_interval = 0;//////clock
 	//long long int total_time = end_time - start_time;//////clock
 	
-	if(true){
-		for (long long int it = 0; it < iterations; it++){
+	if(false){
+		for (int it = 0; it < iterations; it++){//////////it here is limited by the size of the shared memory
 			
 			start_time = clock64();//////clock		
 			j = A[j];
@@ -84,37 +84,35 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 	/*
 	cvta.to.global.u64 	%rd4, %rd25;
 	// inline asm
-	//mov.u64 	%rd50, %clock64;
+	mov.u64 	%rd64, %clock64;
 	// inline asm
-	shl.b64 	%rd58, %rd108, 3;
-	add.s64 	%rd59, %rd4, %rd58;
-	ld.global.u64 	%rd60, [%rd59];
-	shl.b32 	%r30, %r63, 3;
-	mov.u32 	%r31, _Z10P_chasing2iPxxS_S_S_xfi$__cuda_local_var_43121_40_non_const_s_index;
-	add.s32 	%r32, %r31, %r30;
-	st.shared.u64 	[%r32], %rd60;
+	shl.b64 	%rd72, %rd126, 3;
+	add.s64 	%rd73, %rd3, %rd72;
+	ld.global.u64 	%rd74, [%rd73];
+	add.s32 	%r35, %r69, %r4;
+	st.shared.u64 	[%r35], %rd74;
 	// inline asm
-	mov.u64 	%rd51, %clock64;
+	mov.u64 	%rd65, %clock64;
 	// inline asm
 	*/
 	
-	if(false){
+	if(true){
 		asm(".reg .u64 t1;\n\t"
 		".reg .u64 t2;\n\t"
-		".reg .u64 t3;\n\t"
-		".reg .u64 t4;\n\t");
+		".reg .u32 t3;\n\t"
+		".reg .u32 t4;\n\t");
 		
-		for (long long int it = 0; it < iterations; it++){
+		for (int it = 0; it < iterations; it++){//////////it here is limited by the size of the shared memory
 			
 			asm("shl.b64 	t1, %3, 3;\n\t"	
 			"add.s64 	t2, t1, %4;\n\t"
 			"shl.b64 	t3, %6, 3;\n\t"
-			"add.s64 	t4, t3, %5;\n\t"		
+			"add.s32 	t4, t3, %5;\n\t"		
 			"mov.u64 	%0, %clock64;\n\t"		
 			"ld.global.s64 	%2, [t2];\n\t"
 			"st.shared.s64 	[t4], %2;\n\t"
 			"mov.u64 %1, %clock64;"
-			: "=l"(start_time), "=l"(end_time), "=l"(j) : "l"(j), "l"(A), "l"(s_index), "l"(it));		
+			: "=l"(start_time), "=l"(end_time), "=l"(j) : "l"(j), "l"(A), "r"(s_index), "r"(it));		
 					
 			time_interval = end_time - start_time;
 			//if(it >= 4 * 1024){
