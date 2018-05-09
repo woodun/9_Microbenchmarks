@@ -191,7 +191,7 @@ int main(int argc, char **argv)
 		//data_stride = data_stride + 32;///offset a cache line, trying to cause L2 miss but tlb hit.
 		//printf("###################data_stride%d#########################\n", data_stride);
 	//plain managed
-	fprintf (pFile,"*\*\n*\nplain managed\n")
+	fprintf (pFile,"*\*\n*\n plain managed\n")
 	fflush(pFile);
 	for(long long int mod2 = 1073741824; mod2 <= 4294967296; mod2 = mod2 * 2){////268435456 = 1gb, 536870912 = 2gb, 1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb, 8589934592 = 32gb.
 		counter++;
@@ -262,7 +262,7 @@ int main(int argc, char **argv)
 	}
 	
 	//preferredlocation
-	fprintf (pFile,"*\*\n*\npreferredlocation\n")
+	fprintf (pFile,"*\*\n*\n preferredlocation\n")
 	fflush(pFile);
 	for(long long int mod2 = 1073741824; mod2 <= 4294967296; mod2 = mod2 * 2){////268435456 = 1gb, 536870912 = 2gb, 1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb, 8589934592 = 32gb.
 		counter++;
@@ -334,7 +334,7 @@ int main(int argc, char **argv)
 	}
 	
 	//accessedby
-	fprintf (pFile,"*\*\n*\naccessedby\n")
+	fprintf (pFile,"*\*\n*\n accessedby\n")
 	fflush(pFile);
 	for(long long int mod2 = 1073741824; mod2 <= 4294967296; mod2 = mod2 * 2){////268435456 = 1gb, 536870912 = 2gb, 1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb, 8589934592 = 32gb.
 		counter++;
@@ -406,7 +406,7 @@ int main(int argc, char **argv)
 	}
 	
 	//pinned
-	fprintf (pFile,"*\*\n*\npinned\n")
+	fprintf (pFile,"*\*\n*\n pinned\n")
 	fflush(pFile);
 	for(long long int mod2 = 1073741824; mod2 <= 4294967296; mod2 = mod2 * 2){////268435456 = 1gb, 536870912 = 2gb, 1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb, 8589934592 = 32gb.
 		counter++;
@@ -478,7 +478,7 @@ int main(int argc, char **argv)
 	}
 	
 	//memcopy
-	fprintf (pFile,"*\*\n*\nmemcopy\n")
+	fprintf (pFile,"*\*\n*\n memcopy\n")
 	fflush(pFile);
 	for(long long int mod2 = 1073741824; mod2 <= 4294967296; mod2 = mod2 * 2){////268435456 = 1gb, 536870912 = 2gb, 1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb, 8589934592 = 32gb.
 		counter++;
