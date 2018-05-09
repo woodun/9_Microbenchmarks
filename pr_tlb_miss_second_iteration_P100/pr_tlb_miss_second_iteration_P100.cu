@@ -117,7 +117,7 @@ __device__ void P_chasing2(int mark, int *A, long long int iterations, int *B, i
 		
 		asm("mul.wide.u32 	t1, %3, 4;\n\t"	
 		"add.u64 	t2, t1, %4;\n\t"
-		"mul.u64 	t3, %6, %7;\n\t"
+		"mul.s64 	t3, %6, %7;\n\t"
 		"add.u64 	t4, t3, %5;\n\t"		
 		"mov.u64 	%0, %clock64;\n\t"		
 		"ld.global.u32 	%2, [t2];\n\t"
