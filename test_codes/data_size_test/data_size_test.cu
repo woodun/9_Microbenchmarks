@@ -105,7 +105,7 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 		".reg .u64 t2;\n\t"
 		".reg .u32 t3;\n\t"
 		".reg .u32 t4;\n\t"
-		".reg .u32 t5;\n\t"
+		".reg .u64 t5;\n\t"
 		".reg .u32 t6;\n\t"
 		"cvta.to.shared.u64 	t5, %0;\n\t"
 		"cvt.u32.u64 	t6, t5;\n\t"
