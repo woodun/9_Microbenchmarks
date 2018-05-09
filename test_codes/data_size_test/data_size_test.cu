@@ -395,8 +395,6 @@ int main(int argc, char **argv)
 		free(CPU_data_out_index);
 		free(CPU_data_out_time);
 	}
-		//printf("############################################\n\n");
-	}
 	
 	//pinned
 	for(long long int mod2 = 1073741824; mod2 <= 4294967296; mod2 = mod2 * 2){////268435456 = 1gb, 536870912 = 2gb, 1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb, 8589934592 = 32gb.
@@ -531,6 +529,9 @@ int main(int argc, char **argv)
 		free(CPU_data_in);
 		free(CPU_data_out_index);
 		free(CPU_data_out_time);
+	}
+	
+	//printf("############################################\n\n");
 	}
 			
 	checkCudaErrors(cudaFree(GPU_data_out));	
