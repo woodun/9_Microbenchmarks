@@ -87,7 +87,7 @@ __device__ void P_chasing2(int mark, int *A, long long int iterations, int *B, i
 	
 	//long long int X = 4;
 	
-	asm(".reg .u64 t1;\n\t"
+	asm(".reg .u32 t1;\n\t"
 	".reg .u64 t2;\n\t"
 	".reg .u32 t3;\n\t"
 	".reg .u32 t4;\n\t"
@@ -99,7 +99,7 @@ __device__ void P_chasing2(int mark, int *A, long long int iterations, int *B, i
 	
 	for (int it = 0; it < iterations; it++){//////////it here is limited by the size of the shared memory
 		
-		asm("shl.b64 	t1, %3, 2;\n\t"	
+		asm("shl.b32 	t1, %3, 2;\n\t"	
 		"add.s64 	t2, t1, %4;\n\t"
 		"shl.b32 	t3, %6, 2;\n\t"
 		"add.s32 	t4, t3, t6;\n\t"		
@@ -107,7 +107,7 @@ __device__ void P_chasing2(int mark, int *A, long long int iterations, int *B, i
 		"ld.global.u32 	%2, [t2];\n\t"
 		"st.shared.u32 	[t4], %2;\n\t"
 		"mov.u64	%1, %clock64;"
-		: "=l"(start_time), "=l"(end_time), "=l"(j) : "l"(j), "l"(A), "l"(s_index), "r"(it));		
+		: "=l"(start_time), "=l"(end_time), "=r"(j) : "r"(j), "l"(A), "l"(s_index), "r"(it));		
 				
 		time_interval = end_time - start_time;
 		//if(it >= 4 * 1024){
