@@ -70,7 +70,7 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 	long long int time_interval = 0;//////clock
 	//long long int total_time = end_time - start_time;//////clock
 	
-	if(){	
+	if(true){
 		for (int it = 0; it < iterations; it++){
 			
 			start_time = clock64();//////clock		
@@ -81,7 +81,7 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 		}
 	}
 	
-	if(0){
+	if(false){
 		asm(".reg .u64 t1;\n\t"
 		".reg .u64 t2;\n\t"
 		".reg .u64 t3;\n\t"
