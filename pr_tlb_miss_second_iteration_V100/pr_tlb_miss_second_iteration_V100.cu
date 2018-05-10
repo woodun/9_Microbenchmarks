@@ -7,12 +7,12 @@
 #include <helper_cuda.h>
 #include <time.h>
 
-///////////per request timing. L1 enabled. 
-///////////L1 tlb misses commonly occur when data size reaches 512MB. 
-///////////L2 cache misses commonly occur when data size reaches 4gb (iteration reaches 2048).
-///////////L2 tlb misses sparsely appear at data size 8gb. 
-///////////Page table context switches (600s and 900s, they are not error) also appear more often at data size 8gb.
-///////////page size is 2mb.
+///////////per request timing. L1 enabled. P100.
+///////////In the first iteration, L2 tlb does prefetch, while L1 tlb doesn't.
+///////////When data size reaches 512 MB, L2 tlb becomes saturated and starts to miss.
+///////////Because when changing the data stride, the tlb miss latency does not change, so it is actually not prefetching but the page size is 32MB.
+///////////In the second iteration, however, L2 cache seems to never miss.
+///////////The 400s, some of the 600s, 900s are appearing randomly.
 
 //typedef unsigned char byte;
 
@@ -46,7 +46,7 @@ __device__ void P_chasing1(int mark, int *A, long long int iterations, int *B, i
 	//long long int end_time = 0;//////clock
 	//start_time = clock64();//////clock
 			
-	for (int it = 0; it < iterations; it++){
+	for (long long int it = 0; it < iterations; it++){
 		j = A[j];
 	}
 	
@@ -85,30 +85,32 @@ __device__ void P_chasing2(int mark, int *A, long long int iterations, int *B, i
 	}
 	*/
 	
-		asm(".reg .u64 t1;\n\t"
-		".reg .u64 t2;\n\t");
+	//long long int X = 4;
 	
-	for (long long int it = 0; it < iterations; it++){
+	asm(".reg .u32 t1;\n\t"
+	".reg .u64 t2;\n\t"
+	".reg .u32 t3;\n\t"
+	".reg .u32 t4;\n\t"
+	".reg .u64 t5;\n\t"
+	".reg .u32 t6;\n\t"
+	".reg .u64 t7;\n\t"
+	"cvta.to.shared.u64 	t5, %0;\n\t"
+	"cvt.u32.u64 	t6, t5;\n\t"
+	:: "l"(s_index));////////////////////////////////////cvta.to.global.u64 	%rd4, %rd25; needed??
+	
+	for (int it = 0; it < iterations; it++){//////////it here is limited by the size of the shared memory
 		
-		/*
-		asm("mul.wide.u32 	t1, %3, %5;\n\t"	
-		"add.u64 	t2, t1, %4;\n\t"		
-		"mov.u64 	%0, %clock64;\n\t"		
+		asm("shl.b32 	t1, %3, 2;\n\t"
+		"cvt.u64.u32 	t7, t1;\n\t"
+		"add.s64 	t2, t7, %4;\n\t"
+		"shl.b32 	t3, %6, 2;\n\t"
+		"add.s32 	t4, t3, t6;\n\t"		
+		"mov.u64 	%0, %clock64;\n\t"
 		"ld.global.u32 	%2, [t2];\n\t"
-		"mov.u64 	%1, %clock64;"
-		: "=l"(start_time), "=l"(end_time), "=r"(j) : "r"(j), "l"(A), "r"(4));
-		*/
-
-		asm("mul.wide.u32 	t1, %2, %4;\n\t"	
-		"add.u64 	t2, t1, %3;\n\t"		
-		"mov.u64 	%0, %clock64;\n\t"		
-		"ld.global.u32 	%1, [t2];\n\t"		
-		: "=l"(start_time), "=r"(j) : "r"(j), "l"(A), "r"(4));
-		
-		s_index[it] = j;////what if without this? ///Then it is not accurate and cannot get the access time at all, due to the ILP. (another way is to use average time, but inevitably containing other instructions:setp, add).
-		
-		asm volatile ("mov.u64 %0, %clock64;": "=l"(end_time));
-		
+		"st.shared.u32 	[t4], %2;\n\t"
+		"mov.u64	%1, %clock64;"
+		: "=l"(start_time), "=l"(end_time), "=r"(j) : "r"(j), "l"(A), "l"(s_index), "r"(it));		
+				
 		time_interval = end_time - start_time;
 		//if(it >= 4 * 1024){
 		s_tvalue[it] = time_interval;
@@ -119,7 +121,7 @@ __device__ void P_chasing2(int mark, int *A, long long int iterations, int *B, i
 	
 	B[0] = j;
 	
-	for (long long int it = 0; it < iterations; it++){		
+	for (int it = 0; it < iterations; it++){		
 		C[it] = s_index[it];
 		D[it] = s_tvalue[it];
 	}
@@ -180,11 +182,12 @@ int main(int argc, char **argv)
     pFile = fopen ("output.txt","w");		
 	
 	int counter = 0;
-	for(int data_stride = 1 * 1 * 1024; data_stride <= 2 * 256 * 1024; data_stride = data_stride * 2){/////////32mb stride
+	/////////change the data stride as to observe if the latency increase is caused by iteration(cache) or stride(tlb)
+	for(int data_stride = 1 * 1 * 256; data_stride <= 2 * 256 * 1024; data_stride = data_stride * 2){/////////32mb stride
 		//data_stride = data_stride + 32;///offset a cache line, trying to cause L2 miss but tlb hit.
 		//printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m = 12288 cache lines, L1 16k = 128 cache lines.
-	for(long long int mod2 = 1 * 16 * 1024; mod2 <= 2147483648; mod2 = mod2 * 2){////268435456 = 1gb, 536870912 = 2gb, 1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb.
+	for(long long int mod2 = 2 * 256 * 1024; mod2 <= 2147483648; mod2 = mod2 * 2){////268435456 = 1gb, 536870912 = 2gb, 1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb.
 		counter++;
 		///////////////////////////////////////////////////////////////////CPU data begin
 		//int data_size = 2 * 256 * 1024 * 32;/////size = iteration * stride = 32 2mb pages.

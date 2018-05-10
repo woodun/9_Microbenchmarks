@@ -7,12 +7,12 @@
 #include <helper_cuda.h>
 #include <time.h>
 
-///////////per request timing. L1 enabled. 
-///////////L1 tlb misses commonly occur when data size reaches 512MB. 
-///////////L2 cache misses commonly occur when data size reaches 4gb (iteration reaches 2048).
-///////////L2 tlb misses sparsely appear at data size 8gb. 
-///////////Page table context switches (600s and 900s, they are not error) also appear more often at data size 8gb.
-///////////page size is 2mb.
+///////////per request timing. L1 enabled. P100.
+///////////In the first iteration, L2 tlb does prefetch, while L1 tlb doesn't.
+///////////When data size reaches 512 MB, L2 tlb becomes saturated and starts to miss.
+///////////Because when changing the data stride, the tlb miss latency does not change, so it is actually not prefetching but the page size is 32MB.
+///////////In the second iteration, however, L2 cache seems to never miss.
+///////////The 400s, some of the 600s, 900s are appearing randomly.
 
 //typedef unsigned char byte;
 
@@ -181,11 +181,11 @@ int main(int argc, char **argv)
 	
 	int counter = 0;
 	/////////change the data stride as to observe if the latency increase is caused by iteration(cache) or stride(tlb)
-	for(int data_stride = 1 * 1 * 1024; data_stride <= 2 * 256 * 1024; data_stride = data_stride * 2){/////////32mb stride
+	for(int data_stride = 1 * 1 * 256; data_stride <= 2 * 256 * 1024; data_stride = data_stride * 2){/////////32mb stride
 		//data_stride = data_stride + 32;///offset a cache line, trying to cause L2 miss but tlb hit.
 		//printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m = 12288 cache lines, L1 16k = 128 cache lines.
-	for(long long int mod2 = 1 * 16 * 1024; mod2 <= 2147483648; mod2 = mod2 * 2){////268435456 = 1gb, 536870912 = 2gb, 1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb.
+	for(long long int mod2 = 2 * 256 * 1024; mod2 <= 2147483648; mod2 = mod2 * 2){////268435456 = 1gb, 536870912 = 2gb, 1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb.
 		counter++;
 		///////////////////////////////////////////////////////////////////CPU data begin
 		//int data_size = 2 * 256 * 1024 * 32;/////size = iteration * stride = 32 2mb pages.

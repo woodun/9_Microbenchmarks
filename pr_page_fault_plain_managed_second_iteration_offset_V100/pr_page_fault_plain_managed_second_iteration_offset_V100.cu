@@ -7,10 +7,13 @@
 #include <helper_cuda.h>
 #include <time.h>
 
-///////////per request timing. L1 enabled. 
-///////////Both the first and second iteration have almost same latencies and miss patterns as the plain managed case.
-///////////cudaMemAdviseSetPreferredLocation doesn't seem to have noticeable effect on K40.
-///////////P.S. The 800s actually happens randomly. Thus it is not another condition.
+///////////per request timing. L1 enabled. P100.
+///////////For the second iteration, after data size 1gb, L2 tlb misses sparsely appear.
+///////////After data size 512MB, L1 tlb misses sparsely appear.
+///////////For the first iteration, managed memory migrates pages on demand. 
+///////////After the migration, L1 and L2 tlbs of the page will be filled, L2 cache will also be prefetched. 
+///////////1700s and 1900s are coincidence, but 1600s is not.
+
 
 //typedef unsigned char byte;
 
@@ -126,15 +129,15 @@ __device__ void P_chasing2(int mark, int *A, long long int iterations, int *B, i
 __global__ void tlb_latency_test(int *A, long long int iterations, int *B, int *C, long long int *D, float clock_rate, long long int mod, int data_stride){
 	
 	long long int reduced_iter = iterations;
-	if(reduced_iter > 4096){
-		reduced_iter = 4096;
+	if(reduced_iter > 512){
+		reduced_iter = 512;
 	}else if(reduced_iter < 16){
 		reduced_iter = 16;
 	}
 	
 	///////////kepler L2 has 48 * 1024 = 49152 cache lines. But we only have 1024 * 4 slots in shared memory.
-	//P_chasing1(0, A, iterations + 0, B, C, D, 0, clock_rate, data_stride);////////saturate the L2
-	P_chasing2(0, A, reduced_iter, B, C, D, 0, clock_rate, data_stride);////////partially print the data
+	P_chasing1(0, A, iterations + 0, B, C, D, 0, clock_rate, data_stride);////////saturate the L2
+	P_chasing2(0, A, reduced_iter, B, C, D, 32, clock_rate, data_stride);////////partially print the data
 	
 	 __syncthreads();
 }
@@ -193,7 +196,7 @@ int main(int argc, char **argv)
 		//data_stride = data_stride + 32;///offset a cache line, trying to cause L2 miss but tlb hit.
 		//printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m = 12288 cache lines, L1 16k = 128 cache lines.
-	for(long long int mod2 = 2 * 256 * 1024; mod2 <= 2147483648; mod2 = mod2 * 2){////268435456 = 1gb, 536870912 = 2gb, 1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb.
+	for(long long int mod2 = 1 * 16 * 1024; mod2 <= 2147483648; mod2 = mod2 * 2){////268435456 = 1gb, 536870912 = 2gb, 1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb.
 		counter++;
 		///////////////////////////////////////////////////////////////////CPU data begin
 		//int data_size = 2 * 256 * 1024 * 32;/////size = iteration * stride = 32 2mb pages.
@@ -212,12 +215,11 @@ int main(int argc, char **argv)
 		int *CPU_data_in;
 		//CPU_data_in = (int*)malloc(sizeof(int) * data_size);
 		checkCudaErrors(cudaMallocManaged(&CPU_data_in, sizeof(int) * data_size));/////////////using unified memory
-		checkCudaErrors(cudaMemAdvise(CPU_data_in, sizeof(int) * data_size, cudaMemAdviseSetPreferredLocation, cudaCpuDeviceId));///////////////using hint
 		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
 		
 		long long int reduced_iter = iterations;
-		if(reduced_iter > 4096){
-			reduced_iter = 4096;
+		if(reduced_iter > 512){
+			reduced_iter = 512;
 		}else if(reduced_iter < 16){
 			reduced_iter = 16;
 		}

@@ -8,11 +8,7 @@
 #include <time.h>
 
 ///////////per request timing. L1 enabled. 
-///////////For K40, when using managed memory and not using explicit prefetching, L2 prefetching exists. L1 prefetching does not. 
-///////////The data found in cache depends on the data size. So the prefetching is caused by the memcpy which goes through the L2 as well. 
-///////////Since 4mb (largest data size used) is far less to saturate the tlbs, if tlbs show misses using it, it means that both L1 and L2 tlbs does not prefetch.
-///////////However, when data size gets smaller (when it starts to fit in L2), L2 tlbs seems to prefetch. L1 tlbs doesn't.
-///////////Question: what about pinned memory, preferred location and accessby?
+///////////For P100, when using managed memory, L2 always prefetches, and L1 doesn't.
 
 //typedef unsigned char byte;
 

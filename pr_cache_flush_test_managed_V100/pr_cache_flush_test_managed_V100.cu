@@ -8,7 +8,10 @@
 #include <time.h>
 
 ///////////per request timing. L1 enabled.
-///////////conclusion: For K40, when managed memory, cache hits can be generated between two kernels, and it is limited to L2. L1 will be flushed.
+///////////conclusion: For P100, when using managed memory, cache hits can be generated between two kernels, and it is limited to L2. L1 will be flushed.
+///////////Meanwhile, even in the first kernel, L2 hit can be generated initially because L2 cache has been filled during page migration.
+///////////Therefore, page migration on P100 does go through the L2 cache.
+///////////However, the latency caused by page fault is gigantic.
 
 //typedef unsigned char byte;
 
@@ -164,7 +167,7 @@ int main(int argc, char **argv)
 	FILE * pFile;
     pFile = fopen ("output.txt","w");		
 	
-	for(int data_stride = 32; data_stride <= 32; data_stride = data_stride + 1){/////////stride shall be L1 cache line size.
+	for(int data_stride = 8; data_stride <= 8; data_stride = data_stride + 1){/////////stride shall be L1 cache line size.
 		//printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m
 	for(int mod = 1024 * 2; mod <= 1024 * 2; mod = mod + 32){/////kepler L2 1.5m /////kepler L1 16KB ////////saturate the L1 not L2
