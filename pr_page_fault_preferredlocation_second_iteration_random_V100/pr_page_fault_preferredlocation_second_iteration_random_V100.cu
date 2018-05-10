@@ -28,33 +28,33 @@ void shuffle(long long int *array, long long int n)
 }
 
 void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod, long long int iterations){
-	if(1){////////////normal
+	if(0){////////////normal
 		for (unsigned i = 0; i < size - stride; i = i + stride){
 			A[i]=(i + stride);
 		}
 		
-		//for (unsigned i = 7; i < size - stride; i = i + stride){
-		//	A[i]=(i + stride);
-		//}
+		for (unsigned i = 7; i < size - stride; i = i + stride){
+			A[i]=(i + stride);
+		}
 				
 		A[size - stride]=0;
-		//A[size - stride + 7]=7;
+		A[size - stride + 7]=7;
 	}
 	
-	if(1){////////////reversed
-		//for (unsigned i = 0; i <= size - stride; i = i + stride){
-		//	A[i]=(i - stride);
-		//}
+	if(0){////////////reversed
+		for (unsigned i = 0; i <= size - stride; i = i + stride){
+			A[i]=(i - stride);
+		}
 		
 		for (unsigned i = 7; i <= size - stride + 7; i = i + stride){
 			A[i]=(i - stride);
 		}
 		
-		//A[0]=size - stride;
+		A[0]=size - stride;
 		A[7]=size - stride + 7;
 	}
 	
-	if(0){////////////random
+	if(1){////////////random
 		long long int *rand_sequence;
 		rand_sequence = (long long int*)malloc(sizeof(long long int) * iterations);
 		
@@ -139,14 +139,14 @@ __device__ void P_chasing1(int mark, unsigned *A, long long int iterations, unsi
 }
 
 //////////min page size 4kb = 4096b = 32 * 128.
-__device__ void P_chasing2(int mark, int *A, long long int iterations, int *B, int *C, long long int *D, int starting_index, float clock_rate, int data_stride){//////what is the effect of warmup outside vs inside?
+__device__ void P_chasing2(int mark, unsigned *A, unsigned iterations, unsigned *B, unsigned *C, long long int *D, unsigned starting_index, float clock_rate, int data_stride){//////what is the effect of warmup outside vs inside?
 	
 	//////shared memory: 0xc000 max (49152 Bytes = 48KB)
 	__shared__ long long int s_tvalue[1024 * 4];/////must be enough to contain the number of iterations.
-	__shared__ int s_index[1024 * 4];
+	__shared__ unsigned s_index[1024 * 4];
 	//__shared__ int s_index[1];
 	
-	int j = starting_index;/////make them in the same page, and miss near in cache lines
+	unsigned j = starting_index;/////make them in the same page, and miss near in cache lines
 	//int j = B[0];
 	
 	long long int start_time = 0;//////clock
@@ -176,13 +176,13 @@ __device__ void P_chasing2(int mark, int *A, long long int iterations, int *B, i
 	"cvt.u32.u64 	t6, t5;\n\t"
 	:: "l"(s_index));////////////////////////////////////cvta.to.global.u64 	%rd4, %rd25; needed??
 	
-	for (int it = 0; it < iterations; it++){//////////it here is limited by the size of the shared memory
+	for (unsigned it = 0; it < iterations; it++){//////////it here is limited by the size of the shared memory
 		
 		asm("shl.b32 	t1, %3, 2;\n\t"
 		"cvt.u64.u32 	t7, t1;\n\t"
-		"add.s64 	t2, t7, %4;\n\t"
+		"add.u64 	t2, t7, %4;\n\t"
 		"shl.b32 	t3, %6, 2;\n\t"
-		"add.s32 	t4, t3, t6;\n\t"		
+		"add.u32 	t4, t3, t6;\n\t"		
 		"mov.u64 	%0, %clock64;\n\t"
 		"ld.global.u32 	%2, [t2];\n\t"
 		"st.shared.u32 	[t4], %2;\n\t"
@@ -199,7 +199,7 @@ __device__ void P_chasing2(int mark, int *A, long long int iterations, int *B, i
 	
 	B[0] = j;
 	
-	for (int it = 0; it < iterations; it++){		
+	for (unsigned it = 0; it < iterations; it++){		
 		C[it] = s_index[it];
 		D[it] = s_tvalue[it];
 	}
@@ -216,7 +216,7 @@ __global__ void tlb_latency_test(unsigned *A, long long int iterations, unsigned
 	
 	///////////kepler L2 has 48 * 1024 = 49152 cache lines. But we only have 1024 * 4 slots in shared memory.
 	P_chasing1(0, A, iterations + 0, B, C, D, 0, clock_rate, data_stride);////////saturate the L2	
-	P_chasing2(0, A, reduced_iter, B, C, D, 7, clock_rate, data_stride);////////partially print the data
+	P_chasing2(0, A, reduced_iter, B, C, D, 0, clock_rate, data_stride);////////partially print the data
 	
 	 __syncthreads();
 }
@@ -319,7 +319,7 @@ int main(int argc, char **argv)
 				
 
 		fprintf(pFile, "###################data_stride%d#########################\n", data_stride);
-		fprintf (pFile, "###############Mod%lld##############%lld\n", mod, iterations);
+		fprintf (pFile, "###############Mod%u##############%lld\n", mod, iterations);
 		for (long long int it = 0; it < reduced_iter; it++){		
 			fprintf (pFile, "%u %fms %lldcycles\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate, CPU_data_out_time[it]);
 			//fprintf (pFile, "%d %fms\n", it, CPU_data_out_time[it] / (float)clock_rate);
@@ -390,7 +390,7 @@ int main(int argc, char **argv)
 				
 
 		fprintf(pFile, "###################data_stride%d#########################\n", data_stride);
-		fprintf (pFile, "###############Mod%lld##############%lld\n", mod, iterations);
+		fprintf (pFile, "###############Mod%u##############%lld\n", mod, iterations);
 		for (long long int it = 0; it < reduced_iter; it++){		
 			fprintf (pFile, "%u %fms %lldcycles\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate, CPU_data_out_time[it]);
 			//fprintf (pFile, "%d %fms\n", it, CPU_data_out_time[it] / (float)clock_rate);
@@ -461,7 +461,7 @@ int main(int argc, char **argv)
 				
 
 		fprintf(pFile, "###################data_stride%d#########################\n", data_stride);
-		fprintf (pFile, "###############Mod%lld##############%lld\n", mod, iterations);
+		fprintf (pFile, "###############Mod%u##############%lld\n", mod, iterations);
 		for (long long int it = 0; it < reduced_iter; it++){		
 			fprintf (pFile, "%u %fms %lldcycles\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate, CPU_data_out_time[it]);
 			//fprintf (pFile, "%d %fms\n", it, CPU_data_out_time[it] / (float)clock_rate);
