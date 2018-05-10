@@ -83,43 +83,44 @@ __device__ void P_chasing2(int mark, int *A, long long int iterations, int *B, i
 		end_time=clock64();//////clock		
 		s_tvalue[it] = end_time - start_time;
 	}
-	*/	
+	*/
 	
-	asm(".reg .u32 t1;\n\t"
-	".reg .u64 t2;\n\t"
-	".reg .u32 t3;\n\t"
-	".reg .u32 t4;\n\t"
-	".reg .u64 t5;\n\t"
-	".reg .u32 t6;\n\t"
-	".reg .u64 t7;\n\t"
-	"cvta.to.shared.u64 	t5, %0;\n\t"
-	"cvt.u32.u64 	t6, t5;\n\t"
-	:: "l"(s_index));////////////////////////////////////cvta.to.global.u64 	%rd4, %rd25; needed??
-	
-	for (int it = 0; it < iterations; it++){//////////it here is limited by the size of the shared memory
+		asm(".reg .u64 t1;\n\t"
+		".reg .u64 t2;\n\t");
+	long long int counter = 0;
+	for (long long int it = 0; it < iterations; it++){
 		
-		asm("shl.b32 	t1, %3, 2;\n\t"
-		"cvt.u64.u32 	t7, t1;\n\t"
-		"add.s64 	t2, t7, %4;\n\t"
-		"shl.b32 	t3, %6, 2;\n\t"
-		"add.s32 	t4, t3, t6;\n\t"		
-		"mov.u64 	%0, %clock64;\n\t"
+		/*
+		asm("mul.wide.u32 	t1, %3, %5;\n\t"	
+		"add.u64 	t2, t1, %4;\n\t"		
+		"mov.u64 	%0, %clock64;\n\t"		
 		"ld.global.u32 	%2, [t2];\n\t"
-		"st.shared.u32 	[t4], %2;\n\t"
-		"mov.u64	%1, %clock64;"
-		: "=l"(start_time), "=l"(end_time), "=r"(j) : "r"(j), "l"(A), "l"(s_index), "r"(it));		
-				
+		"mov.u64 	%1, %clock64;"
+		: "=l"(start_time), "=l"(end_time), "=r"(j) : "r"(j), "l"(A), "r"(4));
+		*/
+
+		asm("mul.wide.u32 	t1, %2, %4;\n\t"	
+		"add.u64 	t2, t1, %3;\n\t"		
+		"mov.u64 	%0, %clock64;\n\t"		
+		"ld.global.u32 	%1, [t2];\n\t"		
+		: "=l"(start_time), "=r"(j) : "r"(j), "l"(A), "r"(4));
+		
+		s_index[0] = j;////what if without this? ///Then it is not accurate and cannot get the access time at all, due to the ILP. (another way is to use average time, but inevitably containing other instructions:setp, add).
+		
+		asm volatile ("mov.u64 %0, %clock64;": "=l"(end_time));
+		
 		time_interval = end_time - start_time;
-		//if(it >= 4 * 1024){
-		s_tvalue[it] = time_interval;
-		//}
+		if(time_interval > 300000){
+			s_tvalue[counter] = time_interval;
+			counter++;
+		}
 	}
 	
 	//printf("inside%d:%fms\n", mark, (total_time / (float)clock_rate) / ((float)iterations));//////clock, average latency
 	
 	B[0] = j;
 	
-	for (int it = 0; it < iterations; it++){		
+	for (long long int it = 0; it < 4096; it++){		
 		C[it] = s_index[it];
 		D[it] = s_tvalue[it];
 	}
