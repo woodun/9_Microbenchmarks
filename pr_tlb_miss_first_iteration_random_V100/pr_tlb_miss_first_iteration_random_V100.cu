@@ -274,9 +274,9 @@ int main(int argc, char **argv)
 		}
 		//unsigned data_size = 2684354560;///when size gets larger than 32MB(8388608), an additional latency is added. Is it prefetching? cpu cache or tlb? (cache)
 		unsigned data_size = mod;
-		if(data_size < 4194304){//////////data size at least 16mb to prevent L2 prefetch
-			data_size = 4194304;
-		}
+		//if(data_size < 4194304){//////////data size at least 16mb to prevent L2 prefetch
+		//	data_size = 4194304;
+		//}
 		//int iterations = data_size / data_stride;
 		//int iterations = 1024 * 256 * 8;
 		long long int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256
