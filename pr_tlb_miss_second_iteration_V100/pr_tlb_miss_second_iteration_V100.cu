@@ -83,9 +83,7 @@ __device__ void P_chasing2(int mark, int *A, long long int iterations, int *B, i
 		end_time=clock64();//////clock		
 		s_tvalue[it] = end_time - start_time;
 	}
-	*/
-	
-	//long long int X = 4;
+	*/	
 	
 	asm(".reg .u32 t1;\n\t"
 	".reg .u64 t2;\n\t"
