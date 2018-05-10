@@ -128,8 +128,8 @@ __device__ void P_chasing2(int mark, int *A, long long int iterations, int *B, i
 __global__ void tlb_latency_test(int *A, long long int iterations, int *B, int *C, long long int *D, float clock_rate, long long int mod, int data_stride){
 	
 	long long int reduced_iter = iterations;
-	if(reduced_iter > 4096){
-		reduced_iter = 4096;
+	if(reduced_iter > 2048){
+		reduced_iter = 2048;
 	}else if(reduced_iter < 16){
 		reduced_iter = 16;
 	}
