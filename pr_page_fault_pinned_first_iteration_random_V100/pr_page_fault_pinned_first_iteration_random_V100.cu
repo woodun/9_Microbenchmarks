@@ -318,7 +318,7 @@ int main(int argc, char **argv)
 				
 
 		fprintf(pFile, "###################data_stride%d#########################\n", data_stride);
-		fprintf (pFile, "###############Mod%lld##############%lld\n", mod, iterations);
+		fprintf (pFile, "###############Mod%u##############%lld\n", mod, iterations);
 		for (long long int it = 0; it < reduced_iter; it++){		
 			fprintf (pFile, "%d %fms %lldcycles\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate, CPU_data_out_time[it]);
 			//fprintf (pFile, "%d %fms\n", it, CPU_data_out_time[it] / (float)clock_rate);
@@ -389,7 +389,7 @@ int main(int argc, char **argv)
 				
 
 		fprintf(pFile, "###################data_stride%d#########################\n", data_stride);
-		fprintf (pFile, "###############Mod%lld##############%lld\n", mod, iterations);
+		fprintf (pFile, "###############Mod%u##############%lld\n", mod, iterations);
 		for (long long int it = 0; it < reduced_iter; it++){		
 			fprintf (pFile, "%d %fms %lldcycles\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate, CPU_data_out_time[it]);
 			//fprintf (pFile, "%d %fms\n", it, CPU_data_out_time[it] / (float)clock_rate);
@@ -460,7 +460,7 @@ int main(int argc, char **argv)
 				
 
 		fprintf(pFile, "###################data_stride%d#########################\n", data_stride);
-		fprintf (pFile, "###############Mod%lld##############%lld\n", mod, iterations);
+		fprintf (pFile, "###############Mod%u##############%lld\n", mod, iterations);
 		for (long long int it = 0; it < reduced_iter; it++){		
 			fprintf (pFile, "%d %fms %lldcycles\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate, CPU_data_out_time[it]);
 			//fprintf (pFile, "%d %fms\n", it, CPU_data_out_time[it] / (float)clock_rate);
