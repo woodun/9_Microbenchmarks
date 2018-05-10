@@ -63,7 +63,7 @@ void init_cpu_data(unsigned *A, unsigned size, unsigned stride, unsigned mod, lo
 			rand_sequence[i] = i;
 		}
 		//srand (time(NULL));
-		srand(1);
+		srand(0);
 		shuffle(rand_sequence, iterations);
 			
 		long long int previous_rand_num;
