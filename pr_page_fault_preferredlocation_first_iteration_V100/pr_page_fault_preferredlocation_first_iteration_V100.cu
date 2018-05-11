@@ -195,7 +195,7 @@ __device__ void P_chasing2(int mark, unsigned *A, unsigned iterations, unsigned 
 		//}
 	}
 	
-	/*
+	/*//////////////this will cause a problem, support only up to 1073741824, see the cvts.
 	asm(".reg .u32 t1;\n\t"
 	".reg .u64 t2;\n\t"
 	".reg .u32 t3;\n\t"
@@ -297,7 +297,7 @@ int main(int argc, char **argv)
 		//data_stride = data_stride + 32;///offset a cache line, trying to cause L2 miss but tlb hit.
 		//printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m = 12288 cache lines, L1 16k = 128 cache lines.
-	/*
+
 	for(unsigned mod2 = 2 * 256 * 1024; mod2 <= 1073741824; mod2 = mod2 * 2){////268435456 = 1gb, 536870912 = 2gb, 1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb.
 		counter++;
 		///////////////////////////////////////////////////////////////////CPU data begin
@@ -439,7 +439,7 @@ int main(int argc, char **argv)
 		free(CPU_data_out_index);
 		free(CPU_data_out_time);
 	}
-	*/
+
 	for(unsigned mod2 = 1; mod2 <= 1; mod2 = mod2 * 2){////268435456 = 1gb, 536870912 = 2gb, 1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb.
 		counter++;
 		///////////////////////////////////////////////////////////////////CPU data begin
