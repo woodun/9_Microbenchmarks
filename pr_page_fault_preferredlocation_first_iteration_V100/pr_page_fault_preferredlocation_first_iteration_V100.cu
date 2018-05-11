@@ -163,8 +163,39 @@ __device__ void P_chasing2(int mark, unsigned *A, unsigned iterations, unsigned 
 		end_time=clock64();//////clock		
 		s_tvalue[it] = end_time - start_time;
 	}
-	*/	
+	*/
 	
+	asm(".reg .u64 t1;\n\t"
+	".reg .u64 t2;\n\t");
+	
+	for (long long int it = 0; it < iterations; it++){
+		
+		/*
+		asm("mul.wide.u32 	t1, %3, %5;\n\t"	
+		"add.u64 	t2, t1, %4;\n\t"		
+		"mov.u64 	%0, %clock64;\n\t"		
+		"ld.global.u32 	%2, [t2];\n\t"
+		"mov.u64 	%1, %clock64;"
+		: "=l"(start_time), "=l"(end_time), "=r"(j) : "r"(j), "l"(A), "r"(4));
+		*/
+
+		asm("mul.wide.u32 	t1, %2, %4;\n\t"	
+		"add.u64 	t2, t1, %3;\n\t"		
+		"mov.u64 	%0, %clock64;\n\t"		
+		"ld.global.u32 	%1, [t2];\n\t"		
+		: "=l"(start_time), "=r"(j) : "r"(j), "l"(A), "r"(4));
+		
+		s_index[it] = j;////what if without this? ///Then it is not accurate and cannot get the access time at all, due to the ILP. (another way is to use average time, but inevitably containing other instructions:setp, add).
+		
+		asm volatile ("mov.u64 %0, %clock64;": "=l"(end_time));
+		
+		time_interval = end_time - start_time;
+		//if(it >= 4 * 1024){
+		s_tvalue[it] = time_interval;
+		//}
+	}
+	
+	/*
 	asm(".reg .u32 t1;\n\t"
 	".reg .u64 t2;\n\t"
 	".reg .u32 t3;\n\t"
@@ -194,8 +225,9 @@ __device__ void P_chasing2(int mark, unsigned *A, unsigned iterations, unsigned 
 		s_tvalue[it] = time_interval;
 		//}
 	}
+	*/
 	
-	printf("#####################%d\n", A[1073741824]);
+	//printf("#####################%d\n", A[1073741824]);
 	//printf("inside%d:%fms\n", mark, (total_time / (float)clock_rate) / ((float)iterations));//////clock, average latency
 	
 	B[0] = j;
