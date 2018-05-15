@@ -204,7 +204,7 @@ int main(int argc, char **argv)
 		
 		///////////////////////////////////////////////////////////////////GPU data out
 		int *GPU_data_out;
-		checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(int) * 2));
+		checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(int) * data_size));
 				
 		/////////////////////////////////time
 		struct timespec ts1;
