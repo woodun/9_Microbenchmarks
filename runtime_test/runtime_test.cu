@@ -86,7 +86,7 @@ int main(int argc, char **argv)
 	checkCudaErrors(cudaDeviceGetAttribute(&peak_clk, cudaDevAttrClockRate, dev_id));
 	float clock_rate = (float) peak_clk;
 	
-	printf("clock_rate_out_kernel:%f\n", clock_rate);
+	printf("clock_rate:%f\n", clock_rate);
 
     if (!device_prop.managedMemory) { 
         // This samples requires being run on a device that supports Unified Memory
@@ -173,6 +173,67 @@ int main(int argc, char **argv)
 		//checkCudaErrors(cudaFree(GPU_data_in));
 		checkCudaErrors(cudaFree(CPU_data_in));
 		//free(CPU_data_in);
+		checkCudaErrors(cudaFree(GPU_data_out));
+	}
+	}
+	}
+	
+	//memcopy
+	printf("*\n*\n*\n memcopy\n");
+	for(int data_stride = 1 * 128 * 1024; data_stride <= 2 * 256 * 1024; data_stride = data_stride * 2){
+
+	for(int mod = 268435456; mod <= 268435456; mod = mod * 2){////268435456 = 1gb, 536870912 = 2gb, 1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb, 8589934592 = 32gb.
+	
+	for(long long int clock_count = 1000; clock_count <= 1000; clock_count = clock_count * 2){
+		counter++;
+		///////////////////////////////////////////////////////////////////CPU data begin		
+		int data_size = mod;
+		if(data_size < 4194304){//////////data size at least 16mb to prevent L2 prefetch
+			data_size = 4194304;
+		}		
+		//int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256
+	
+		int *CPU_data_in;
+		CPU_data_in = (int*)malloc(sizeof(int) * data_size);		
+		init_cpu_data(CPU_data_in, data_size, data_stride);				
+		///////////////////////////////////////////////////////////////////CPU data end	
+	
+		///////////////////////////////////////////////////////////////////GPU data in	
+		int *GPU_data_in;
+		checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));	
+		
+		///////////////////////////////////////////////////////////////////GPU data out
+		int *GPU_data_out;
+		checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(int) * 2));
+		
+		int *CPU_data_out;
+		CPU_data_in = (int*)malloc(sizeof(int) * data_size);			
+				
+		/////////////////////////////////time
+		struct timespec ts1;
+		clock_gettime(CLOCK_REALTIME, &ts1);
+
+		//printf("s:  %lu\n", ts1.tv_sec);
+		//printf("ns: %lu\n", ts1.tv_nsec);
+  
+		cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
+		Page_visitor<<<1, 512>>>(GPU_data_in, GPU_data_out, data_stride, clock_count);///////////////kernel is here	
+		cudaDeviceSynchronize();
+				
+		/////////////////////////////////time
+		struct timespec ts2;
+		clock_gettime(CLOCK_REALTIME, &ts2);
+
+		//printf("s:  %lu\n", ts2.tv_sec);
+		//printf("ns: %lu\n", ts2.tv_nsec);
+		//printf("s:  %lu\n", ts2.tv_sec - ts1.tv_sec);
+		
+		printf("###################data_stride%d#########################clock_count:%lld\n", data_stride, clock_count);
+		printf("runtime:  %luns\n", ts2.tv_nsec - ts1.tv_nsec);		
+		
+		checkCudaErrors(cudaFree(GPU_data_in));
+		//checkCudaErrors(cudaFree(CPU_data_in));
+		free(CPU_data_in);
 		checkCudaErrors(cudaFree(GPU_data_out));
 	}
 	}
