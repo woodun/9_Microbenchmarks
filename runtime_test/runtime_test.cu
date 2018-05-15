@@ -10,14 +10,6 @@
 
 /////////////////////////////L1 is enabled. "ALL_CCFLAGS += -Xptxas -dlcm=ca"
 
-int main(int argc, char **argv) {
-
-
- 
-
-}
-
-
 //typedef unsigned char byte;
 
 void init_cpu_data(int* A, int size, int stride){
@@ -37,7 +29,7 @@ void init_cpu_data(int* A, int size, int stride){
 	*/
 }
 
-__global__ void tlb_latency_test(int *A, int *B, int data_stride, long long int clock_count){
+__global__ void Page_visitor(int *A, int *B, int data_stride, long long int clock_count){
 		
 	/*
 	int index = threadIdx.x;
@@ -164,7 +156,7 @@ int main(int argc, char **argv)
 		printf("s:  %lu\n", ts1.tv_sec);
 		printf("ns: %lu\n", ts1.tv_nsec);
   
-		tlb_latency_test<<<1, 512>>>(CPU_data_in, GPU_data_out, data_stride);///////////////kernel is here	
+		Page_visitor<<<1, 512>>>(CPU_data_in, GPU_data_out, data_stride);///////////////kernel is here	
 		cudaDeviceSynchronize();
 				
 		/////////////////////////////////time
