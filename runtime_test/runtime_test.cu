@@ -51,7 +51,6 @@ __global__ void Page_visitor(int *A, int *B, int data_stride, long long int cloc
 	
 	//////////////////////////////////////////////sleep
 	long long int start_clock = clock64();
-	long long int clock_count = 0;
     long long int clock_offset = 0;
     while (clock_offset < clock_count)
     {
@@ -125,6 +124,8 @@ int main(int argc, char **argv)
 	//fprintf(pFile,"*\n*\n*\n plain managed\n");
 	//fflush(pFile);
 	for(int mod = 268435456; mod <= 268435456; mod = mod * 2){////268435456 = 1gb, 536870912 = 2gb, 1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb, 8589934592 = 32gb.
+	
+	for(long long int clock_count = 1000; clock_count <= 1000; clock_count = clock_count * 2){
 		counter++;
 		///////////////////////////////////////////////////////////////////CPU data begin		
 		int data_size = mod;
@@ -156,7 +157,7 @@ int main(int argc, char **argv)
 		printf("s:  %lu\n", ts1.tv_sec);
 		printf("ns: %lu\n", ts1.tv_nsec);
   
-		Page_visitor<<<1, 512>>>(CPU_data_in, GPU_data_out, data_stride);///////////////kernel is here	
+		Page_visitor<<<1, 512>>>(CPU_data_in, GPU_data_out, data_stride, clock_count);///////////////kernel is here	
 		cudaDeviceSynchronize();
 				
 		/////////////////////////////////time
@@ -174,7 +175,8 @@ int main(int argc, char **argv)
 		//checkCudaErrors(cudaFree(GPU_data_in));
 		checkCudaErrors(cudaFree(CPU_data_in));
 		//free(CPU_data_in);
-		checkCudaErrors(cudaFree(GPU_data_out));	
+		checkCudaErrors(cudaFree(GPU_data_out));
+	}
 	}
 	
 	/*
