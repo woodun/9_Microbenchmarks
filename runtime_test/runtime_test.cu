@@ -122,7 +122,7 @@ int main(int argc, char **argv)
 	printf("*\n*\n*\n plain managed\n");
 	for(int data_stride = 1 * 128 * 1024; data_stride <= 2 * 256 * 1024; data_stride = data_stride * 2){
 
-	for(int mod = 268435456; mod <= 268435456; mod = mod * 2){////268435456 = 1gb, 536870912 = 2gb, 1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb, 8589934592 = 32gb.
+	for(int mod = 536870912; mod <= 536870912; mod = mod * 2){////268435456 = 1gb, 536870912 = 2gb, 1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb, 8589934592 = 32gb.
 	
 	for(long long int clock_count = 1000; clock_count <= 1000; clock_count = clock_count * 2){
 		counter++;
@@ -182,7 +182,7 @@ int main(int argc, char **argv)
 	printf("*\n*\n*\n memcopy\n");
 	for(int data_stride = 1 * 128 * 1024; data_stride <= 2 * 256 * 1024; data_stride = data_stride * 2){
 
-	for(int mod = 268435456; mod <= 268435456; mod = mod * 2){////268435456 = 1gb, 536870912 = 2gb, 1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb, 8589934592 = 32gb.
+	for(int mod = 536870912; mod <= 536870912; mod = mod * 2){////268435456 = 1gb, 536870912 = 2gb, 1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb, 8589934592 = 32gb.
 	
 	for(long long int clock_count = 1000; clock_count <= 1000; clock_count = clock_count * 2){
 		counter++;
@@ -212,7 +212,7 @@ int main(int argc, char **argv)
 
 		//printf("s:  %lu\n", ts1.tv_sec);
 		//printf("ns: %lu\n", ts1.tv_nsec);
-  
+
 		cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
 		Page_visitor<<<1, 512>>>(GPU_data_in, GPU_data_out, data_stride, clock_count);///////////////kernel is here	
 		cudaDeviceSynchronize();
