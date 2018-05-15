@@ -113,7 +113,7 @@ __device__ void P_chasing2(int mark, int *A, long long int iterations, int *B, i
 				
 		time_interval = end_time - start_time;
 		//if(it >= 4 * 1024){
-		s_tvalue[it] = time_interval;
+		//s_tvalue[it] = time_interval;
 		//}
 		printf("%lld\n",time_interval);
 	}
