@@ -118,10 +118,10 @@ int main(int argc, char **argv)
 	
 	int counter = 0;
 	/////////change the data stride as to observe if the latency increase is caused by iteration(cache) or stride(tlb)
-	for(int data_stride = 2 * 256 * 1024; data_stride <= 2 * 256 * 1024; data_stride = data_stride * 2){
+	for(int data_stride = 1 * 128 * 1024; data_stride <= 2 * 256 * 1024; data_stride = data_stride * 2){
 
 	//plain managed
-	//fprintf(pFile,"*\n*\n*\n plain managed\n");
+	fprintf("*\n*\n*\n plain managed\n");
 	//fflush(pFile);
 	for(int mod = 268435456; mod <= 268435456; mod = mod * 2){////268435456 = 1gb, 536870912 = 2gb, 1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb, 8589934592 = 32gb.
 	
@@ -154,8 +154,8 @@ int main(int argc, char **argv)
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
 
-		printf("s:  %lu\n", ts1.tv_sec);
-		printf("ns: %lu\n", ts1.tv_nsec);
+		//printf("s:  %lu\n", ts1.tv_sec);
+		//printf("ns: %lu\n", ts1.tv_nsec);
   
 		Page_visitor<<<1, 512>>>(CPU_data_in, GPU_data_out, data_stride, clock_count);///////////////kernel is here	
 		cudaDeviceSynchronize();
@@ -164,13 +164,12 @@ int main(int argc, char **argv)
 		struct timespec ts2;
 		clock_gettime(CLOCK_REALTIME, &ts2);
 
-		printf("s:  %lu\n", ts2.tv_sec);
-		printf("ns: %lu\n", ts2.tv_nsec);
-		printf("s:  %lu\n", ts2.tv_sec - ts1.tv_sec);
-		printf("ns: %lu\n", ts2.tv_nsec - ts1.tv_nsec);	
-						
-		//fprintf(pFile, "###################data_stride%d#########################\n", data_stride);
-		//fflush(pFile);
+		//printf("s:  %lu\n", ts2.tv_sec);
+		//printf("ns: %lu\n", ts2.tv_nsec);
+		//printf("s:  %lu\n", ts2.tv_sec - ts1.tv_sec);
+		
+		printf("###################data_stride%d#########################clock_count:%lld\n", data_stride, clock_count);
+		printf("runtime:  %luns\n", ts2.tv_nsec - ts1.tv_nsec);		
 		
 		//checkCudaErrors(cudaFree(GPU_data_in));
 		checkCudaErrors(cudaFree(CPU_data_in));
