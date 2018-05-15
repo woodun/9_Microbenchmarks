@@ -188,7 +188,7 @@ int main(int argc, char **argv)
 	
 	int counter = 0;
 	/////////change the data stride as to observe if the latency increase is caused by iteration(cache) or stride(tlb)
-	for(int data_stride = 16 * 256 * 1024; data_stride <= 16 * 256 * 1024; data_stride = data_stride * 2){/////////32mb stride
+	for(int data_stride = 1 * 128 * 1024; data_stride <= 1 * 128 * 1024; data_stride = data_stride * 2){/////////32mb stride
 		//data_stride = data_stride + 32;///offset a cache line, trying to cause L2 miss but tlb hit.
 		//printf("###################data_stride%d#########################\n", data_stride);
 	//plain managed
