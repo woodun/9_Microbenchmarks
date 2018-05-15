@@ -151,23 +151,23 @@ int main(int argc, char **argv)
 		checkCudaErrors(cudaMallocManaged(&GPU_data_out, sizeof(int) * data_size));/////////////using unified memory		
 				
 		/////////////////////////////////time
-		struct timespec ts1;
+		struct timespec* ts1;
 		clock_gettime(CLOCK_REALTIME, ts1);
 
-		printf("s:  %lu\n", ts1.tv_sec);
-		printf("ns: %lu\n", ts1.tv_nsec);
+		printf("s:  %lu\n", ts1->tv_sec);
+		printf("ns: %lu\n", ts1->tv_nsec);
   
 		Page_visitor<<<1, 512>>>(CPU_data_in, GPU_data_out, data_stride, clock_count);///////////////kernel is here	
 		cudaDeviceSynchronize();
 				
 		/////////////////////////////////time
-		struct timespec ts2;
+		struct timespec* ts2;
 		clock_gettime(CLOCK_REALTIME, ts2);
 
-		printf("s:  %lu\n", ts2.tv_sec);
-		printf("ns: %lu\n", ts2.tv_nsec);
-		printf("s:  %lu\n", ts2.tv_sec - ts1.tv_sec);
-		printf("ns: %lu\n", ts2.tv_nsec - ts1.tv_nsec);	
+		printf("s:  %lu\n", ts2->tv_sec);
+		printf("ns: %lu\n", ts2->tv_nsec);
+		printf("s:  %lu\n", ts2->tv_sec - ts1->tv_sec);
+		printf("ns: %lu\n", ts2->tv_nsec - ts1->tv_nsec);	
 						
 		//fprintf(pFile, "###################data_stride%d#########################\n", data_stride);
 		//fflush(pFile);
