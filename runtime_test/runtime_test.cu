@@ -117,12 +117,11 @@ int main(int argc, char **argv)
     pFile = fopen ("output.txt","w");		
 	
 	int counter = 0;
-	/////////change the data stride as to observe if the latency increase is caused by iteration(cache) or stride(tlb)
-	for(int data_stride = 1 * 128 * 1024; data_stride <= 2 * 256 * 1024; data_stride = data_stride * 2){
-
+	
 	//plain managed
 	printf("*\n*\n*\n plain managed\n");
-	//fflush(pFile);
+	for(int data_stride = 1 * 128 * 1024; data_stride <= 2 * 256 * 1024; data_stride = data_stride * 2){
+
 	for(int mod = 268435456; mod <= 268435456; mod = mod * 2){////268435456 = 1gb, 536870912 = 2gb, 1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb, 8589934592 = 32gb.
 	
 	for(long long int clock_count = 1000; clock_count <= 1000; clock_count = clock_count * 2){
@@ -175,6 +174,7 @@ int main(int argc, char **argv)
 		checkCudaErrors(cudaFree(CPU_data_in));
 		//free(CPU_data_in);
 		checkCudaErrors(cudaFree(GPU_data_out));
+	}
 	}
 	}
 	
@@ -464,9 +464,6 @@ int main(int argc, char **argv)
 		free(CPU_data_out_time);
 	}
 	*/
-	
-	//printf("############################################\n\n");
-	}				
 
 	fclose (pFile);
 	
