@@ -233,6 +233,9 @@ int main(int argc, char **argv)
 		long long int *GPU_data_out_time;
 		checkCudaErrors(cudaMalloc(&GPU_data_out_time, sizeof(long long int) * reduced_iter));
 		
+		printf("###################data_stride%d#########################\n", data_stride);
+		printf("###############Mod%lld##############%lld\n", mod, iterations);
+		
 		tlb_latency_test<<<1, 1>>>(GPU_data_in, iterations, GPU_data_out, GPU_data_out_index, GPU_data_out_time, clock_rate, mod, data_stride);///////////////kernel is here	
 		cudaDeviceSynchronize();
 				
