@@ -121,7 +121,7 @@ int main(int argc, char **argv)
 	for(int data_stride = 1 * 128 * 1024; data_stride <= 2 * 256 * 1024; data_stride = data_stride * 2){
 
 	//plain managed
-	fprintf("*\n*\n*\n plain managed\n");
+	printf("*\n*\n*\n plain managed\n");
 	//fflush(pFile);
 	for(int mod = 268435456; mod <= 268435456; mod = mod * 2){////268435456 = 1gb, 536870912 = 2gb, 1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb, 8589934592 = 32gb.
 	
