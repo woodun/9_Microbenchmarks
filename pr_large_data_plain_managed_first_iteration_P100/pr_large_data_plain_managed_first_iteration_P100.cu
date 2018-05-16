@@ -63,7 +63,7 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 
 __global__ void tlb_latency_test(long long int *A, long long int iterations, long long int *B, float clock_rate, long long int mod, int data_stride){
 			
-	P_chasing2(0, A, iterations, B, C, D, 0, clock_rate, data_stride);////////partially print the data
+	P_chasing2(0, A, iterations, B, 0, clock_rate, data_stride);////////partially print the data
 	
 	 __syncthreads();
 }
