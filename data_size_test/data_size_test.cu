@@ -183,7 +183,7 @@ int main(int argc, char **argv)
 	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(long long int) * 2));			
 	
 	FILE * pFile;
-    pFile = fopen ("output.txt","w");		
+    pFile = fopen ("output.txt","w");
 	
 	int counter = 0;
 	/////////change the data stride as to observe if the latency increase is caused by iteration(cache) or stride(tlb)

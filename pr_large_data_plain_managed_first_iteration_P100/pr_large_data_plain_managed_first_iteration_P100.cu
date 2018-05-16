@@ -10,7 +10,7 @@
 /////////////////////////////change the data size to larger than 16 gb to test for different memories. L1 is enabled. "ALL_CCFLAGS += -Xptxas -dlcm=ca"
 
 void init_cpu_data(long long int* A, long long int size, int stride, long long int mod){
-	for (long long int i = 0; i < size - stride; i++){
+	for (long long int i = 0; i < size - stride; i = i + stride){
 		A[i]=(i + stride);
 	}
 			
@@ -40,7 +40,7 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 		"cvt.u32.u64 	t6, t5;\n\t"
 		:: "l"(s_index));////////////////////////////////////cvta.to.global.u64 	%rd4, %rd25; needed??
 		
-		for (int it = 0; it < iterations; it++){//////////it here is limited by the size of the shared memory
+		for (long long int it = 0; it < iterations; it++){//////////it here is limited by the size of the shared memory
 			
 			asm("shl.b64 	t1, %3, 3;\n\t"	
 			"add.s64 	t2, t1, %4;\n\t"
@@ -63,7 +63,7 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 
 __global__ void tlb_latency_test(long long int *A, long long int iterations, long long int *B, float clock_rate, long long int mod, int data_stride){
 			
-	P_chasing2(0, A, iterations, B, 0, clock_rate, data_stride);////////partially print the data
+	P_chasing2(0, A, iterations * 2, B, 0, clock_rate, data_stride);////////partially print the data
 	
 	 __syncthreads();
 }
@@ -112,11 +112,11 @@ int main(int argc, char **argv)
 	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(long long int) * 2));			
 	
 	int counter = 0;	
-	for(int data_stride = 1 * 1 * 1024; data_stride <= 32 * 256 * 1024; data_stride = data_stride * 2){/////////32mb stride
+	for(int data_stride = 1 * 4 * 1024; data_stride <= 1 * 4 * 1024; data_stride = data_stride * 2){/////////32mb stride
 
 	//plain managed
 	printf("*\n*\n*\n plain managed\n");	
-	for(long long int mod = 8589934592; mod <= 8589934592; mod = mod * 2){////268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb.
+	for(long long int mod = 1073741824; mod <= 4294967296; mod = mod * 2){////268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb.
 		counter++;
 		///////////////////////////////////////////////////////////////////CPU data begin
 		long long int data_size = mod;
