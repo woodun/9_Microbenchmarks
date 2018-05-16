@@ -9,9 +9,6 @@
 
 /////////////////////////////change the data size to larger than 16 gb to test for different memories. L1 is enabled. "ALL_CCFLAGS += -Xptxas -dlcm=ca"
 
-
-//typedef unsigned char byte;
-
 void init_cpu_data(long long int* A, long long int size, int stride, long long int mod){
 	for (long long int i = 0; i < size - stride; i++){
 		A[i]=(i + stride);
@@ -22,65 +19,16 @@ void init_cpu_data(long long int* A, long long int size, int stride, long long i
 	}
 }
 
-__device__ void P_chasing0(int mark, long long int *A, int iterations, int *B, int *C, long long int *D, int starting_index, float clock_rate, int data_stride){	
+__device__ void P_chasing2(int mark, long long int *A, long long int iterations, long long int *B, long long int *C, long long int *D, long long int starting_index, float clock_rate, int data_stride){	
 	
-	int j = starting_index;/////make them in the same page, and miss near in cache lines
-			
-	for (int it = 0; it < iterations; it++){	
-		j = A[j];		
-	}	
-		
-	B[0] = j;
-}
-
-//////////min page size 4kb = 4096b = 32 * 128.
-__device__ void P_chasing1(int mark, long long int *A, long long int iterations, long long int *B, long long int *C, long long int *D, int starting_index, float clock_rate, int data_stride){	
+	__shared__ long long int s_index[1];
 	
 	long long int j = starting_index;/////make them in the same page, and miss near in cache lines
-	
-	//long long int start_time = 0;//////clock
-	//long long int end_time = 0;//////clock
-	//start_time = clock64();//////clock
-			
-	for (long long int it = 0; it < iterations; it++){
-		j = A[j];
-	}
-	
-	//end_time=clock64();//////clock
-	//long long int total_time = end_time - start_time;//////clock
-	//printf("inside%d:%fms\n", mark, (total_time / (float)clock_rate) / ((float)iterations));//////clock, average latency //////////the print will flush the L1?! (
-	
-	B[0] = j;
-	//B[1] = (int) total_time;
-}
-
-//////////min page size 4kb = 4096b = 32 * 128.
-__device__ void P_chasing2(int mark, long long int *A, long long int iterations, long long int *B, long long int *C, long long int *D, long long int starting_index, float clock_rate, int data_stride){
-	
-	//////shared memory: 0xc000 max (49152 Bytes = 48KB for k40)
-	__shared__ long long int s_tvalue[1024 * 2];/////k40 6 * 1024 total, p100 8 * 1024 total, v100 up to 12 * 1024 total.
-	__shared__ long long int s_index[1024 * 2];/////////////////////////////////question: will printf affect the measurement?
-	//__shared__ long long int s_index[1];
-	
-	long long int j = starting_index;/////make them in the same page, and miss near in cache lines
-	//int j = B[0];
 	
 	long long int start_time = 0;//////clock
 	long long int end_time = 0;//////clock
-	long long int time_interval = 0;//////clock
-	//long long int total_time = end_time - start_time;//////clock
-	
-	if(false){
-		for (int it = 0; it < iterations; it++){//////////it here is limited by the size of the shared memory
-			
-			start_time = clock64();//////clock		
-			j = A[j];
-			s_index[it] = j;
-			end_time=clock64();//////clock		
-			s_tvalue[it] = end_time - start_time;
-		}
-	}
-	
+	long long int time_interval = 0;//////clock	
+		
 	if(true){
 		asm(".reg .u64 t1;\n\t"
 		".reg .u64 t2;\n\t"
@@ -105,44 +53,23 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 			: "=l"(start_time), "=l"(end_time), "=l"(j) : "l"(j), "l"(A), "l"(s_index), "r"(0));		
 					
 			time_interval = end_time - start_time;
-			//if(it >= 4 * 1024){
-			//s_tvalue[it] = time_interval;
-			//}
-			printf("%lld\n",time_interval);/////printf will affect L1 cache. Also, unknown effect to TLBs because it adds latency to L2 TLB misses.
+			printf("%lld lld%\n", j, time_interval);/////printf will affect L1 cache. Also, unknown effect to TLBs because it adds latency to L2 TLB misses.
 			//////////////////////////////////////We are not using it for measurement. However, it can be used to recognize different conditions.
 		}
 	}
-	
-	//printf("inside%d:%fms\n", mark, (total_time / (float)clock_rate) / ((float)iterations));//////clock, average latency
-	
+
 	B[0] = j;
-	
-	for (int it = 0; it < iterations; it++){		
-		C[it] = s_index[it];
-		D[it] = s_tvalue[it];
-	}
 }
 
 __global__ void tlb_latency_test(long long int *A, long long int iterations, long long int *B, long long int *C, long long int *D, float clock_rate, long long int mod, int data_stride){
-	
-	long long int reduced_iter = iterations;
-	if(reduced_iter > 2048){
-		reduced_iter = 2048;
-	}else if(reduced_iter < 16){
-		reduced_iter = 16;
-	}
-	
-	///////////kepler L2 has 48 * 1024 = 49152 cache lines. But we only have 1024 * 4 slots in shared memory.
-	//P_chasing1(0, A, iterations + 0, B, C, D, 0, clock_rate, data_stride);////////saturate the L2
-	P_chasing2(0, A, reduced_iter, B, C, D, 0, clock_rate, data_stride);////////partially print the data
+			
+	P_chasing2(0, A, iterations, B, C, D, 0, clock_rate, data_stride);////////partially print the data
 	
 	 __syncthreads();
 }
 
 int main(int argc, char **argv)
 {
-	printf("\n");
-	
     // set device
     cudaDeviceProp device_prop;
     //int dev_id = findCudaDevice(argc, (const char **) argv);
@@ -184,82 +111,37 @@ int main(int argc, char **argv)
 	long long int *GPU_data_out;
 	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(long long int) * 2));			
 	
-	FILE * pFile;
-    pFile = fopen ("output.txt","w");		
-	
-	int counter = 0;
-	/////////change the data stride as to observe if the latency increase is caused by iteration(cache) or stride(tlb)
+	int counter = 0;	
 	for(int data_stride = 1 * 1 * 1024; data_stride <= 32 * 256 * 1024; data_stride = data_stride * 2){/////////32mb stride
-		//data_stride = data_stride + 32;///offset a cache line, trying to cause L2 miss but tlb hit.
-		//printf("###################data_stride%d#########################\n", data_stride);
+
 	//plain managed
-	printf("*\n*\n*\n plain managed\n");
-	fprintf(pFile,"*\n*\n*\n plain managed\n");
-	fflush(pFile);
-	for(long long int mod2 = 1073741824; mod2 <= 1073741824; mod2 = mod2 * 2){////268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb.
+	printf("*\n*\n*\n plain managed\n");	
+	for(long long int mod = 8589934592; mod <= 8589934592; mod = mod * 2){////268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb.
 		counter++;
 		///////////////////////////////////////////////////////////////////CPU data begin
-		//int data_size = 2 * 256 * 1024 * 32;/////size = iteration * stride = 32 2mb pages.
-		long long int mod = mod2;
-
 		long long int data_size = mod;
-		if(data_size < 4194304){//////////data size at least 16mb to prevent L2 prefetch
-			data_size = 4194304;
-		}	
-		//int iterations = data_size / data_stride;
-		//int iterations = 1024 * 256 * 8;
 		long long int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256
 	
 		long long int *CPU_data_in;
 		//CPU_data_in = (int*)malloc(sizeof(int) * data_size);
 		checkCudaErrors(cudaMallocManaged(&CPU_data_in, sizeof(long long int) * data_size));/////////////using unified memory		
-		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
-		
-		long long int reduced_iter = iterations;
-		if(reduced_iter > 2048){
-			reduced_iter = 2048;
-		}else if(reduced_iter < 16){
-			reduced_iter = 16;
-		}
-		
-		long long int *CPU_data_out_index;
-		CPU_data_out_index = (long long int*)malloc(sizeof(long long int) * reduced_iter);
-		long long int *CPU_data_out_time;
-		CPU_data_out_time = (long long int*)malloc(sizeof(long long int) * reduced_iter);
+		init_cpu_data(CPU_data_in, data_size, data_stride, mod);		
 		///////////////////////////////////////////////////////////////////CPU data end	
 	
 		///////////////////////////////////////////////////////////////////GPU data in	
 		//int *GPU_data_in;
 		//checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));	
-		//cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);
-		
-		///////////////////////////////////////////////////////////////////GPU data out
-		long long int *GPU_data_out_index;
-		checkCudaErrors(cudaMalloc(&GPU_data_out_index, sizeof(long long int) * reduced_iter));
-		long long int *GPU_data_out_time;
-		checkCudaErrors(cudaMalloc(&GPU_data_out_time, sizeof(long long int) * reduced_iter));
+		//cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);		
 		
 		printf("###################data_stride%d#########################\n", data_stride);
-		printf("###############Mod%lld##############%lld\n", mod, iterations);
+		printf("###############Mod%lld##############%lld\n", mod, iterations);		
 		
-		
-		tlb_latency_test<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, GPU_data_out_index, GPU_data_out_time, clock_rate, mod, data_stride);///////////////kernel is here	
+		tlb_latency_test<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, GPU_data_out_index, GPU_data_out_time, clock_rate, mod, data_stride);///kernel is here	
 		cudaDeviceSynchronize();
 				
 		cudaMemcpy(CPU_data_out_index, GPU_data_out_index, sizeof(long long int) * reduced_iter, cudaMemcpyDeviceToHost);
 		cudaMemcpy(CPU_data_out_time, GPU_data_out_time, sizeof(long long int) * reduced_iter, cudaMemcpyDeviceToHost);
-				
-
-		fprintf(pFile, "###################data_stride%d#########################\n", data_stride);
-		fprintf (pFile, "###############Mod%lld##############%lld\n", mod, iterations);
-		for (long long int it = 0; it < reduced_iter; it++){		
-			//fprintf (pFile, "%lld %fms %lldcycles\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate, CPU_data_out_time[it]);
-			fprintf (pFile, "%lld\n", CPU_data_out_time[it]);
-			//fprintf (pFile, "%d %fms\n", it, CPU_data_out_time[it] / (float)clock_rate);
-			//printf ("%d %fms\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate);
-		}
-		fflush(pFile);
-		
+						
 		checkCudaErrors(cudaFree(GPU_data_out_index));
 		checkCudaErrors(cudaFree(GPU_data_out_time));
 		//checkCudaErrors(cudaFree(GPU_data_in));
@@ -271,8 +153,6 @@ int main(int argc, char **argv)
 	}
 			
 	checkCudaErrors(cudaFree(GPU_data_out));	
-	//free(CPU_data_out);
-	fclose (pFile);
 	
     exit(EXIT_SUCCESS);
 }

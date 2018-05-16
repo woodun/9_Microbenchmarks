@@ -59,7 +59,7 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 	
 	//////shared memory: 0xc000 max (49152 Bytes = 48KB)
 	__shared__ long long int s_tvalue[1024 * 2];/////must be enough to contain the number of iterations.
-	__shared__ long long int s_index[1024 * 2];
+	__shared__ long long int s_index[1024 * 2];/////k40 6 * 1024 total, p100 8 * 1024 total, v100 up to 12 * 1024 total.
 	//__shared__ long long int s_index[1];
 	
 	long long int j = starting_index;/////make them in the same page, and miss near in cache lines
