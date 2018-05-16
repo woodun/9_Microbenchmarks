@@ -155,7 +155,7 @@ int main(int argc, char **argv)
 		//checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));	
 		//cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);		
 		
-		printf("###################data_stride%d#########################\n", data_stride);
+		printf("###################data_stride%lld#########################\n", data_stride);
 		printf("###############Mod%lld##############%lld\n", mod, iterations);		
 		
 		tlb_latency_test<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///kernel is here	
