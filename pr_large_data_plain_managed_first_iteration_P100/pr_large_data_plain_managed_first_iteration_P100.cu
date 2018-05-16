@@ -48,13 +48,16 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 	long long int time_interval = 0;//////clock	
 		
 	if(true){
+		if(mark){
 		asm(".reg .u64 t1;\n\t"
 		".reg .u64 t2;\n\t"
 		".reg .u32 t3;\n\t"
 		".reg .u32 t4;\n\t"
 		".reg .u64 t5;\n\t"
-		".reg .u32 t6;\n\t"
-		"cvta.to.shared.u64 	t5, %0;\n\t"
+		".reg .u32 t6;\n\t")
+		}
+		
+		asm("cvta.to.shared.u64 	t5, %0;\n\t"
 		"cvt.u32.u64 	t6, t5;\n\t"
 		:: "l"(s_index));////////////////////////////////////cvta.to.global.u64 	%rd4, %rd25; needed??
 		
@@ -81,7 +84,7 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 
 __global__ void tlb_latency_test(long long int *A, long long int iterations, long long int *B, float clock_rate, long long int mod, int data_stride){
 			
-	P_chasing2(0, A, iterations, B, 0, clock_rate, data_stride);
+	P_chasing2(1, A, iterations, B, 0, clock_rate, data_stride);
 	P_chasing2(0, A, iterations, B, mod - data_stride + 3, clock_rate, data_stride);
 	
 	 __syncthreads();
