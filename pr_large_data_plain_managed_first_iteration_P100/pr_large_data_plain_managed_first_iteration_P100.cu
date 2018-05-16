@@ -19,7 +19,7 @@ void init_cpu_data(long long int* A, long long int size, int stride, long long i
 	}
 }
 
-__device__ void P_chasing2(int mark, long long int *A, long long int iterations, long long int *B, long long int *C, long long int *D, long long int starting_index, float clock_rate, int data_stride){	
+__device__ void P_chasing2(int mark, long long int *A, long long int iterations, long long int *B, long long int starting_index, float clock_rate, int data_stride){	
 	
 	__shared__ long long int s_index[1];
 	
@@ -61,7 +61,7 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 	B[0] = j;
 }
 
-__global__ void tlb_latency_test(long long int *A, long long int iterations, long long int *B, long long int *C, long long int *D, float clock_rate, long long int mod, int data_stride){
+__global__ void tlb_latency_test(long long int *A, long long int iterations, long long int *B, float clock_rate, long long int mod, int data_stride){
 			
 	P_chasing2(0, A, iterations, B, C, D, 0, clock_rate, data_stride);////////partially print the data
 	
@@ -136,7 +136,7 @@ int main(int argc, char **argv)
 		printf("###################data_stride%d#########################\n", data_stride);
 		printf("###############Mod%lld##############%lld\n", mod, iterations);		
 		
-		tlb_latency_test<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, GPU_data_out_index, GPU_data_out_time, clock_rate, mod, data_stride);///kernel is here	
+		tlb_latency_test<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///kernel is here	
 		cudaDeviceSynchronize();
 				
 		cudaMemcpy(CPU_data_out_index, GPU_data_out_index, sizeof(long long int) * reduced_iter, cudaMemcpyDeviceToHost);
