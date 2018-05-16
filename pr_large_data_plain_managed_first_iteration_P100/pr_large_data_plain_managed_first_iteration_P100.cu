@@ -10,12 +10,30 @@
 /////////////////////////////change the data size to larger than 16 gb to test for different memories. L1 is enabled. "ALL_CCFLAGS += -Xptxas -dlcm=ca"
 
 void init_cpu_data(long long int* A, long long int size, int stride, long long int mod){
-	for (long long int i = 0; i < size - stride; i = i + stride){
-		A[i]=(i + stride);
+	if(1){////////////normal
+		for (unsigned i = 0; i < size - stride; i = i + stride){
+			A[i]=(i + stride);
+		}
+		
+		//for (unsigned i = 3; i < size - stride; i = i + stride){
+		//	A[i]=(i + stride);
+		//}
+				
+		A[size - stride]=0;
+		//A[size - stride + 3]=0;
 	}
-			
-	for (long long int i = size - stride; i < size; i++){
-		A[i]=0;
+	
+	if(1){////////////reversed
+		//for (unsigned i = 0; i <= size - stride; i = i + stride){
+		//	A[i]=(i - stride);
+		//}
+		
+		for (unsigned i = 3; i <= size - stride + 3; i = i + stride){
+			A[i]=(i - stride);
+		}
+		
+		//A[0]=size - stride;
+		A[3]=size - stride + 3;
 	}
 }
 
@@ -63,7 +81,8 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 
 __global__ void tlb_latency_test(long long int *A, long long int iterations, long long int *B, float clock_rate, long long int mod, int data_stride){
 			
-	P_chasing2(0, A, iterations * 2, B, 0, clock_rate, data_stride);////////partially print the data
+	P_chasing2(0, A, iterations, B, 0, clock_rate, data_stride);
+	P_chasing2(0, A, iterations, B, mod - data_stride + 3, clock_rate, data_stride);
 	
 	 __syncthreads();
 }
