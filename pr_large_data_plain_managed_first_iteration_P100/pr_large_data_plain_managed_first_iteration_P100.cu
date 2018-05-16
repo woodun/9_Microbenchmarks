@@ -35,6 +35,13 @@ void init_cpu_data(long long int* A, long long int size, long long int stride, l
 		//A[0]=size - stride;
 		A[3]=size - stride + 3;
 	}
+	
+	/////54521859 returned page fault starting point for 2147483648.
+	///////////////////2147483648 - 54521859 = 2092961789.
+	///////////////////2092961789 -4096 + 3 = 1996 * 1M = 15968 MB (out of 16280 MB out of 16384 MB)
+	/////2202267651 returned page fault starting point for 4294967296
+	///////////////////4294967296 - 2202267651 = 2092699645.
+	///////////////////2092699645 -4096 + 3 = 1995.75 * 1M = 15966 MB (out of 16280 MB out of 16384 MB)
 }
 
 __device__ void P_chasing2(int mark, long long int *A, long long int iterations, long long int *B, long long int starting_index, float clock_rate, long long int data_stride){	
@@ -102,7 +109,7 @@ int main(int argc, char **argv)
 	checkCudaErrors(cudaDeviceGetAttribute(&peak_clk, cudaDevAttrClockRate, dev_id));
 	float clock_rate = (float) peak_clk;
 	
-	//printf("clock_rate_out_kernel:%f\n", clock_rate);
+	printf("clock_rate_out_kernel:%f\n", clock_rate);
 
     if (!device_prop.managedMemory) { 
         // This samples requires being run on a device that supports Unified Memory
