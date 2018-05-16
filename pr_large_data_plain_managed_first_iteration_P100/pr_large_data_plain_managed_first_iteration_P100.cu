@@ -9,13 +9,13 @@
 
 /////////////////////////////change the data size to larger than 16 gb to test for different memories. L1 is enabled. "ALL_CCFLAGS += -Xptxas -dlcm=ca"
 
-void init_cpu_data(long long int* A, long long int size, int stride, long long int mod){
+void init_cpu_data(long long int* A, long long int size, long long int stride, long long int mod){
 	if(1){////////////normal
-		for (unsigned i = 0; i < size - stride; i = i + stride){
+		for (long long int i = 0; i < size - stride; i = i + stride){
 			A[i]=(i + stride);
 		}
 		
-		//for (unsigned i = 3; i < size - stride; i = i + stride){
+		//for (long long int i = 3; i < size - stride; i = i + stride){
 		//	A[i]=(i + stride);
 		//}
 				
@@ -24,11 +24,11 @@ void init_cpu_data(long long int* A, long long int size, int stride, long long i
 	}
 	
 	if(1){////////////reversed
-		//for (unsigned i = 0; i <= size - stride; i = i + stride){
+		//for (long long int i = 0; i <= size - stride; i = i + stride){
 		//	A[i]=(i - stride);
 		//}
 		
-		for (unsigned i = 3; i <= size - stride + 3; i = i + stride){
+		for (long long int i = 3; i <= size - stride + 3; i = i + stride){
 			A[i]=(i - stride);
 		}
 		
@@ -37,7 +37,7 @@ void init_cpu_data(long long int* A, long long int size, int stride, long long i
 	}
 }
 
-__device__ void P_chasing2(int mark, long long int *A, long long int iterations, long long int *B, long long int starting_index, float clock_rate, int data_stride){	
+__device__ void P_chasing2(int mark, long long int *A, long long int iterations, long long int *B, long long int starting_index, float clock_rate, long long int data_stride){	
 	
 	__shared__ long long int s_index[1];
 	
@@ -82,7 +82,7 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 	B[0] = j;
 }
 
-__global__ void tlb_latency_test(long long int *A, long long int iterations, long long int *B, float clock_rate, long long int mod, int data_stride){
+__global__ void tlb_latency_test(long long int *A, long long int iterations, long long int *B, float clock_rate, long long int mod, long long int data_stride){
 			
 	P_chasing2(1, A, iterations, B, 0, clock_rate, data_stride);
 	P_chasing2(0, A, iterations, B, mod - data_stride + 3, clock_rate, data_stride);
@@ -134,7 +134,7 @@ int main(int argc, char **argv)
 	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(long long int) * 2));			
 	
 	int counter = 0;	
-	for(int data_stride = 1 * 4 * 1024; data_stride <= 1 * 4 * 1024; data_stride = data_stride * 2){/////////32mb stride
+	for(long long int data_stride = 1 * 4 * 1024; data_stride <= 1 * 4 * 1024; data_stride = data_stride * 2){/////////32mb stride
 
 	//plain managed
 	printf("*\n*\n*\n plain managed\n");	
