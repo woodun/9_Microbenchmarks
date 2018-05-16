@@ -53,7 +53,7 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 			: "=l"(start_time), "=l"(end_time), "=l"(j) : "l"(j), "l"(A), "l"(s_index), "r"(0));		
 					
 			time_interval = end_time - start_time;
-			printf("%lld lld%\n", j, time_interval);/////printf will affect L1 cache. Also, unknown effect to TLBs because it adds latency to L2 TLB misses.
+			printf("%lld %lld\n", j, time_interval);/////printf will affect L1 cache. Also, unknown effect to TLBs because it adds latency to L2 TLB misses.
 			//////////////////////////////////////We are not using it for measurement. However, it can be used to recognize different conditions.
 		}
 	}
