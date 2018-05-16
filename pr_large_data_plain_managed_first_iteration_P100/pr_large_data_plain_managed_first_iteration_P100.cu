@@ -138,12 +138,7 @@ int main(int argc, char **argv)
 		
 		tlb_latency_test<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///kernel is here	
 		cudaDeviceSynchronize();
-				
-		cudaMemcpy(CPU_data_out_index, GPU_data_out_index, sizeof(long long int) * reduced_iter, cudaMemcpyDeviceToHost);
-		cudaMemcpy(CPU_data_out_time, GPU_data_out_time, sizeof(long long int) * reduced_iter, cudaMemcpyDeviceToHost);
-						
-		checkCudaErrors(cudaFree(GPU_data_out_index));
-		checkCudaErrors(cudaFree(GPU_data_out_time));
+		
 		//checkCudaErrors(cudaFree(GPU_data_in));
 		checkCudaErrors(cudaFree(CPU_data_in));
 		//free(CPU_data_in);
