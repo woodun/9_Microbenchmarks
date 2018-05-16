@@ -106,9 +106,10 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 					
 			time_interval = end_time - start_time;
 			//if(it >= 4 * 1024){
-			s_tvalue[it] = time_interval;
+			//s_tvalue[it] = time_interval;
 			//}
-			//printf("%lld\n",time_interval);
+			printf("%lld\n",time_interval);/////printf will affect L1 cache. Also, unknown effect to TLBs because it adds latency to L2 TLB misses.
+			//////////////////////////////////////We are not using it for measurement. However, it can be used to recognize different conditions.
 		}
 	}
 	
@@ -132,7 +133,7 @@ __global__ void tlb_latency_test(long long int *A, long long int iterations, lon
 	}
 	
 	///////////kepler L2 has 48 * 1024 = 49152 cache lines. But we only have 1024 * 4 slots in shared memory.
-	P_chasing1(0, A, iterations + 0, B, C, D, 0, clock_rate, data_stride);////////saturate the L2
+	//P_chasing1(0, A, iterations + 0, B, C, D, 0, clock_rate, data_stride);////////saturate the L2
 	P_chasing2(0, A, reduced_iter, B, C, D, 0, clock_rate, data_stride);////////partially print the data
 	
 	 __syncthreads();

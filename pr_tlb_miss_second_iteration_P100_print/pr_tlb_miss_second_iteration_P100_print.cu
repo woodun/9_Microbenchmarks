@@ -115,7 +115,7 @@ __device__ void P_chasing2(int mark, int *A, long long int iterations, int *B, i
 		//if(it >= 4 * 1024){
 		//s_tvalue[it] = time_interval;
 		//}
-		printf("%lld\n",time_interval);
+		printf("%lld\n",time_interval);////////////////printf will affect L1 cache. Also, unknown effect to TLBs because it adds latency to L2 TLB misses.
 	}
 	
 	//printf("inside%d:%fms\n", mark, (total_time / (float)clock_rate) / ((float)iterations));//////clock, average latency
