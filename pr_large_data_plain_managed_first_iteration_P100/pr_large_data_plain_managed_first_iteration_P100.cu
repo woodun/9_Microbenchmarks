@@ -169,7 +169,7 @@ int main(int argc, char **argv)
 		/////////////////////////////////time
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
-		printf("*\n*\n*\starttime:  %luns\n", ts1.tv_nsec);
+		printf("*\n*\n*\nstarttime:  %luns\n", ts1.tv_nsec);
 		
 		tlb_latency_test<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///kernel is here	
 		cudaDeviceSynchronize();
@@ -177,7 +177,7 @@ int main(int argc, char **argv)
 		/////////////////////////////////time
 		struct timespec ts2;
 		clock_gettime(CLOCK_REALTIME, &ts2);
-		printf("*\n*\n*\endtime:  %luns\n", ts2.tv_nsec);	
+		printf("*\n*\n*\nendtime:  %luns\n", ts2.tv_nsec);	
 		
 		printf("*\n*\n*\nruntime:  %luns\n", ts2.tv_nsec - ts1.tv_nsec);	
 		
