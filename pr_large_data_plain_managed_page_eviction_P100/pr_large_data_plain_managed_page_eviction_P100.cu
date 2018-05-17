@@ -55,8 +55,8 @@ long long int traverse_cpu_data(long long int *A, long long int iterations, long
 	return j;
 }
 
-struct timespec time_diff(timespec start, timespec end){
-	timespec temp;
+long long unsigned time_diff(timespec start, timespec end){
+	struct timespec temp;
 	if ((end.tv_nsec - start.tv_nsec) < 0){
 		temp.tv_sec = end.tv_sec - start.tv_sec - 1;
 		temp.tv_nsec = 1000000000 + end.tv_nsec - start.tv_nsec;
@@ -65,7 +65,12 @@ struct timespec time_diff(timespec start, timespec end){
 		temp.tv_sec = end.tv_sec - start.tv_sec;
 		temp.tv_nsec = end.tv_nsec - start.tv_nsec;
 	}
-	return temp;
+	
+	long long unsigned time_interval_ns = temp.tv_nsec;
+	long long unsigned time_interval_s = temp.tv_sec;
+	time_interval_s = time_interval_s * 1000000000;
+	
+	return time_interval_s + time_interval_ns;
 }
 
 __device__ void P_chasing2(int mark, long long int *A, long long int iterations, long long int *B, long long int starting_index, float clock_rate, long long int data_stride){		
@@ -189,25 +194,25 @@ int main(int argc, char **argv)
 		tlb_latency_test<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///kernel is here	
 		cudaDeviceSynchronize();
 		
+		/////////////////////////////////time
+		struct timespec ts2;
+		clock_gettime(CLOCK_REALTIME, &ts2);
+		
 		traverse_cpu_data(CPU_data_in, iterations/4, 0, data_stride);
 		
 		/////////////////////////////////time
-		struct timespec ts2;
-		clock_gettime(CLOCK_REALTIME, &ts2);		
-		
 		struct timespec ts3;
-		ts3 = time_diff(ts1, ts2);
-		long long unsigned time_interval_ns = ts3.tv_nsec;
-		long long unsigned time_interval_s = ts3.tv_sec;
-		time_interval_s = time_interval_s * 1000000000;
-		long long unsigned time_interval = time_interval_s + time_interval_ns;
-		printf("*\n*\n*\nruntime:  %lluns\n", time_interval);	
+		clock_gettime(CLOCK_REALTIME, &ts3);	
+		
+		printf("*\n*\n*\nruntime:  %lluns\n", time_diff(ts1, ts2));
+		printf("*\n*\n*\nruntime:  %lluns\n", time_diff(ts2, ts3));		
+		
+		printf("*\n*\n*\nruntime:  %lluns\n", time_diff(ts1, ts2));
 		
 		//checkCudaErrors(cudaFree(GPU_data_in));
 		checkCudaErrors(cudaFree(CPU_data_in));
 		//free(CPU_data_in);		
-	}
-	
+	}	
 	
 	//plain managed
 	printf("*\n*\n*\n plain managed\n");
@@ -238,19 +243,18 @@ int main(int argc, char **argv)
 		tlb_latency_test<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///kernel is here	
 		cudaDeviceSynchronize();
 		
+		/////////////////////////////////time
+		struct timespec ts2;
+		clock_gettime(CLOCK_REALTIME, &ts2);	
+		
 		traverse_cpu_data(CPU_data_in, iterations/4, 3221225472, data_stride);
 		
 		/////////////////////////////////time
-		struct timespec ts2;
-		clock_gettime(CLOCK_REALTIME, &ts2);		
-		
 		struct timespec ts3;
-		ts3 = time_diff(ts1, ts2);
-		long long unsigned time_interval_ns = ts3.tv_nsec;
-		long long unsigned time_interval_s = ts3.tv_sec;
-		time_interval_s = time_interval_s * 1000000000;
-		long long unsigned time_interval = time_interval_s + time_interval_ns;
-		printf("*\n*\n*\nruntime:  %lluns\n", time_interval);	
+		clock_gettime(CLOCK_REALTIME, &ts3);	
+		
+		printf("*\n*\n*\nruntime:  %lluns\n", time_diff(ts1, ts2));
+		printf("*\n*\n*\nruntime:  %lluns\n", time_diff(ts2, ts3));
 		
 		//checkCudaErrors(cudaFree(GPU_data_in));
 		checkCudaErrors(cudaFree(CPU_data_in));
