@@ -55,7 +55,7 @@ long long int traverse_cpu_data(long long int *A, long long int iterations, long
 	return j;
 }
 
-timespec time_diff(timespec start, timespec end){
+struct timespec time_diff(timespec start, timespec end){
 	timespec temp;
 	if ((end.tv_nsec - start.tv_nsec) < 0){
 		temp.tv_sec = end.tv_sec - start.tv_sec - 1;
@@ -196,7 +196,7 @@ int main(int argc, char **argv)
 		clock_gettime(CLOCK_REALTIME, &ts2);		
 		
 		struct timespec ts3;
-		ts3 = time_diff(timespec ts1, timespec ts2);
+		ts3 = time_diff(ts1, ts2);
 		long long unsigned time_interval_ns = ts3.tv_nsec;
 		long long unsigned time_interval_s = ts3.tv_sec;
 		time_interval_s = time_interval_s * 1000000000;
@@ -245,7 +245,7 @@ int main(int argc, char **argv)
 		clock_gettime(CLOCK_REALTIME, &ts2);		
 		
 		struct timespec ts3;
-		ts3 = time_diff(timespec ts1, timespec ts2);
+		ts3 = time_diff(ts1, ts2);
 		long long unsigned time_interval_ns = ts3.tv_nsec;
 		long long unsigned time_interval_s = ts3.tv_sec;
 		time_interval_s = time_interval_s * 1000000000;
