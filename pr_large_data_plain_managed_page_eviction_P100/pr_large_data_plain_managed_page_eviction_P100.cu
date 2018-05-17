@@ -61,17 +61,17 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 	
 	long long int j = starting_index;
 	
-	//long long int start_time = 0;//////clock
-	//long long int end_time = 0;//////clock
-	//start_time = clock64();//////clock
+	long long int start_time = 0;//////clock
+	long long int end_time = 0;//////clock
+	start_time = clock64();//////clock
 			
 	for (long long int it = 0; it < iterations; it++){
 		j = A[j];
 	}
 	
-	//end_time = clock64();//////clock
-	//long long int total_time = end_time - start_time;//////clock
-	//printf("*\n*\n*\nruntime%d: %f\n", mark, total_time / ((double)clock_rate / 1000000));//////clock, average latency //////////the print will flush the L1?!
+	end_time = clock64();//////clock
+	long long int total_time = end_time - start_time;//////clock
+	printf("*\n*\n*\nruntime%d: %f\n", mark, total_time / ((double)clock_rate / 1000000));//////clock, average latency //////////the print will flush the L1?!
 	
 	B[mark] = j;
 }
