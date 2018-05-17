@@ -59,7 +59,7 @@ timespec time_diff(timespec start, timespec end){
 
 __device__ void P_chasing2(int mark, long long int *A, long long int iterations, long long int *B, long long int starting_index, float clock_rate, long long int data_stride){		
 	
-	//long long int j = starting_index;
+	long long int j = starting_index;
 	
 	//long long int start_time = 0;//////clock
 	//long long int end_time = 0;//////clock
