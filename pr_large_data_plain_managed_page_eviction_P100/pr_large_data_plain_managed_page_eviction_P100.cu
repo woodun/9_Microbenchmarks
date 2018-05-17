@@ -171,6 +171,8 @@ int main(int argc, char **argv)
 		tlb_latency_test<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///kernel is here	
 		cudaDeviceSynchronize();
 		
+		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
+		
 		//checkCudaErrors(cudaFree(GPU_data_in));
 		checkCudaErrors(cudaFree(CPU_data_in));
 		//free(CPU_data_in);		
