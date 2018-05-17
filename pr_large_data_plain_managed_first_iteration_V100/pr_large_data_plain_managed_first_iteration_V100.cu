@@ -142,11 +142,11 @@ int main(int argc, char **argv)
 	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(long long int) * 2));			
 	
 	int counter = 0;	
-	for(long long int data_stride = 1 * 4 * 1024; data_stride <= 1 * 4 * 1024; data_stride = data_stride * 2){/////////32mb stride
+	for(long long int data_stride = 1 * 128 * 1024; data_stride <= 1 * 128 * 1024; data_stride = data_stride * 2){/////////32mb stride
 
 	//plain managed
 	printf("*\n*\n*\n plain managed\n");	
-	for(long long int mod = 1073741824; mod <= 4294967296; mod = mod * 2){////268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb.
+	for(long long int mod = 134217728; mod <= 4294967296; mod = mod * 2){////134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb.
 		counter++;
 		///////////////////////////////////////////////////////////////////CPU data begin
 		long long int data_size = mod;
@@ -165,9 +165,9 @@ int main(int argc, char **argv)
 		
 		printf("###################data_stride%lld#########################\n", data_stride);
 		printf("###############Mod%lld##############%lld\n", mod, iterations);		
-		
+
 		tlb_latency_test<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///kernel is here	
-		cudaDeviceSynchronize();
+		cudaDeviceSynchronize();		
 		
 		//checkCudaErrors(cudaFree(GPU_data_in));
 		checkCudaErrors(cudaFree(CPU_data_in));
