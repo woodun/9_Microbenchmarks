@@ -44,6 +44,17 @@ void init_cpu_data(long long int* A, long long int size, long long int stride, l
 	///////////////////2092699645 -4096 + 3 = 1995.75 * 1M = 15966 MB (out of 16280 MB out of 16384 MB)
 }
 
+long long int traverse_cpu_data(long long int *A, long long int iterations, long long int starting_index, long long int data_stride){	
+	
+	long long int j = starting_index;
+			
+	for (long long int it = 0; it < iterations; it++){
+		j = A[j];
+	}
+	
+	return j;
+}
+
 timespec time_diff(timespec start, timespec end){
 	timespec temp;
 	if ((end.tv_nsec - start.tv_nsec) < 0){
@@ -61,23 +72,25 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 	
 	long long int j = starting_index;
 	
-	long long int start_time = 0;//////clock
-	long long int end_time = 0;//////clock
-	start_time = clock64();//////clock
+	//long long int start_time = 0;//////clock
+	//long long int end_time = 0;//////clock
+	//start_time = clock64();//////clock
 			
 	for (long long int it = 0; it < iterations; it++){
 		j = A[j];
 	}
 	
-	end_time = clock64();//////clock
-	long long int total_time = end_time - start_time;//////clock
-	printf("*\n*\n*\nruntime%d: %f\n", mark, total_time / ((double)clock_rate / 1000000));//////clock, average latency //////////the print will flush the L1?!
+	//end_time = clock64();//////clock
+	//long long int total_time = end_time - start_time;//////clock
+	//printf("*\n*\n*\nruntime%d: %f\n", mark, total_time / ((double)clock_rate / 1000000));//////clock, average latency //////////the print will flush the L1?!
 	
 	B[mark] = j;
 }
 
 __global__ void tlb_latency_test(long long int *A, long long int iterations, long long int *B, float clock_rate, long long int mod, long long int data_stride){
 			
+	P_chasing2(0, A, iterations, B, 0, clock_rate, data_stride);
+	/*
 	P_chasing2(1, A, iterations/8, B, 0, clock_rate, data_stride);
 	P_chasing2(2, A, iterations/8, B, 536870912, clock_rate, data_stride);
 	P_chasing2(3, A, iterations/8, B, 1073741824, clock_rate, data_stride);
@@ -94,6 +107,7 @@ __global__ void tlb_latency_test(long long int *A, long long int iterations, lon
 	P_chasing2(6, A, iterations/8, B, 2684354560, clock_rate, data_stride);
 	P_chasing2(7, A, iterations/8, B, 3221225472, clock_rate, data_stride);
 	P_chasing2(8, A, iterations/8, B, 3758096384, clock_rate, data_stride);
+	*/
 	//P_chasing2(1, A, iterations, B, 0, clock_rate, data_stride);
 	//P_chasing2(0, A, iterations, B, mod - data_stride + 3, clock_rate, data_stride);
 	
@@ -166,12 +180,75 @@ int main(int argc, char **argv)
 		//cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);		
 		
 		printf("###################data_stride%lld#########################\n", data_stride);
-		printf("###############Mod%lld##############%lld\n", mod, iterations);		
+		printf("###############Mod%lld##############%lld\n", mod, iterations);
+		
+		/////////////////////////////////time
+		struct timespec ts1;
+		clock_gettime(CLOCK_REALTIME, &ts1);
 						
 		tlb_latency_test<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///kernel is here	
 		cudaDeviceSynchronize();
 		
-		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
+		traverse_cpu_data(CPU_data_in, iterations/4, 0, data_stride);
+		
+		/////////////////////////////////time
+		struct timespec ts2;
+		clock_gettime(CLOCK_REALTIME, &ts2);		
+		
+		struct timespec ts3 = time_diff(timespec ts1, timespec ts2);
+		long long unsigned time_interval_ns = ts3.tv_nsec;
+		long long unsigned time_interval_s = ts3.tv_sec;
+		time_interval_s = time_interval_s * 1000000000;
+		long long unsigned time_interval = time_interval_s + time_interval_ns;
+		printf("*\n*\n*\nruntime:  %lluns\n", time_interval);	
+		
+		//checkCudaErrors(cudaFree(GPU_data_in));
+		checkCudaErrors(cudaFree(CPU_data_in));
+		//free(CPU_data_in);		
+	}
+	
+	
+	//plain managed
+	printf("*\n*\n*\n plain managed\n");
+	for(long long int mod = 4294967296; mod <= 4294967296; mod = mod * 2){////134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
+		counter++;
+		///////////////////////////////////////////////////////////////////CPU data begin
+		long long int data_size = mod;
+		long long int iterations = mod / data_stride;
+			
+		long long int *CPU_data_in;
+		//CPU_data_in = (int*)malloc(sizeof(int) * data_size);
+		checkCudaErrors(cudaMallocManaged(&CPU_data_in, sizeof(long long int) * data_size));/////////////using unified memory		
+		init_cpu_data(CPU_data_in, data_size, data_stride, mod);		
+		///////////////////////////////////////////////////////////////////CPU data end	
+	
+		///////////////////////////////////////////////////////////////////GPU data in	
+		//int *GPU_data_in;
+		//checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(int) * data_size));	
+		//cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(int) * data_size, cudaMemcpyHostToDevice);		
+		
+		printf("###################data_stride%lld#########################\n", data_stride);
+		printf("###############Mod%lld##############%lld\n", mod, iterations);
+		
+		/////////////////////////////////time
+		struct timespec ts1;
+		clock_gettime(CLOCK_REALTIME, &ts1);
+						
+		tlb_latency_test<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///kernel is here	
+		cudaDeviceSynchronize();
+		
+		traverse_cpu_data(CPU_data_in, iterations/4, 3221225472, data_stride);
+		
+		/////////////////////////////////time
+		struct timespec ts2;
+		clock_gettime(CLOCK_REALTIME, &ts2);		
+		
+		struct timespec ts3 = time_diff(timespec ts1, timespec ts2);
+		long long unsigned time_interval_ns = ts3.tv_nsec;
+		long long unsigned time_interval_s = ts3.tv_sec;
+		time_interval_s = time_interval_s * 1000000000;
+		long long unsigned time_interval = time_interval_s + time_interval_ns;
+		printf("*\n*\n*\nruntime:  %lluns\n", time_interval);	
 		
 		//checkCudaErrors(cudaFree(GPU_data_in));
 		checkCudaErrors(cudaFree(CPU_data_in));
