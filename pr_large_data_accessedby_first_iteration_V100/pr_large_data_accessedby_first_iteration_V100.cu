@@ -44,19 +44,6 @@ void init_cpu_data(long long int* A, long long int size, long long int stride, l
 	///////////////////2092699645 -4096 + 3 = 1995.75 * 1M = 15966 MB (out of 16280 MB out of 16384 MB)
 }
 
-timespec time_diff(timespec start, timespec end){
-	timespec temp;
-	if ((end.tv_nsec - start.tv_nsec) < 0){
-		temp.tv_sec = end.tv_sec - start.tv_sec - 1;
-		temp.tv_nsec = 1000000000 + end.tv_nsec - start.tv_nsec;
-	} 
-	else{
-		temp.tv_sec = end.tv_sec - start.tv_sec;
-		temp.tv_nsec = end.tv_nsec - start.tv_nsec;
-	}
-	return temp;
-}
-
 __device__ void P_chasing2(int mark, long long int *A, long long int iterations, long long int *B, long long int starting_index, float clock_rate, long long int data_stride){	
 	
 	__shared__ long long int s_index[1];
@@ -108,7 +95,7 @@ __global__ void tlb_latency_test(long long int *A, long long int iterations, lon
 	//P_chasing2(1, A, iterations, B, 0, clock_rate, data_stride);
 	//P_chasing2(0, A, iterations, B, mod - data_stride + 3, clock_rate, data_stride);
 	
-	__syncthreads();
+	 __syncthreads();
 }
 
 int main(int argc, char **argv)
@@ -159,7 +146,7 @@ int main(int argc, char **argv)
 
 	//plain managed
 	printf("*\n*\n*\n plain managed\n");	
-	for(long long int mod = 134217728; mod <= 4294967296; mod = mod * 2){////134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb.
+	for(long long int mod = 1073741824; mod <= 4294967296; mod = mod * 2){////268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb.
 		counter++;
 		///////////////////////////////////////////////////////////////////CPU data begin
 		long long int data_size = mod;
@@ -167,7 +154,9 @@ int main(int argc, char **argv)
 	
 		long long int *CPU_data_in;
 		//CPU_data_in = (int*)malloc(sizeof(int) * data_size);
-		checkCudaErrors(cudaMallocManaged(&CPU_data_in, sizeof(long long int) * data_size));/////////////using unified memory		
+		checkCudaErrors(cudaMallocManaged(&CPU_data_in, sizeof(long long int) * data_size));/////////////using unified memory
+		//checkCudaErrors(cudaMemAdvise(CPU_data_in, sizeof(long long int) * data_size, cudaMemAdviseSetAccessedBy, dev_id));//////////using hint		
+		checkCudaErrors(cudaMemAdvise(CPU_data_in, sizeof(long long int) * data_size, cudaMemAdviseSetAccessedBy, cudaCpuDeviceId));//////////using hint		
 		init_cpu_data(CPU_data_in, data_size, data_stride, mod);		
 		///////////////////////////////////////////////////////////////////CPU data end	
 	
@@ -178,24 +167,9 @@ int main(int argc, char **argv)
 		
 		printf("###################data_stride%lld#########################\n", data_stride);
 		printf("###############Mod%lld##############%lld\n", mod, iterations);		
-				
-		/////////////////////////////////time
-		struct timespec ts1;
-		clock_gettime(CLOCK_REALTIME, &ts1);		
 		
 		tlb_latency_test<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///kernel is here	
 		cudaDeviceSynchronize();
-		
-		/////////////////////////////////time
-		struct timespec ts2;
-		clock_gettime(CLOCK_REALTIME, &ts2);		
-		
-		struct timespec ts3 = time_diff(timespec ts1, timespec ts2);
-		long long unsigned time_interval_ns = ts3.tv_nsec;
-		long long unsigned time_interval_s = ts3.tv_sec;
-		time_interval_s = time_interval_s * 1000000000;
-		long long unsigned time_interval = time_interval_s + time_interval_ns;
-		printf("*\n*\n*\nruntime:  %lluns\n", time_interval);	
 		
 		//checkCudaErrors(cudaFree(GPU_data_in));
 		checkCudaErrors(cudaFree(CPU_data_in));
