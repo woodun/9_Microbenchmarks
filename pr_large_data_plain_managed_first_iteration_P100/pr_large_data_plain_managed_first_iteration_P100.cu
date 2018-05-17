@@ -91,8 +91,9 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 
 __global__ void tlb_latency_test(long long int *A, long long int iterations, long long int *B, float clock_rate, long long int mod, long long int data_stride){
 			
-	P_chasing2(1, A, iterations, B, 0, clock_rate, data_stride);
-	P_chasing2(0, A, iterations, B, mod - data_stride + 3, clock_rate, data_stride);
+	P_chasing2(1, A, iterations * 2, B, 0, clock_rate, data_stride);
+	//P_chasing2(1, A, iterations, B, 0, clock_rate, data_stride);
+	//P_chasing2(0, A, iterations, B, mod - data_stride + 3, clock_rate, data_stride);
 	
 	 __syncthreads();
 }
@@ -141,7 +142,7 @@ int main(int argc, char **argv)
 	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(long long int) * 2));			
 	
 	int counter = 0;	
-	for(long long int data_stride = 1 * 4 * 1024; data_stride <= 1 * 4 * 1024; data_stride = data_stride * 2){/////////32mb stride
+	for(long long int data_stride = 1 * 128 * 1024; data_stride <= 1 * 128 * 1024; data_stride = data_stride * 2){/////////32mb stride
 
 	//plain managed
 	printf("*\n*\n*\n plain managed\n");	
