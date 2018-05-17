@@ -59,21 +59,21 @@ timespec time_diff(timespec start, timespec end){
 
 __device__ void P_chasing2(int mark, long long int *A, long long int iterations, long long int *B, long long int starting_index, float clock_rate, long long int data_stride){		
 	
-	long long int j = starting_index;
+	//long long int j = starting_index;
 	
-	long long int start_time = 0;//////clock
-	long long int end_time = 0;//////clock
-	start_time = clock64();//////clock
+	//long long int start_time = 0;//////clock
+	//long long int end_time = 0;//////clock
+	//start_time = clock64();//////clock
 			
 	for (long long int it = 0; it < iterations; it++){
 		j = A[j];
 	}
 	
-	end_time = clock64();//////clock
-	long long int total_time = end_time - start_time;//////clock
-	printf("*\n*\n*\nruntime%d: %f\n", mark, total_time / ((double)clock_rate / 1000000));//////clock, average latency //////////the print will flush the L1?!
+	//end_time = clock64();//////clock
+	//long long int total_time = end_time - start_time;//////clock
+	//printf("*\n*\n*\nruntime%d: %f\n", mark, total_time / ((double)clock_rate / 1000000));//////clock, average latency //////////the print will flush the L1?!
 	
-	B[0] = j;
+	B[mark] = j;
 }
 
 __global__ void tlb_latency_test(long long int *A, long long int iterations, long long int *B, float clock_rate, long long int mod, long long int data_stride){
@@ -141,7 +141,7 @@ int main(int argc, char **argv)
 	
 	///////////////////////////////////////////////////////////////////GPU data out
 	long long int *GPU_data_out;
-	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(long long int) * 2));			
+	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(long long int) * 256));			
 	
 	int counter = 0;	
 	for(long long int data_stride = 1 * 256 * 1024; data_stride <= 1 * 256 * 1024; data_stride = data_stride * 2){/////////32mb stride
