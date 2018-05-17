@@ -155,8 +155,8 @@ int main(int argc, char **argv)
 		long long int *CPU_data_in;
 		//CPU_data_in = (int*)malloc(sizeof(int) * data_size);
 		checkCudaErrors(cudaMallocManaged(&CPU_data_in, sizeof(long long int) * data_size));/////////////using unified memory
-		checkCudaErrors(cudaMemAdvise(CPU_data_in, sizeof(long long int) * data_size, cudaMemAdviseSetPreferredLocation, cudaCpuDeviceId));////////using hint
-		//checkCudaErrors(cudaMemAdvise(CPU_data_in, sizeof(long long int) * data_size, cudaMemAdviseSetPreferredLocation, dev_id));////////using hint		
+		//checkCudaErrors(cudaMemAdvise(CPU_data_in, sizeof(long long int) * data_size, cudaMemAdviseSetPreferredLocation, cudaCpuDeviceId));////////using hint
+		checkCudaErrors(cudaMemAdvise(CPU_data_in, sizeof(long long int) * data_size, cudaMemAdviseSetPreferredLocation, dev_id));////////using hint		
 		init_cpu_data(CPU_data_in, data_size, data_stride, mod);		
 		///////////////////////////////////////////////////////////////////CPU data end	
 	

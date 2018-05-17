@@ -94,7 +94,7 @@ __global__ void tlb_latency_test(long long int *A, long long int iterations, lon
 	P_chasing2(1, A, iterations, B, 0, clock_rate, data_stride);
 	P_chasing2(0, A, iterations, B, mod - data_stride + 3, clock_rate, data_stride);
 	
-	 __syncthreads();
+	__syncthreads();
 }
 
 int main(int argc, char **argv)
