@@ -36,7 +36,7 @@ void init_cpu_data(long long int* A, long long int size, long long int stride, l
 		A[3]=size - stride + 3;
 	}
 	
-	/////54521859 returned page fault starting point for 2147483648.
+	/////54521859returned page fault starting point for 2147483648.
 	///////////////////2147483648 - 54521859 = 2092961789.
 	///////////////////2092961789 -4096 + 3 = 1996 * 1M = 15968 MB (out of 16280 MB out of 16384 MB)
 	/////2202267651 returned page fault starting point for 4294967296
@@ -142,7 +142,7 @@ int main(int argc, char **argv)
 	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(long long int) * 2));			
 	
 	int counter = 0;	
-	for(long long int data_stride = 1 * 4 * 1024; data_stride <= 1 * 4 * 1024; data_stride = data_stride * 2){/////////32mb stride
+	for(long long int data_stride = 2 * 256 * 1024; data_stride <= 2 * 256 * 1024; data_stride = data_stride * 2){/////////32mb stride
 
 	//plain managed
 	printf("*\n*\n*\n plain managed\n");	
