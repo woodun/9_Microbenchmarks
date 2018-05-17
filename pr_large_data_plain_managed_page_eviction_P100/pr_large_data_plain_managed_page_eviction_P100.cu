@@ -86,6 +86,14 @@ __global__ void tlb_latency_test(long long int *A, long long int iterations, lon
 	P_chasing2(6, A, iterations/8, B, 2684354560, clock_rate, data_stride);
 	P_chasing2(7, A, iterations/8, B, 3221225472, clock_rate, data_stride);
 	P_chasing2(8, A, iterations/8, B, 3758096384, clock_rate, data_stride);
+	P_chasing2(1, A, iterations/8, B, 0, clock_rate, data_stride);
+	P_chasing2(2, A, iterations/8, B, 536870912, clock_rate, data_stride);
+	P_chasing2(3, A, iterations/8, B, 1073741824, clock_rate, data_stride);
+	P_chasing2(4, A, iterations/8, B, 1610612736, clock_rate, data_stride);
+	P_chasing2(5, A, iterations/8, B, 2147483648, clock_rate, data_stride);
+	P_chasing2(6, A, iterations/8, B, 2684354560, clock_rate, data_stride);
+	P_chasing2(7, A, iterations/8, B, 3221225472, clock_rate, data_stride);
+	P_chasing2(8, A, iterations/8, B, 3758096384, clock_rate, data_stride);
 	//P_chasing2(1, A, iterations, B, 0, clock_rate, data_stride);
 	//P_chasing2(0, A, iterations, B, mod - data_stride + 3, clock_rate, data_stride);
 	
