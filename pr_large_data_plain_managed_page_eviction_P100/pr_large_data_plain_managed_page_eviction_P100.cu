@@ -195,7 +195,8 @@ int main(int argc, char **argv)
 		struct timespec ts2;
 		clock_gettime(CLOCK_REALTIME, &ts2);		
 		
-		struct timespec ts3 = time_diff(timespec ts1, timespec ts2);
+		struct timespec ts3;
+		ts3 = time_diff(timespec ts1, timespec ts2);
 		long long unsigned time_interval_ns = ts3.tv_nsec;
 		long long unsigned time_interval_s = ts3.tv_sec;
 		time_interval_s = time_interval_s * 1000000000;
@@ -243,7 +244,8 @@ int main(int argc, char **argv)
 		struct timespec ts2;
 		clock_gettime(CLOCK_REALTIME, &ts2);		
 		
-		struct timespec ts3 = time_diff(timespec ts1, timespec ts2);
+		struct timespec ts3;
+		ts3 = time_diff(timespec ts1, timespec ts2);
 		long long unsigned time_interval_ns = ts3.tv_nsec;
 		long long unsigned time_interval_s = ts3.tv_sec;
 		time_interval_s = time_interval_s * 1000000000;
