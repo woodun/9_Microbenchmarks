@@ -115,7 +115,7 @@ __global__ void tlb_latency_test(long long int *A, long long int iterations, lon
 __global__ void tlb_latency_test2(long long int *A, long long int iterations, long long int *B, float clock_rate, long long int mod, long long int data_stride){
 			
 	P_chasing2(1, A, iterations * 2, B, 0, clock_rate, data_stride);
-	P_chasing2(1, A, iterations * 2, B, 0, clock_rate, data_stride);
+	P_chasing2(0, A, iterations * 2, B, 0, clock_rate, data_stride);
 	//P_chasing2(1, A, iterations, B, 0, clock_rate, data_stride);
 	//P_chasing2(0, A, iterations, B, mod - data_stride + 3, clock_rate, data_stride);
 	
