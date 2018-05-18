@@ -165,7 +165,7 @@ int main(int argc, char **argv)
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
   
-		Page_visitor<<<16, 1024>>>(CPU_data_in, GPU_data_out, data_stride, clock_count);///////////////kernel is here	
+		Page_visitor<<<64, 256>>>(CPU_data_in, GPU_data_out, data_stride, clock_count);///////////////kernel is here	
 		cudaDeviceSynchronize();
 				
 		/////////////////////////////////time
