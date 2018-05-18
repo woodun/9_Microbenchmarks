@@ -151,6 +151,15 @@ __global__ void tlb_latency_test2(long long int *A, long long int iterations, lo
 	__syncthreads();
 }
 
+__global__ void tlb_latency_test3(long long int *A, long long int iterations, long long int *B, float clock_rate, long long int mod, long long int data_stride){
+			
+	P_chasing2(1, A, iterations, B, 2147483648, clock_rate, data_stride);//////////////migrate the first 8gb	
+	//P_chasing2(1, A, iterations, B, 0, clock_rate, data_stride);
+	//P_chasing2(0, A, iterations, B, mod - data_stride + 3, clock_rate, data_stride);
+	
+	__syncthreads();
+}
+
 int main(int argc, char **argv)
 {
     // set device
@@ -232,8 +241,9 @@ int main(int argc, char **argv)
 		
 		traverse_cpu_data(CPU_data_in, iterations/2, 2147483648, data_stride);///////migrate last 16 gb to cpu, gpu is clear
 		
-		//tlb_latency_test2<<<1, 1>>>(CPU_data_in, iterations, 2147483648, clock_rate, mod, data_stride);///migrate last 16gb to gpu again
+		tlb_latency_test3<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///migrate last 16gb to gpu again
 		cudaDeviceSynchronize();
+		///////////conclusion: 
 		
 		//checkCudaErrors(cudaFree(GPU_data_in));
 		checkCudaErrors(cudaFree(CPU_data_in));
