@@ -88,9 +88,9 @@ __global__ void Page_visitor(long long int *A, long long int *B, long long int d
 	*/
 }
 
-long long int main(long long int argc, char **argv)
+int main(int argc, char **argv)
 {
-	prlong long intf("\n");
+	printf("\n");
 	
     // set device
     cudaDeviceProp device_prop;
@@ -102,11 +102,11 @@ long long int main(long long int argc, char **argv)
 	checkCudaErrors(cudaDeviceGetAttribute(&peak_clk, cudaDevAttrClockRate, dev_id));
 	float clock_rate = (float) peak_clk;
 	
-	prlong long intf("clock_rate:%f\n", clock_rate);
+	printf("clock_rate:%f\n", clock_rate);
 
     if (!device_prop.managedMemory) { 
         // This samples requires being run on a device that supports Unified Memory
-        fprlong long intf(stderr, "Unified Memory not supported on this device\n");
+        fprintf(stderr, "Unified Memory not supported on this device\n");
 
         exit(EXIT_WAIVED);
     }
@@ -114,23 +114,23 @@ long long int main(long long int argc, char **argv)
     if (device_prop.computeMode == cudaComputeModeProhibited)
     {
         // This sample requires being run with a default or process exclusive mode
-        fprlong long intf(stderr, "This sample requires a device in either default or process exclusive mode\n");
+        fprintf(stderr, "This sample requires a device in either default or process exclusive mode\n");
 
         exit(EXIT_WAIVED);
     }
 	
 	if (device_prop.concurrentManagedAccess == 1){
-		prlong long intf("This device supports concurrent Managed Access.\n");
+		printf("This device supports concurrent Managed Access.\n");
     }else{
-		prlong long intf("This device does not support concurrent Managed Access.\n");
+		printf("This device does not support concurrent Managed Access.\n");
 	}
 	
 	long long int value1 = 1;
 	checkCudaErrors(cudaDeviceGetAttribute(&value1, cudaDevAttrConcurrentManagedAccess, dev_id));
-	prlong long intf("cudaDevAttrConcurrentManagedAccess = %d\n", value1);	
+	printf("cudaDevAttrConcurrentManagedAccess = %d\n", value1);	
 	
 	//plain managed
-	prlong long intf("*\n*\n*\n plain managed\n");
+	printf("*\n*\n*\n plain managed\n");
 	for(long long int data_stride = 1 * 256 * 1024; data_stride <= 1 * 256 * 1024; data_stride = data_stride * 2){
 	for(long long int mod = 4294967296; mod <= 4294967296; mod = mod * 2){////134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
 	for(long long int clock_count = 1000; clock_count <= 1000; clock_count = clock_count * 2){
@@ -165,8 +165,8 @@ long long int main(long long int argc, char **argv)
 		struct timespec ts2;
 		clock_gettime(CLOCK_REALTIME, &ts2);
 		
-		prlong long intf("###################data_stride%d#########################clock_count:%lld\n", data_stride, clock_count);
-		prlong long intf("*\n*\n*\nruntime:  %lluns\n", time_diff(ts1, ts2));	
+		printf("###################data_stride%d#########################clock_count:%lld\n", data_stride, clock_count);
+		printf("*\n*\n*\nruntime:  %lluns\n", time_diff(ts1, ts2));	
 		
 		//checkCudaErrors(cudaFree(GPU_data_in));
 		checkCudaErrors(cudaFree(CPU_data_in));
@@ -178,7 +178,7 @@ long long int main(long long int argc, char **argv)
 	
 	/*
 	//memcopy
-	prlong long intf("*\n*\n*\n memcopy\n");
+	printf("*\n*\n*\n memcopy\n");
 	for(long long int data_stride = 1 * 128 * 1024; data_stride <= 2 * 256 * 1024; data_stride = data_stride * 2){
 	for(long long int mod = 536870912; mod <= 536870912; mod = mod * 2){////268435456 = 1gb, 536870912 = 2gb, 1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb, 8589934592 = 32gb.	
 	for(long long int clock_count = 1000; clock_count <= 1000; clock_count = clock_count * 2){
@@ -212,8 +212,8 @@ long long int main(long long int argc, char **argv)
 		struct timespec ts2;
 		clock_gettime(CLOCK_REALTIME, &ts2);
 		
-		prlong long intf("###################data_stride%d#########################clock_count:%lld\n", data_stride, clock_count);
-		prlong long intf("*\n*\n*\nruntime:  %lluns\n", time_diff(ts1, ts2));
+		printf("###################data_stride%d#########################clock_count:%lld\n", data_stride, clock_count);
+		printf("*\n*\n*\nruntime:  %lluns\n", time_diff(ts1, ts2));
 		
 		checkCudaErrors(cudaFree(GPU_data_in));
 		//checkCudaErrors(cudaFree(CPU_data_in));
