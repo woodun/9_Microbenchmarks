@@ -104,7 +104,7 @@ __global__ void tlb_latency_test(long long int *A, long long int iterations, lon
 			
 	P_chasing2(1, A, iterations/4, B, 0, clock_rate, data_stride);//////////////migrate the first 8gb
 	P_chasing2(0, A, iterations/8, B, 0, clock_rate, data_stride);//////////////access the first 4gb again
-	P_chasing2(0, A, 3 * iterations/8, B, 1073741824, clock_rate, data_stride);///////////migrate another 12gb
+	P_chasing2(0, A, 3 * iterations/8, B, 2147483648, clock_rate, data_stride);///////////migrate another 12gb
 	P_chasing2(0, A, iterations/4, B, 0, clock_rate, data_stride);//////////////which 4gb of the first 8gb is left?
 	/*
 	/////////////using 32gb's iteration
