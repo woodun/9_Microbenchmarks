@@ -77,6 +77,11 @@ __global__ void Page_visitor(long long int *A, long long int *B, long long int d
 		int smid = 1;
 		asm("mov.u32 %0, %smid;" : "=r"(smid) );
 		printf("blockIdx.x: %d, smid: %d\n", blockIdx.x, smid);
+		if(blockIdx.x == 55){
+			int nsmid = 1;
+			asm("mov.u32 %0, %smid;" : "=r"(nsmid) );
+			printf("nsmid: %d\n", nsmid);
+		}
 	}
 	
     //d_o[0] = clock_offset;
