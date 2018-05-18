@@ -65,6 +65,7 @@ __global__ void Page_visitor(long long int *A, long long int *B, long long int d
 	
 	long long int value = A[index];
 	
+	/*
 	//////////////////////////////////////////////sleep
 	long long int start_clock = clock64();
     long long int clock_offset = 0;
@@ -72,6 +73,7 @@ __global__ void Page_visitor(long long int *A, long long int *B, long long int d
     {
         clock_offset = clock64() - start_clock;
     }
+	*/
 	
 	/*
 	if(threadIdx.x == 0){/////%tid %ntid %laneid %warpid %nwarpid %ctaid %nctaid %smid %nsmid %gridid

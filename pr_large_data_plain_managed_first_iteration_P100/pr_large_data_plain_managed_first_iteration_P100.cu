@@ -102,16 +102,36 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 
 __global__ void tlb_latency_test(long long int *A, long long int iterations, long long int *B, float clock_rate, long long int mod, long long int data_stride){
 			
+	/////////////using 32gb's iteration, address stride 1 * 128 * 1024, long long int data type
+	P_chasing2(1, A, iterations/4, B, 2147483648, clock_rate, data_stride);//////////////migrate the first 8gb, starting 16 gb however.
+	P_chasing2(0, A, iterations/8, B, 2147483648, clock_rate, data_stride);//////////////access the first 4gb again, starting 16 gb however.
+	///////////before the next migration, take a rest, and see if the additional overhead decreases.
+	long long int start_clock = clock64();
+    long long int clock_offset = 0;
+    while (clock_offset < 1000000000)
+    {
+        clock_offset = clock64() - start_clock;
+    }
+	P_chasing2(0, A, 3 * iterations/8, B, 0, clock_rate, data_stride);///////////migrate another 12gb, however starting at 0.
+	P_chasing2(0, A, iterations/4, B, 2147483648, clock_rate, data_stride);//////////////which 4gb of the first 8gb is left?
+	///////////conclusion: 
+	/*
+	/////////////using 32gb's iteration, address stride 1 * 128 * 1024, long long int data type
 	P_chasing2(1, A, iterations/4, B, 0, clock_rate, data_stride);//////////////migrate the first 8gb
 	P_chasing2(0, A, iterations/8, B, 0, clock_rate, data_stride);//////////////access the first 4gb again
-	P_chasing2(0, A, 3 * iterations/8, B, 2147483648, clock_rate, data_stride);///////////migrate another 12gb
-	P_chasing2(0, A, iterations/4, B, 0, clock_rate, data_stride);//////////////which 4gb of the first 8gb is left?
+	P_chasing2(0, A, 3 * iterations/8, B, 2147483648, clock_rate, data_stride);///////////migrate another 12gb, however starting at 16gb.
+	P_chasing2(0, A, iterations/4, B, 0, clock_rate, data_stride);//////////////which 4gb of the first 8gb is left? what's the migration latency again?
+	///////////conclusion: last access of first 8gb has low latency, 
+	///////////and starting at 16gb (not continue at 8gb) the latency of first 16gb migration is still increasing as the same (with similar values).
+	///////////It means that there is an additional warm up latency for the 2M group initialization.
+	///////////And it is relating to the memory's physical locations itself, not relating to the address of the data.
+	*/
 	/*
-	/////////////using 32gb's iteration
+	/////////////using 32gb's iteration, address stride 1 * 128 * 1024, long long int data type
 	P_chasing2(1, A, iterations/4, B, 0, clock_rate, data_stride);//////////////migrate the first 8gb
 	P_chasing2(0, A, iterations/8, B, 0, clock_rate, data_stride);//////////////access the first 4gb again
 	P_chasing2(0, A, 3 * iterations/8, B, 1073741824, clock_rate, data_stride);///////////migrate another 12gb
-	P_chasing2(0, A, iterations/4, B, 671088640, clock_rate, data_stride);//////////////which 4gb of the first 8gb is left? 
+	P_chasing2(0, A, iterations/4, B, 671088640, clock_rate, data_stride);//////////////which 4gb of the first 8gb is left? starting at 5gb.
 	////////////////conclusion: the latter 4gb was left, even though the first 4gb is last accessed. The LRU is for migration not for access.
 	*/
 	//P_chasing2(1, A, iterations, B, 0, clock_rate, data_stride);
