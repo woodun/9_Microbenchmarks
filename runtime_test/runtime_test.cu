@@ -165,7 +165,7 @@ int main(int argc, char **argv)
 		struct timespec ts2;
 		clock_gettime(CLOCK_REALTIME, &ts2);
 		
-		printf("###################data_stride%d#########################clock_count:%lld\n", data_stride, clock_count);
+		printf("###################data_stride%lld#########################clock_count:%lld\n", data_stride, clock_count);
 		printf("*\n*\n*\nruntime:  %lluns\n", time_diff(ts1, ts2));	
 		
 		//checkCudaErrors(cudaFree(GPU_data_in));
