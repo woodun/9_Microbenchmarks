@@ -61,7 +61,7 @@ __global__ void Page_visitor(long long int *A, long long int *B, long long int d
 	__syncthreads();
 	*/
 	
-	long long int index = threadIdx.x * data_stride;
+	long long int index = (blockIdx.x * blockDim.x + threadIdx.x) * data_stride;
 	
 	long long int value = A[index];
 	
@@ -158,7 +158,7 @@ int main(int argc, char **argv)
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
   
-		Page_visitor<<<1, 16384>>>(CPU_data_in, GPU_data_out, data_stride, clock_count);///////////////kernel is here	
+		Page_visitor<<<4, 4096>>>(CPU_data_in, GPU_data_out, data_stride, clock_count);///////////////kernel is here	
 		cudaDeviceSynchronize();
 				
 		/////////////////////////////////time
