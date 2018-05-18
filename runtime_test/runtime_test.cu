@@ -38,11 +38,11 @@ long long unsigned time_diff(timespec start, timespec end){
 		temp.tv_nsec = end.tv_nsec - start.tv_nsec;
 	}
 	
-	long long unsigned time_long long interval_ns = temp.tv_nsec;
-	long long unsigned time_long long interval_s = temp.tv_sec;
-	time_long long interval_s = time_long long interval_s * 1000000000;
+	long long unsigned time_interval_ns = temp.tv_nsec;
+	long long unsigned time_interval_s = temp.tv_sec;
+	time_interval_s = time_interval_s * 1000000000;
 	
-	return time_long long interval_s + time_long long interval_ns;
+	return time_interval_s + time_interval_ns;
 }
 
 __global__ void Page_visitor(long long int *A, long long int *B, long long int data_stride, long long int clock_count){
@@ -53,7 +53,7 @@ __global__ void Page_visitor(long long int *A, long long int *B, long long int d
 	/////////////////////////////////time
 	long long int start_time = 0;//////clock
 	long long int end_time = 0;//////clock
-	long long int time_long long interval = 0;//////clock
+	long long int time_interval = 0;//////clock
 	
 	if(index = 0){
 		start_time= clock64();
@@ -82,9 +82,9 @@ __global__ void Page_visitor(long long int *A, long long int *B, long long int d
 	/////////////////////////////////time
 	if(index = 0){
 		start_time= clock64();
-		time_long long interval = end_time - start_time;//////clock
+		time_interval = end_time - start_time;//////clock
 	}	
-	//B[0] = time_long long interval;
+	//B[0] = time_interval;
 	*/
 }
 
