@@ -102,6 +102,7 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 
 __global__ void tlb_latency_test(long long int *A, long long int iterations, long long int *B, float clock_rate, long long int mod, long long int data_stride){
 			
+	/*
 	/////////////using 32gb's iteration, address stride 1 * 128 * 1024, long long int data type
 	P_chasing2(1, A, iterations/4, B, 2147483648, clock_rate, data_stride);//////////////migrate the first 8gb, starting 16 gb however.
 	P_chasing2(0, A, iterations/8, B, 2147483648, clock_rate, data_stride);//////////////access the first 4gb again, starting 16 gb however.
@@ -114,7 +115,8 @@ __global__ void tlb_latency_test(long long int *A, long long int iterations, lon
     }
 	P_chasing2(0, A, 3 * iterations/8, B, 0, clock_rate, data_stride);///////////migrate another 12gb, however starting at 0.
 	P_chasing2(0, A, iterations/4, B, 2147483648, clock_rate, data_stride);//////////////which 4gb of the first 8gb is left?
-	///////////conclusion: 
+	///////////conclusion: Still this does not change the pattern, the previous conclusion holds.
+	*/
 	/*
 	/////////////using 32gb's iteration, address stride 1 * 128 * 1024, long long int data type
 	P_chasing2(1, A, iterations/4, B, 0, clock_rate, data_stride);//////////////migrate the first 8gb
@@ -142,8 +144,7 @@ __global__ void tlb_latency_test(long long int *A, long long int iterations, lon
 
 __global__ void tlb_latency_test2(long long int *A, long long int iterations, long long int *B, float clock_rate, long long int mod, long long int data_stride){
 			
-	P_chasing2(1, A, iterations * 2, B, 0, clock_rate, data_stride);
-	P_chasing2(0, A, iterations * 2, B, 0, clock_rate, data_stride);
+	P_chasing2(1, A, iterations/4, B, 0, clock_rate, data_stride);//////////////migrate the first 8gb	
 	//P_chasing2(1, A, iterations, B, 0, clock_rate, data_stride);
 	//P_chasing2(0, A, iterations, B, mod - data_stride + 3, clock_rate, data_stride);
 	
@@ -218,13 +219,19 @@ int main(int argc, char **argv)
 		printf("###################data_stride%lld#########################\n", data_stride);
 		printf("###############Mod%lld##############%lld\n", mod, iterations);		
 
-		tlb_latency_test<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///kernel is here	
-		cudaDeviceSynchronize();
-		
-		//tlb_latency_test2<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///kernel is here	
+		//tlb_latency_test<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///kernel is here	
 		//cudaDeviceSynchronize();
 		
-		//traverse_cpu_data(CPU_data_in, iterations/4, 0, data_stride);
+		tlb_latency_test2<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///migrate 8gb to gpu	
+		cudaDeviceSynchronize();
+		
+		traverse_cpu_data(CPU_data_in, iterations/4, 0, data_stride);///////migrate 8 gb to cpu
+		////////////conclusion: 
+		
+		tlb_latency_test2<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///migrate 8gb to gpu again
+		cudaDeviceSynchronize();
+		
+		
 		
 		//checkCudaErrors(cudaFree(GPU_data_in));
 		checkCudaErrors(cudaFree(CPU_data_in));
