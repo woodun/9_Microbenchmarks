@@ -222,13 +222,13 @@ int main(int argc, char **argv)
 		//tlb_latency_test<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///kernel is here	
 		//cudaDeviceSynchronize();
 		
-		tlb_latency_test2<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///migrate 8gb to gpu	
+		tlb_latency_test2<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///migrate 32gb to gpu	
 		cudaDeviceSynchronize();
 		
-		traverse_cpu_data(CPU_data_in, iterations/4, 0, data_stride);///////migrate 8 gb to cpu
+		traverse_cpu_data(CPU_data_in, iterations/2, 2147483648, data_stride);///////migrate last 16 gb to cpu, gpu is clear
 		////////////conclusion: 
 		
-		tlb_latency_test2<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///migrate 8gb to gpu again
+		tlb_latency_test2<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///migrate 32gb to gpu again
 		cudaDeviceSynchronize();
 		
 		
