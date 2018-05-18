@@ -232,7 +232,7 @@ int main(int argc, char **argv)
 		
 		traverse_cpu_data(CPU_data_in, iterations/2, 2147483648, data_stride);///////migrate last 16 gb to cpu, gpu is clear
 		
-		tlb_latency_test2<<<1, 1>>>(CPU_data_in, iterations, 2147483648, clock_rate, mod, data_stride);///migrate last 16gb to gpu again
+		//tlb_latency_test2<<<1, 1>>>(CPU_data_in, iterations, 2147483648, clock_rate, mod, data_stride);///migrate last 16gb to gpu again
 		cudaDeviceSynchronize();
 		
 		//checkCudaErrors(cudaFree(GPU_data_in));
