@@ -73,7 +73,8 @@ __global__ void Page_visitor(long long int *A, long long int *B, long long int d
         clock_offset = clock64() - start_clock;
     }
 	
-	if(threadIdx.x == 0){
+	/*
+	if(threadIdx.x == 0){/////%tid %ntid %laneid %warpid %nwarpid %ctaid %nctaid %smid %nsmid %gridid
 		int smid = 1;
 		asm("mov.u32 %0, %smid;" : "=r"(smid) );
 		printf("blockIdx.x: %d, smid: %d\n", blockIdx.x, smid);
@@ -83,6 +84,7 @@ __global__ void Page_visitor(long long int *A, long long int *B, long long int d
 			printf("nsmid: %d\n", nsmid);
 		}
 	}
+	*/
 	
     //d_o[0] = clock_offset;
 	//////////////////////////////////////////////sleep
@@ -170,7 +172,7 @@ int main(int argc, char **argv)
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
   
-		Page_visitor<<<64, 256>>>(CPU_data_in, GPU_data_out, data_stride, clock_count);///////////////kernel is here	
+		Page_visitor<<<32, 512>>>(CPU_data_in, GPU_data_out, data_stride, clock_count);///////////////1024 per block max	
 		cudaDeviceSynchronize();
 				
 		/////////////////////////////////time

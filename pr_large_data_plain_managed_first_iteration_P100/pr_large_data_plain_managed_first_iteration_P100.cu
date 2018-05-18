@@ -44,6 +44,17 @@ void init_cpu_data(long long int* A, long long int size, long long int stride, l
 	///////////////////2092699645 -4096 + 3 = 1995.75 * 1M = 15966 MB (out of 16280 MB out of 16384 MB)
 }
 
+long long int traverse_cpu_data(long long int *A, long long int iterations, long long int starting_index, long long int data_stride){	
+	
+	long long int j = starting_index;
+			
+	for (long long int it = 0; it < iterations; it++){
+		j = A[j];
+	}
+	
+	return j;
+}
+
 __device__ void P_chasing2(int mark, long long int *A, long long int iterations, long long int *B, long long int starting_index, float clock_rate, long long int data_stride){	
 	
 	__shared__ long long int s_index[1];
@@ -146,7 +157,7 @@ int main(int argc, char **argv)
 
 	//plain managed
 	printf("*\n*\n*\n plain managed\n");	
-	for(long long int mod = 134217728; mod <= 4294967296; mod = mod * 2){////134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb.
+	for(long long int mod = 2147483648; mod <= 2147483648; mod = mod * 2){////134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb.
 		counter++;
 		///////////////////////////////////////////////////////////////////CPU data begin
 		long long int data_size = mod;
@@ -167,7 +178,9 @@ int main(int argc, char **argv)
 		printf("###############Mod%lld##############%lld\n", mod, iterations);		
 
 		tlb_latency_test<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///kernel is here	
-		cudaDeviceSynchronize();		
+		cudaDeviceSynchronize();
+		
+		//traverse_cpu_data(CPU_data_in, iterations/4, 0, data_stride);
 		
 		//checkCudaErrors(cudaFree(GPU_data_in));
 		checkCudaErrors(cudaFree(CPU_data_in));
