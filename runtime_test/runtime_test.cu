@@ -98,7 +98,7 @@ int main(int argc, char **argv)
 	long long int dev_id = 0;
     checkCudaErrors(cudaGetDeviceProperties(&device_prop, dev_id));
 	
-	long long int peak_clk = 1;//kHz
+	int peak_clk = 1;//kHz
 	checkCudaErrors(cudaDeviceGetAttribute(&peak_clk, cudaDevAttrClockRate, dev_id));
 	float clock_rate = (float) peak_clk;
 	
@@ -125,7 +125,7 @@ int main(int argc, char **argv)
 		printf("This device does not support concurrent Managed Access.\n");
 	}
 	
-	long long int value1 = 1;
+	int value1 = 1;
 	checkCudaErrors(cudaDeviceGetAttribute(&value1, cudaDevAttrConcurrentManagedAccess, dev_id));
 	printf("cudaDevAttrConcurrentManagedAccess = %d\n", value1);	
 	
