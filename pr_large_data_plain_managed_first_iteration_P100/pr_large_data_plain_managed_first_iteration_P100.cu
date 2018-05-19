@@ -255,10 +255,14 @@ int main(int argc, char **argv)
 		
 		traverse_cpu_data(CPU_data_in, iterations/2, 2147483648, data_stride);///////migrate last 16 gb to cpu, gpu is clear
 		
+		printf("location1:\n");
+		
 		tlb_latency_test2<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///migrate 32gb to gpu again (no warmup & no eviction & no trial)
 		cudaDeviceSynchronize();
 		
 		traverse_cpu_data(CPU_data_in, iterations/2, 2147483648, data_stride);///////migrate last 16 gb to cpu, gpu is clear
+		
+		printf("location2:\n");
 		
 		tlb_latency_test3<<<1, 1>>>(CPU_data_in, iterations/2, GPU_data_out, clock_rate, mod, data_stride);///migrate last 16gb (starting 17gb) to gpu again (no warmup & no eviction & with trial)
 		cudaDeviceSynchronize();		
