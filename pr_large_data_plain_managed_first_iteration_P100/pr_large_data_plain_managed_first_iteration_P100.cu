@@ -16,7 +16,7 @@ void init_cpu_data(long long int* A, long long int size, long long int stride, l
 		}
 		A[size - stride]=0;
 		
-		stride2 = 1 * 256 * 1024;
+		long long int stride2 = 1 * 256 * 1024;
 		for (long long int i = 8; i < size - stride2; i = i + stride2){
 			A[i]=(i + stride2);
 		}		
@@ -267,6 +267,7 @@ int main(int argc, char **argv)
 		tlb_latency_test3<<<1, 1>>>(CPU_data_in, iterations/2, GPU_data_out, clock_rate, mod, data_stride);///migrate last 16gb (starting 17gb) to gpu again (no warmup & no eviction & with trial)
 		cudaDeviceSynchronize();		
 		///////////conclusion: eviction overhead exists, but page migration does not evict the page group setup (leave a trial).
+		///////////is it migrating 64k always?
 				
 		/*
 		tlb_latency_test5<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb
