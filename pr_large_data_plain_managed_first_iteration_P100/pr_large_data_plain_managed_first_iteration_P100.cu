@@ -223,7 +223,8 @@ int main(int argc, char **argv)
 	
 	int counter = 0;	
 	//for(long long int data_stride = 1 * 4 * 1024; data_stride <= 1 * 4 * 1024; data_stride = data_stride * 2){
-	for(long long int data_stride = 1 * 64 * 1024; data_stride <= 1 * 64 * 1024; data_stride = data_stride * 2){
+	for(long long int data_stride = 1 * 32 * 1024; data_stride <= 1 * 64 * 1024; data_stride = data_stride * 2){
+	//for(long long int data_stride = 1 * 64 * 1024; data_stride <= 1 * 64 * 1024; data_stride = data_stride * 2){
 
 	//plain managed
 	printf("*\n*\n*\n plain managed\n");	
