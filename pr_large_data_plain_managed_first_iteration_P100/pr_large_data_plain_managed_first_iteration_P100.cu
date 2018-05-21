@@ -257,7 +257,7 @@ int main(int argc, char **argv)
 		
 		printf("location1:\n");
 		
-		tlb_latency_test2<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///migrate 32gb to gpu again (no warmup & no eviction & no trial)
+		tlb_latency_test2<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///migrate 32gb to gpu again (no warmup & no eviction & no trial) and (no warmup & with eviction & no trial)
 		cudaDeviceSynchronize();
 		
 		traverse_cpu_data(CPU_data_in, iterations/2, 2147483648, data_stride);///////migrate last 16 gb to cpu, gpu is clear
@@ -267,9 +267,10 @@ int main(int argc, char **argv)
 		tlb_latency_test3<<<1, 1>>>(CPU_data_in, iterations/2, GPU_data_out, clock_rate, mod, data_stride);///migrate last 16gb (starting 17gb) to gpu again (no warmup & no eviction & with trial)
 		cudaDeviceSynchronize();		
 		///////////conclusion: eviction overhead exists, but page migration does not evict the page group setup (leave a trial).
-		///////////is it migrating 64k always?
+		
 				
 		/*
+		///////////is it migrating 64k always? page eviction evict the whole 2M group? use different stride to find out. 
 		tlb_latency_test5<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb
 		tlb_latency_test4<<<1, 1>>>(CPU_data_in, iterations/2, GPU_data_out, clock_rate, mod, data_stride);///migrate first 16gb to gpu, without covering all the previous last 16gb steps however.
 		cudaDeviceSynchronize();
