@@ -20,7 +20,12 @@ void init_cpu_data(long long int* A, long long int size, long long int stride, l
 		for (long long int i = 8; i < size - stride2; i = i + stride2){
 			A[i]=(i + stride2);
 		}		
-		A[size - stride2 + 8]=0;
+		A[size - stride2 + 8]=0;		
+		
+		for (long long int i = 16; i < size - stride; i = i + stride){
+			A[i]=(i + stride);
+		}		
+		A[size - stride2 + 16]=0;
 	}
 	
 	if(0){////////////reversed
@@ -171,7 +176,7 @@ __global__ void tlb_latency_test4(long long int *A, long long int iterations, lo
 
 __global__ void tlb_latency_test5(long long int *A, long long int iterations, long long int *B, float clock_rate, long long int mod, long long int data_stride){
 			
-	P_chasing2(1, A, iterations, B, 2147483648, clock_rate, data_stride);//////////////	
+	P_chasing2(1, A, iterations, B, 2147483664, clock_rate, data_stride);//////////////starting 16
 	//P_chasing2(1, A, iterations, B, 0, clock_rate, data_stride);
 	//P_chasing2(0, A, iterations, B, mod - data_stride + 3, clock_rate, data_stride);
 	
