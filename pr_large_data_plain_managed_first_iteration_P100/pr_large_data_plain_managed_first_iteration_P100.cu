@@ -16,7 +16,7 @@ void init_cpu_data(long long int* A, long long int size, long long int stride, l
 		}
 		A[size - stride]=0;
 		
-		long long int stride2 = 1 * 256 * 1024;
+		long long int stride2 = 1 * 256 * 1024;////////2m
 		for (long long int i = 8; i < size - stride2; i = i + stride2){
 			A[i]=(i + stride2);
 		}		
@@ -171,7 +171,7 @@ __global__ void tlb_latency_test4(long long int *A, long long int iterations, lo
 
 __global__ void tlb_latency_test5(long long int *A, long long int iterations, long long int *B, float clock_rate, long long int mod, long long int data_stride){
 			
-	P_chasing2(1, A, iterations, B, 2147483648, clock_rate, data_stride);//////////////starting 17gb	
+	P_chasing2(1, A, iterations, B, 2147483648, clock_rate, data_stride);//////////////	
 	//P_chasing2(1, A, iterations, B, 0, clock_rate, data_stride);
 	//P_chasing2(0, A, iterations, B, mod - data_stride + 3, clock_rate, data_stride);
 	
@@ -222,9 +222,8 @@ int main(int argc, char **argv)
 	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(long long int) * 2));			
 	
 	int counter = 0;	
-	//for(long long int data_stride = 1 * 4 * 1024; data_stride <= 1 * 4 * 1024; data_stride = data_stride * 2){
-	for(long long int data_stride = 1 * 4 * 1024; data_stride <= 1 * 32 * 1024; data_stride = data_stride * 2){
-	//for(long long int data_stride = 1 * 64 * 1024; data_stride <= 1 * 64 * 1024; data_stride = data_stride * 2){
+	//for(long long int data_stride = 1 * 4 * 1024; data_stride <= 1 * 64 * 1024; data_stride = data_stride * 2){
+	for(long long int data_stride = 1 * 128 * 1024; data_stride <= 1 * 128 * 1024; data_stride = data_stride * 2){
 
 	//plain managed
 	printf("*\n*\n*\n plain managed\n");	
@@ -251,36 +250,50 @@ int main(int argc, char **argv)
 		//tlb_latency_test<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///kernel is here	
 		//cudaDeviceSynchronize();
 		
-		
-		tlb_latency_test2<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///migrate 32gb to gpu	(with warmup & no eviction & no trial) and (no warmup & with eviction & no trial)
+		/*
+		tlb_latency_test2<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///migrate 32gb to gpu	(with warmup & no eviction & no trail) and (no warmup & with eviction & no trail)
 		cudaDeviceSynchronize();
 		
 		traverse_cpu_data(CPU_data_in, iterations/2, 2147483648, data_stride);///////migrate last 16 gb to cpu, gpu is clear
 		
 		printf("location1:\n");
 		
-		tlb_latency_test2<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///migrate 32gb to gpu again (no warmup & no eviction & no trial) and (no warmup & with eviction & no trial)
+		tlb_latency_test2<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///migrate 32gb to gpu again (no warmup & no eviction & no trail) and (no warmup & with eviction & no trail)
 		cudaDeviceSynchronize();
 		
 		traverse_cpu_data(CPU_data_in, iterations/2, 2147483648, data_stride);///////migrate last 16 gb to cpu, gpu is clear
 		
 		printf("location2:\n");
 		
-		tlb_latency_test3<<<1, 1>>>(CPU_data_in, iterations/2, GPU_data_out, clock_rate, mod, data_stride);///migrate last 16gb (starting 17gb) to gpu again (no warmup & no eviction & with trial)
+		tlb_latency_test3<<<1, 1>>>(CPU_data_in, iterations/2, GPU_data_out, clock_rate, mod, data_stride);///migrate last 16gb (starting 17gb) to gpu again (no warmup & no eviction & with trail)
 		cudaDeviceSynchronize();		
-		///////////conclusion: eviction overhead exists, but page migration does not evict the page group setup (leave a trial).
-		
-				
-		/*
-		///////////is it migrating 64k always? page eviction evict the whole 2M group? use different stride to find out. 
-		tlb_latency_test5<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb
-		tlb_latency_test4<<<1, 1>>>(CPU_data_in, iterations/2, GPU_data_out, clock_rate, mod, data_stride);///migrate first 16gb to gpu, without covering all the previous last 16gb steps however.
-		cudaDeviceSynchronize();
-		
-		tlb_latency_test3<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb (starting 17gb)
-		///////////////////conclusion: page eviction evict the whole 2M group.
+		///////////conclusion: eviction overhead exists, but page migration does not evict the page group setup (trail does exist, leave a trail when page size not dynamic).
 		*/
 		
+		//page eviction evict the whole 2M group? 1m vs 2m strides.
+		tlb_latency_test5<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb
+		cudaDeviceSynchronize();
+		
+		tlb_latency_test4<<<1, 1>>>(CPU_data_in, iterations/2, GPU_data_out, clock_rate, mod, data_stride);///migrate first 16gb to gpu, offset and without covering all the previous last 16gb steps however.
+		cudaDeviceSynchronize();
+		
+		tlb_latency_test3<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb again (starting 17gb), any page hit?
+		cudaDeviceSynchronize();
+		///////////////////conclusion: page eviction evict the whole 2M group.
+		
+		/*
+		///////////is it migrating 64k always when not dynamic? use different stride to find out. 64 vs 128?
+		tlb_latency_test5<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb
+		cudaDeviceSynchronize();
+		
+		tlb_latency_test4<<<1, 1>>>(CPU_data_in, iterations/2, GPU_data_out, clock_rate, mod, data_stride);///migrate first 16gb to gpu, offset and without covering all the previous last 16gb steps however.
+		cudaDeviceSynchronize();
+		
+		tlb_latency_test3<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb again (starting 17gb), any page hit?
+		cudaDeviceSynchronize();
+		///////////////////conclusion: page eviction evict the whole 2M group.
+		*/
+				
 		//checkCudaErrors(cudaFree(GPU_data_in));
 		checkCudaErrors(cudaFree(CPU_data_in));
 		//free(CPU_data_in);		
