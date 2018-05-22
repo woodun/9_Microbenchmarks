@@ -280,7 +280,7 @@ int main(int argc, char **argv)
 		
 		printf("location1:\n");
 		
-		tlb_latency_test4<<<1, 1>>>(CPU_data_in, iterations/4, GPU_data_out, clock_rate, mod, data_stride);///migrate first 16gb to gpu, with 2m stride. (see if accesssing only one data will cause eviction and see the eviction time change)
+		tlb_latency_test4<<<1, 1>>>(CPU_data_in, 16384/2, GPU_data_out, clock_rate, mod, data_stride);///migrate first 16gb to gpu, with 2m stride. (see if accesssing only one data will cause eviction and see the eviction time change)
 		cudaDeviceSynchronize();
 		
 		printf("location2:\n");
