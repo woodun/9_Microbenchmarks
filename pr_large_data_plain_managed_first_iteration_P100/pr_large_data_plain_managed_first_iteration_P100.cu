@@ -223,7 +223,7 @@ int main(int argc, char **argv)
 	
 	int counter = 0;	
 	//for(long long int data_stride = 1 * 4 * 1024; data_stride <= 1 * 64 * 1024; data_stride = data_stride * 2){
-	for(long long int data_stride = 1 * 128 * 1024; data_stride <= 1 * 128 * 1024; data_stride = data_stride * 2){
+	for(long long int data_stride = 1 * 64 * 1024; data_stride <= 1 * 64 * 1024; data_stride = data_stride * 2){
 
 	//plain managed
 	printf("*\n*\n*\n plain managed\n");	
@@ -271,11 +271,15 @@ int main(int argc, char **argv)
 		*/
 		
 		//page eviction evict the whole 2M group? 1m vs 2m strides.
-		tlb_latency_test5<<<1, 1>>>(CPU_data_in, iterations/2, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb, with 1m stride
+		tlb_latency_test5<<<1, 1>>>(CPU_data_in, iterations/2, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb, with 512k stride
 		cudaDeviceSynchronize();
+		
+		printf("location1:\n");
 		
 		tlb_latency_test4<<<1, 1>>>(CPU_data_in, iterations/4, GPU_data_out, clock_rate, mod, data_stride);///migrate first 16gb to gpu, with 2m stride
 		cudaDeviceSynchronize();
+		
+		printf("location2:\n");
 		
 		tlb_latency_test3<<<1, 1>>>(CPU_data_in, iterations/2, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb again (starting 17gb), any page hit?
 		cudaDeviceSynchronize();
