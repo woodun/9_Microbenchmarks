@@ -33,10 +33,10 @@ void init_cpu_data(long long int* A, long long int size, long long int stride, l
 		
 		
 		long long int stride3 = 1 * 4 * 1024;
-		for (long long int i = 16; i < size - stride2; i = i + stride2){
-			A[i]=(i + stride2);
+		for (long long int i = 16; i < size - stride3; i = i + stride3){
+			A[i]=(i + stride3);
 		}		
-		A[size - stride2 + 16]=16;//////////offset 16
+		A[size - stride3 + 16]=16;//////////offset 16
 	}
 	
 	if(0){////////////reversed
