@@ -32,11 +32,11 @@ void init_cpu_data(long long int* A, long long int size, long long int stride, l
 		*/
 		
 		
-		long long int stride3 = 1 * 4 * 1024;
-		for (long long int i = 16; i < size - stride3; i = i + stride3){
-			A[i]=(i + stride3);
+		long long int stride2 = 1 * 256 * 1024;////////2m
+		for (long long int i = 16; i < size - stride2; i = i + stride2){
+			A[i]=(i + stride2);
 		}		
-		A[size - stride3 + 16]=16;//////////offset 16
+		A[size - stride2 + 16]=16;//////////offset 1m + 64	
 	}
 	
 	if(0){////////////reversed
@@ -239,7 +239,7 @@ int main(int argc, char **argv)
 	int counter = 0;
 	//for(long long int data_stride = 1 * 4 * 1024; data_stride <= 1 * 64 * 1024; data_stride = data_stride * 2){
 	//for(long long int data_stride = 1 * 4 * 1024; data_stride <= 1 * 128 * 1024; data_stride = data_stride * 2){
-	for(long long int data_stride = 1 * 8 * 1024; data_stride <= 1 * 256 * 1024; data_stride = data_stride * 2){
+	for(long long int data_stride = 1 * 4 * 1024; data_stride <= 1 * 128 * 1024; data_stride = data_stride * 2){
 
 	//plain managed
 	printf("*\n*\n*\n plain managed\n");	
