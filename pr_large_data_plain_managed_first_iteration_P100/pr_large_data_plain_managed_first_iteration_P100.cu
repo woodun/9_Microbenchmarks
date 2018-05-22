@@ -20,12 +20,12 @@ void init_cpu_data(long long int* A, long long int size, long long int stride, l
 		for (long long int i = 131136; i < size - stride2; i = i + stride2){
 			A[i]=(i + stride2);
 		}		
-		A[size - stride2 + 131136]=0;//////////offset 1m + 64	
+		A[size - stride2 + 131136]=131136;//////////offset 1m + 64	
 		
 		for (long long int i = 16; i < size - stride; i = i + stride){
 			A[i]=(i + stride);
 		}		
-		A[size - stride + 16]=0;
+		A[size - stride + 16]=16;
 	}
 	
 	if(0){////////////reversed
