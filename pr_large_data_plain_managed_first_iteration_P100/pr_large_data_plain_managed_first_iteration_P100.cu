@@ -271,13 +271,13 @@ int main(int argc, char **argv)
 		*/
 		
 		//page eviction evict the whole 2M group? 1m vs 2m strides.
-		tlb_latency_test5<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb
+		tlb_latency_test5<<<1, 1>>>(CPU_data_in, iterations/2, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb, with 1m stride
 		cudaDeviceSynchronize();
 		
-		tlb_latency_test4<<<1, 1>>>(CPU_data_in, iterations/2, GPU_data_out, clock_rate, mod, data_stride);///migrate first 16gb to gpu, offset and without covering all the previous last 16gb steps however.
+		tlb_latency_test4<<<1, 1>>>(CPU_data_in, iterations/4, GPU_data_out, clock_rate, mod, data_stride);///migrate first 16gb to gpu, with 2m stride
 		cudaDeviceSynchronize();
 		
-		tlb_latency_test3<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb again (starting 17gb), any page hit?
+		tlb_latency_test3<<<1, 1>>>(CPU_data_in, iterations/2, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb again (starting 17gb), any page hit?
 		cudaDeviceSynchronize();
 		///////////////////conclusion: page eviction evict the whole 2M group.
 		
