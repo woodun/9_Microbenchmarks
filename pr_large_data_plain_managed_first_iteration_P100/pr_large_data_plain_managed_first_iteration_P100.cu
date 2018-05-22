@@ -32,12 +32,11 @@ void init_cpu_data(long long int* A, long long int size, long long int stride, l
 		//for (long long int i = 0; i <= size - stride; i = i + stride){
 		//	A[i]=(i - stride);
 		//}
+		//A[0]=size - stride;
 		
 		for (long long int i = 3; i <= size - stride + 3; i = i + stride){
 			A[i]=(i - stride);
 		}
-		
-		//A[0]=size - stride;
 		A[3]=size - stride + 3;
 	}
 	
