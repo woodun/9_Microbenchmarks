@@ -17,10 +17,10 @@ void init_cpu_data(long long int* A, long long int size, long long int stride, l
 		A[size - stride]=0;
 		
 		long long int stride2 = 1 * 256 * 1024;////////2m
-		for (long long int i = 8; i < size - stride2; i = i + stride2){
+		for (long long int i = 131136; i < size - stride2; i = i + stride2){
 			A[i]=(i + stride2);
 		}		
-		A[size - stride2 + 8]=0;		
+		A[size - stride2 + 131136]=0;//////////offset 1m + 64	
 		
 		for (long long int i = 16; i < size - stride; i = i + stride){
 			A[i]=(i + stride);
@@ -158,7 +158,7 @@ __global__ void tlb_latency_test2(long long int *A, long long int iterations, lo
 
 __global__ void tlb_latency_test3(long long int *A, long long int iterations, long long int *B, float clock_rate, long long int mod, long long int data_stride){
 			
-	P_chasing2(1, A, iterations, B, 2281701376, clock_rate, data_stride);//////////////starting 17gb	
+	P_chasing2(1, A, iterations, B, 2281701376, clock_rate, data_stride);//////////////offset 0, starting 17gb.
 	//P_chasing2(1, A, iterations, B, 0, clock_rate, data_stride);
 	//P_chasing2(0, A, iterations, B, mod - data_stride + 3, clock_rate, data_stride);
 	
@@ -167,7 +167,7 @@ __global__ void tlb_latency_test3(long long int *A, long long int iterations, lo
 
 __global__ void tlb_latency_test4(long long int *A, long long int iterations, long long int *B, float clock_rate, long long int mod, long long int data_stride){
 			
-	P_chasing2(1, A, iterations, B, 8, clock_rate, data_stride);//////////////starting 8, with a different stride.
+	P_chasing2(1, A, iterations, B, 131136, clock_rate, data_stride);//////////////offset 131136, with a different stride.
 	//P_chasing2(1, A, iterations, B, 0, clock_rate, data_stride);
 	//P_chasing2(0, A, iterations, B, mod - data_stride + 3, clock_rate, data_stride);
 	
@@ -176,7 +176,7 @@ __global__ void tlb_latency_test4(long long int *A, long long int iterations, lo
 
 __global__ void tlb_latency_test5(long long int *A, long long int iterations, long long int *B, float clock_rate, long long int mod, long long int data_stride){
 			
-	P_chasing2(1, A, iterations, B, 2147483664, clock_rate, data_stride);//////////////starting 16
+	P_chasing2(1, A, iterations, B, 2147483664, clock_rate, data_stride);//////////////offset 16
 	//P_chasing2(1, A, iterations, B, 0, clock_rate, data_stride);
 	//P_chasing2(0, A, iterations, B, mod - data_stride + 3, clock_rate, data_stride);
 	
@@ -281,14 +281,14 @@ int main(int argc, char **argv)
 		
 		printf("location1:\n");
 		
-		tlb_latency_test4<<<1, 1>>>(CPU_data_in, iterations/4, GPU_data_out, clock_rate, mod, data_stride);///migrate first 16gb to gpu, with 2m stride
+		tlb_latency_test4<<<1, 1>>>(CPU_data_in, iterations/4, GPU_data_out, clock_rate, mod, data_stride);///migrate first 16gb to gpu, with 2m stride. (see if accesssing only one data will cause eviction and see the eviction time change)
 		cudaDeviceSynchronize();
 		
 		printf("location2:\n");
 		
-		tlb_latency_test3<<<1, 1>>>(CPU_data_in, iterations/2, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb again (starting 17gb), any page hit?
+		tlb_latency_test3<<<1, 1>>>(CPU_data_in, iterations/2, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb again (starting 17gb). (any page hit?)
 		cudaDeviceSynchronize();
-		///////////////////conclusion: page eviction evict the whole 2M group.
+		///////////////////conclusion: page eviction evict the whole 2M group. Also the larger 
 		
 		/*
 		///////////is it migrating 64k always when not dynamic? use different stride to find out. 64 vs 128?
