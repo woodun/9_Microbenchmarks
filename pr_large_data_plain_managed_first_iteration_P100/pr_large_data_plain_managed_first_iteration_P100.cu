@@ -50,6 +50,7 @@ void init_cpu_data(long long int* A, long long int size, long long int stride, l
 		
 		for (long long int i = 16; i < size - stride2; i = i + stride2){
 			//A[i]=(i + stride2);
+			/*
 			A[i]=(i + 4096 * 30);
 			A[i + 4096 * 30]=(i + 4096 * 29);
 			A[i + 4096 * 29]=(i + 4096 * 10);			
@@ -59,8 +60,17 @@ void init_cpu_data(long long int* A, long long int size, long long int stride, l
 			A[i + 4096 * 20]=(i + 4096 * 1);
 			A[i + 4096 * 1]=(i + 4096 * 25);
 			A[i + 4096 * 25]=(i + 4096 * 5);
-			A[i + 4096 * 5]=(i + stride2);			
-		}		
+			A[i + 4096 * 5]=(i + stride2);
+			*/
+			A[i]=(i + 4096 * 29);
+			A[i + 4096 * 29]=(i + 4096 * 30);
+			A[i + 4096 * 30]=(i + 4096 * 10);			
+			A[i + 4096 * 10]=(i + 4096 * 11);
+			A[i + 4096 * 11]=(i + 4096 * 12);
+			A[i + 4096 * 12]=(i + 4096 * 20);
+			A[i + 4096 * 20]=(i + 4096 * 25);
+			A[i + 4096 * 25]=(i + stride2);			
+		}
 		A[size - stride2 + 16]=16;//////////offset 1m + 64
 	}
 	
