@@ -31,10 +31,30 @@ void init_cpu_data(long long int* A, long long int size, long long int stride, l
 		///conclusion: page eviction evict the whole 2M group. Also the larger the evicted data size, the longer the new inititalization latency.
 		*/
 		
-		
+		/*
 		long long int stride2 = 1 * 128 * 1024;////////1m
 		for (long long int i = 16; i < size - stride2; i = i + stride2){
 			A[i]=(i + stride2);
+		}		
+		A[size - stride2 + 16]=16;//////////offset 1m + 64	
+		///////////////////conclusion: page size remains 64k when dynamic page size is not used. 
+		///////////////////even if 64k page group have initialized, hitting dynamic page group still have to initialized again.
+		///////////////////if 64k page group have initialized, hitting 64k page group does not need to initialize again.
+		*/
+		
+		long long int counter = 0;
+		long long int stride2 = 1 * 128 * 1024;////////1m
+		long long int stride3 = 1 * 4 * 1024;
+		for (long long int i = 16; i < size - stride2; i = i + stride2){
+			A[i]=(i + stride2);
+			
+			if(counter == 1){
+				counter = 0;
+			}else{
+				counter = 1;
+			}
+			for (long long int j = i; j < size - stride2; i = i + stride2){
+			}
 		}		
 		A[size - stride2 + 16]=16;//////////offset 1m + 64	
 	}
@@ -311,7 +331,12 @@ int main(int argc, char **argv)
 		
 		tlb_latency_test3<<<1, 1>>>(CPU_data_in, iterations/2, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb again (starting 17gb) with smaller strides, any page hit?
 		cudaDeviceSynchronize();
-		///////////////////conclusion: 
+		///////////////////conclusion: page size remains 64k when dynamic page size is not used. 
+		///////////////////even if 64k page group have initialized, hitting dynamic page group still have to initialized again.
+		///////////////////if 64k page group have initialized, hitting 64k page group does not need to initialize again.
+		
+		
+		/////////////initialization cause eviction?/ page size when accesses have small strides but are not consecutive?
 						
 		//checkCudaErrors(cudaFree(GPU_data_in));
 		checkCudaErrors(cudaFree(CPU_data_in));
