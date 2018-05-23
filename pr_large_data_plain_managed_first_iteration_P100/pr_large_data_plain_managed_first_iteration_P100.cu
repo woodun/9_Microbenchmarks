@@ -42,21 +42,27 @@ void init_cpu_data(long long int* A, long long int size, long long int stride, l
 		///////////////////if 64k page group have initialized, hitting 64k page group does not need to initialize again.
 		*/
 		
-		long long int counter = 0;
-		long long int stride2 = 1 * 128 * 1024;////////1m
+		
+		//////////////test initialize dynamic page, use a 64k page to hit it. leave the second half of the 2m empty while the first half with small strides (different order).
+		
+		long long int stride2 = 1 * 256 * 1024;////////2m
 		long long int stride3 = 1 * 4 * 1024;
+		
 		for (long long int i = 16; i < size - stride2; i = i + stride2){
-			A[i]=(i + stride2);
-			
-			if(counter == 1){
-				counter = 0;
-			}else{
-				counter = 1;
-			}
-			for (long long int j = i; j < size - stride2; i = i + stride2){
-			}
+			//A[i]=(i + stride2);
+			A[i]=(i + 4096 * 30);
+			A[i + 4096 * 30]=(i + 4096 * 29);
+			A[i + 4096 * 29]=(i + 4096 * 28);
+			A[i + 4096 * 28]=(i + 4096 * 27);
+			A[i + 4096 * 10]=(i + 4096 * 11);
+			A[i + 4096 * 11]=(i + 4096 * 12);
+			A[i + 4096 * 12]=(i + 4096 * 20);
+			A[i + 4096 * 20]=(i + 4096 * 1);
+			A[i + 4096 * 1]=(i + 4096 * 25);
+			A[i + 4096 * 25]=(i + 4096 * 5);
+			A[i + 4096 * 5]=(i + stride2);				
 		}		
-		A[size - stride2 + 16]=16;//////////offset 1m + 64	
+		A[size - stride2 + 16]=16;//////////offset 1m + 64
 	}
 	
 	if(0){////////////reversed
@@ -337,10 +343,10 @@ int main(int argc, char **argv)
 		
 		
 		/////////////initialization cause eviction?/ page size when accesses have small strides but are not consecutive?
-						
+		
 		//checkCudaErrors(cudaFree(GPU_data_in));
 		checkCudaErrors(cudaFree(CPU_data_in));
-		//free(CPU_data_in);		
+		//free(CPU_data_in);
 	}
 	}
 			
