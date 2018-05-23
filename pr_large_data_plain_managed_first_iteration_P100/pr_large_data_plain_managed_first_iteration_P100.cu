@@ -331,7 +331,7 @@ int main(int argc, char **argv)
 		*/
 				
 		///////////is it migrating 64k always when not dynamic? use different stride to find out. 64 vs 128?
-		tlb_latency_test5<<<1, 1>>>(CPU_data_in, 16 * 16384/2, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb
+		tlb_latency_test5<<<1, 1>>>(CPU_data_in, 12 * 16384/2, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb
 		cudaDeviceSynchronize();
 		
 		printf("location1:\n");
