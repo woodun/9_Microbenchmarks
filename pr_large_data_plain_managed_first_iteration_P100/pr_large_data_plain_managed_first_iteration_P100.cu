@@ -46,7 +46,7 @@ void init_cpu_data(long long int* A, long long int size, long long int stride, l
 		//////////////test initialize dynamic page, use a 64k page to hit it. leave the second half of the 2m empty while the first half with small strides (different order).
 		
 		long long int stride2 = 1 * 256 * 1024;////////2m
-		//long long int stride3 = 1 * 4 * 1024;
+		
 		
 		for (long long int i = 16; i < size - stride2; i = i + stride2){
 			//A[i]=(i + stride2);
@@ -61,17 +61,23 @@ void init_cpu_data(long long int* A, long long int size, long long int stride, l
 			A[i + 4096 * 1]=(i + 4096 * 25);
 			A[i + 4096 * 25]=(i + 4096 * 5);
 			A[i + 4096 * 5]=(i + stride2);
-			*/
-			A[i]=(i + 4096 * 29);
-			A[i + 4096 * 29]=(i + 4096 * 30);
+			*/			
+			A[i]=(i + 4096 * 24);
+			A[i + 4096 * 24]=(i + 4096 * 30);//////////making stride larger than 128k (4096 * 4)
 			A[i + 4096 * 30]=(i + 4096 * 10);			
-			A[i + 4096 * 10]=(i + 4096 * 11);
-			A[i + 4096 * 11]=(i + 4096 * 12);
-			A[i + 4096 * 12]=(i + 4096 * 20);
-			A[i + 4096 * 20]=(i + 4096 * 25);
-			A[i + 4096 * 25]=(i + stride2);
+			A[i + 4096 * 10]=(i + 4096 * 19);
+			A[i + 4096 * 19]=(i + 4096 * 2);
+			A[i + 4096 * 2]=(i + 4096 * 4);
+			A[i + 4096 * 4]=(i + 4096 * 6);
+			A[i + 4096 * 8]=(i + stride2);
 		}
-		A[size - stride2 + 16]=16;//////////offset 1m + 64
+		A[size - stride2 + 16]=16;//////////offset 16
+				
+		long long int stride3 = 1 * 4 * 1024;/////////32k
+		for (long long int i = 64; i < size - stride3; i = i + stride3){
+			A[i]=(i + stride3);
+		}
+		A[size - stride3 + 64]=64;//////////offset 64		
 	}
 	
 	if(0){////////////reversed
@@ -228,6 +234,16 @@ __global__ void tlb_latency_test5(long long int *A, long long int iterations, lo
 	__syncthreads();
 }
 
+
+__global__ void tlb_latency_test6(long long int *A, long long int iterations, long long int *B, float clock_rate, long long int mod, long long int data_stride){
+			
+	P_chasing2(1, A, iterations, B, 2415919168, clock_rate, data_stride);//////////////offset 64, starting 18gb.
+	//P_chasing2(1, A, iterations, B, 0, clock_rate, data_stride);
+	//P_chasing2(0, A, iterations, B, mod - data_stride + 3, clock_rate, data_stride);
+	
+	__syncthreads();
+}
+
 int main(int argc, char **argv)
 {
     // set device
@@ -339,19 +355,26 @@ int main(int argc, char **argv)
 		*/
 				
 		///////////is it migrating 64k always when not dynamic? use different stride to find out. 64 vs 128?
-		tlb_latency_test5<<<1, 1>>>(CPU_data_in, 8 * 16384/2, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb
+		tlb_latency_test5<<<1, 1>>>(CPU_data_in, 8 * 16384/2, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb, with manipulated strides.
 		cudaDeviceSynchronize();
 		
 		printf("location1:\n");
 		
 		tlb_latency_test3<<<1, 1>>>(CPU_data_in, iterations/2, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb again (starting 17gb) with different strides, any page hit?
 		cudaDeviceSynchronize();
+		
+		printf("location2:\n");
+		
+		tlb_latency_test6<<<1, 1>>>(CPU_data_in, 1048576/2, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb again (starting 18gb) with 32k strides to see the page size migrated for the second iteration.
+		cudaDeviceSynchronize();
 		///////////////////conclusion: page size remains 64k when dynamic page size is not used. 
 		///////////////////even if 64k page group have initialized, hitting dynamic page group still have to initialized again.
 		///////////////////if 64k page group have initialized, hitting 64k page group does not need to initialize again.
+		///////////////////if dynamic page group have initialized, even a previous 64k page hit before now cause dynamic page size,
+		///////////////////and its actual size and latency depend on the number of requests within it?
+		///////////////////for irregular strides, the page size 		
 		
-		
-		/////////////initialization cause eviction?/ page size when accesses have small strides but are not consecutive?
+		/////////////initialization cause eviction?
 		
 		//checkCudaErrors(cudaFree(GPU_data_in));
 		checkCudaErrors(cudaFree(CPU_data_in));
