@@ -69,7 +69,7 @@ void init_cpu_data(long long int* A, long long int size, long long int stride, l
 			A[i + 4096 * 11]=(i + 4096 * 12);
 			A[i + 4096 * 12]=(i + 4096 * 20);
 			A[i + 4096 * 20]=(i + 4096 * 25);
-			A[i + 4096 * 25]=(i + stride2);			
+			A[i + 4096 * 25]=(i + stride2);
 		}
 		A[size - stride2 + 16]=16;//////////offset 1m + 64
 	}
@@ -339,7 +339,7 @@ int main(int argc, char **argv)
 		*/
 				
 		///////////is it migrating 64k always when not dynamic? use different stride to find out. 64 vs 128?
-		tlb_latency_test5<<<1, 1>>>(CPU_data_in, 10 * 16384/2, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb
+		tlb_latency_test5<<<1, 1>>>(CPU_data_in, 8 * 16384/2, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb
 		cudaDeviceSynchronize();
 		
 		printf("location1:\n");
