@@ -9,6 +9,7 @@
 #include <sys/time.h>
 
 /////////////////////////////L1 is enabled. "ALL_CCFLAGS += -Xptxas -dlcm=ca"
+//////////////large vs small data.
 
 void init_cpu_data(long long int* A, long long int size, long long int stride){
 	
