@@ -45,9 +45,7 @@ void init_cpu_data(long long int* A, long long int size, long long int stride, l
 		
 		//////////////test initialize dynamic page, use a 64k page to hit it. leave the second half of the 2m empty while the first half with small strides (different order).
 		
-		long long int stride2 = 1 * 256 * 1024;////////2m
-		
-		
+		long long int stride2 = 1 * 256 * 1024;////////2m		
 		for (long long int i = 16; i < size - stride2; i = i + stride2){
 			//A[i]=(i + stride2);
 			/*
@@ -83,21 +81,22 @@ void init_cpu_data(long long int* A, long long int size, long long int stride, l
 		}
 		A[size - stride2 + 16]=16;//////////offset 16				
 		
+		/*
 		long long int stride3 = 1 * 4 * 1024;/////////32k
 		for (long long int i = 64; i < size - stride3; i = i + stride3){
 			A[i]=(i + stride3);
 		}
 		A[size - stride3 + 64]=64;//////////offset 64		
+		*/
 
-		/*
+		
 		long long int stride3 = 1 * 256 * 1024;/////////2m
 		for (long long int i = 64; i < size - stride3; i = i + stride3){
 			//A[i]=(i + stride3);
 			A[i]=(i + 128 * 1024);/////////////skip first 1m
 			A[i]=(i + 192 * 1024);/////////////second half use 512k stride
 		}
-		A[size - stride3 + 64]=64;//////////offset 64
-		*/
+		A[size - stride3 + 64]=64;//////////offset 64		
 	}
 	
 	if(0){////////////reversed
@@ -310,7 +309,8 @@ int main(int argc, char **argv)
 	int counter = 0;
 	//for(long long int data_stride = 1 * 4 * 1024; data_stride <= 1 * 64 * 1024; data_stride = data_stride * 2){
 	//for(long long int data_stride = 1 * 4 * 1024; data_stride <= 1 * 128 * 1024; data_stride = data_stride * 2){
-	for(long long int data_stride = 1 * 4 * 1024; data_stride <= 1 * 128 * 1024; data_stride = data_stride * 2){
+	//for(long long int data_stride = 1 * 4 * 1024; data_stride <= 1 * 128 * 1024; data_stride = data_stride * 2){
+	for(long long int data_stride = 1 * 4 * 1024; data_stride <= 1 * 4 * 1024; data_stride = data_stride * 2){
 
 	//plain managed
 	printf("*\n*\n*\n plain managed\n");	
@@ -373,7 +373,8 @@ int main(int argc, char **argv)
 		cudaDeviceSynchronize();
 		///////////////////conclusion: page eviction evict the whole 2M group. Also the larger the evicted data size, the longer the new inititalization latency.
 		*/
-				
+		
+		/*
 		///////////is it migrating 64k always when not dynamic? use different stride to find out. 64 vs 128?
 		tlb_latency_test5<<<1, 1>>>(CPU_data_in, 14 * 16384/2, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb, with manipulated strides.
 		cudaDeviceSynchronize();
@@ -391,9 +392,18 @@ int main(int argc, char **argv)
 		///////////////////even if 64k page group have initialized, hitting dynamic page group still have to initialized again.
 		///////////////////if 64k page group have initialized, hitting 64k page group does not need to initialize again.
 		///////////////////if dynamic page group have initialized, even a previous 64k page hit before now cause dynamic page size,
-		///////////////////and its actual size depend on its current stride (not previous)?
-		///////////////////and even with the same page size, the migration latency depend on the number of requests within it.
-		///////////////////for irregular strides, the page size still always increase?	
+		///////////////////and its actual size depends on the previous strides.
+		///////////////////and even for the same page size, the migration latency depend on the number of requests within it.
+		///////////////////Even for irregular strides, the page size still always increase.
+		*/
+		
+		tlb_latency_test5<<<1, 1>>>(CPU_data_in, 14 * 16384/2, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb, with manipulated strides.
+		cudaDeviceSynchronize();
+		
+		printf("location1:\n");
+		
+		tlb_latency_test6<<<1, 1>>>(CPU_data_in, 2 * 16384/2, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb again (starting 18gb) with 32k strides to see the page size migrated for the second iteration.
+		cudaDeviceSynchronize();		
 		
 		/////////////initialization cause eviction(large size)?
 		
