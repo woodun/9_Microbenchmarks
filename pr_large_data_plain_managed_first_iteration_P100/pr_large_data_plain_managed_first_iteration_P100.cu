@@ -62,14 +62,23 @@ void init_cpu_data(long long int* A, long long int size, long long int stride, l
 			A[i + 4096 * 25]=(i + 4096 * 5);
 			A[i + 4096 * 5]=(i + stride2);
 			*/			
-			A[i]=(i + 4096 * 24);
+			A[i]=(i + 4096 * 20);
+			A[i + 4096 * 20]=(i + 4096 * 21);
+			A[i + 4096 * 21]=(i + 4096 * 22);
+			A[i + 4096 * 22]=(i + 4096 * 23);
+			A[i + 4096 * 23]=(i + 4096 * 24);
 			A[i + 4096 * 24]=(i + 4096 * 25);//////////making stride larger than 128k (4096 * 4)
 			A[i + 4096 * 25]=(i + 4096 * 26);			
 			A[i + 4096 * 26]=(i + 4096 * 27);
-			A[i + 4096 * 27]=(i + 4096 * 2);
+			A[i + 4096 * 27]=(i + 4096 * 28);
+			A[i + 4096 * 28]=(i + 4096 * 29);
+			A[i + 4096 * 29]=(i + 4096 * 30);
+			A[i + 4096 * 30]=(i + 4096 * 31);
+			A[i + 4096 * 31]=(i + 4096 * 2);
 			A[i + 4096 * 2]=(i + 4096 * 10);
 			A[i + 4096 * 10]=(i + 4096 * 14);
-			A[i + 4096 * 14]=(i + stride2);
+			A[i + 4096 * 14]=(i + 4096 * 16);
+			A[i + 4096 * 16]=(i + stride2);
 		}
 		A[size - stride2 + 16]=16;//////////offset 16				
 		
@@ -365,7 +374,7 @@ int main(int argc, char **argv)
 		*/
 				
 		///////////is it migrating 64k always when not dynamic? use different stride to find out. 64 vs 128?
-		tlb_latency_test5<<<1, 1>>>(CPU_data_in, 8 * 16384/2, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb, with manipulated strides.
+		tlb_latency_test5<<<1, 1>>>(CPU_data_in, 17 * 16384/2, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb, with manipulated strides.
 		cudaDeviceSynchronize();
 		
 		printf("location1:\n");
@@ -385,7 +394,7 @@ int main(int argc, char **argv)
 		///////////////////and even with the same page size, the migration latency depend on the number of requests within it.
 		///////////////////for irregular strides, the page size still always increase?	
 		
-		/////////////initialization cause eviction?
+		/////////////initialization cause eviction(large size)?
 		
 		//checkCudaErrors(cudaFree(GPU_data_in));
 		checkCudaErrors(cudaFree(CPU_data_in));
