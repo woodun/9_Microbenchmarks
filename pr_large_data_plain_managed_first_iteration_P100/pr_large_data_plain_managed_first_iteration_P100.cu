@@ -64,12 +64,12 @@ void init_cpu_data(long long int* A, long long int size, long long int stride, l
 			*/			
 			A[i]=(i + 4096 * 24);
 			A[i + 4096 * 24]=(i + 4096 * 25);//////////making stride larger than 128k (4096 * 4)
-			A[i + 4096 * 25]=(i + 4096 * 28);			
-			A[i + 4096 * 28]=(i + 4096 * 30);
-			A[i + 4096 * 30]=(i + 4096 * 2);
-			A[i + 4096 * 2]=(i + 4096 * 4);
-			A[i + 4096 * 4]=(i + 4096 * 20);
-			A[i + 4096 * 20]=(i + stride2);
+			A[i + 4096 * 25]=(i + 4096 * 26);			
+			A[i + 4096 * 26]=(i + 4096 * 27);
+			A[i + 4096 * 27]=(i + 4096 * 2);
+			A[i + 4096 * 2]=(i + 4096 * 10);
+			A[i + 4096 * 10]=(i + 4096 * 14);
+			A[i + 4096 * 14]=(i + stride2);
 		}
 		A[size - stride2 + 16]=16;//////////offset 16				
 		
@@ -383,7 +383,7 @@ int main(int argc, char **argv)
 		///////////////////if dynamic page group have initialized, even a previous 64k page hit before now cause dynamic page size,
 		///////////////////and its actual size depend on its current stride (not previous)?
 		///////////////////and even with the same page size, the migration latency depend on the number of requests within it.
-		///////////////////for irregular strides, the page size depend on the strides?		
+		///////////////////for irregular strides, the page size still always increase?	
 		
 		/////////////initialization cause eviction?
 		
