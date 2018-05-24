@@ -91,12 +91,12 @@ void init_cpu_data(long long int* A, long long int size, long long int stride, l
 
 		
 		long long int stride3 = 1 * 256 * 1024;/////////2m
-		for (long long int i = 64; i < size - stride3; i = i + stride3){
+		for (long long int i = 1 * 128 * 1024 + 64; i < size - stride3; i = i + stride3){
 			//A[i]=(i + stride3);
-			A[i]=(i + 128 * 1024);/////////////skip first 1m
-			A[i]=(i + 192 * 1024);/////////////second half use 512k stride
+			A[i]=(i + 64 * 1024);/////////////second half use 512k stride
+			A[i + 64 * 1024]=(i + stride3);
 		}
-		A[size - stride3 + 64]=64;//////////offset 64		
+		A[size - stride3 + 1 * 128 * 1024 + 64]=1 * 128 * 1024 + 64;//////////offset 1m + 64		
 	}
 	
 	if(0){////////////reversed
@@ -246,7 +246,7 @@ __global__ void tlb_latency_test4(long long int *A, long long int iterations, lo
 
 __global__ void tlb_latency_test5(long long int *A, long long int iterations, long long int *B, float clock_rate, long long int mod, long long int data_stride){
 			
-	P_chasing2(1, A, iterations, B, 2147483664, clock_rate, data_stride);//////////////offset 16
+	P_chasing2(1, A, iterations, B, 2147483664, clock_rate, data_stride);//////////////offset 16, starting 16gb.
 	//P_chasing2(1, A, iterations, B, 0, clock_rate, data_stride);
 	//P_chasing2(0, A, iterations, B, mod - data_stride + 3, clock_rate, data_stride);
 	
@@ -257,6 +257,15 @@ __global__ void tlb_latency_test5(long long int *A, long long int iterations, lo
 __global__ void tlb_latency_test6(long long int *A, long long int iterations, long long int *B, float clock_rate, long long int mod, long long int data_stride){
 			
 	P_chasing2(1, A, iterations, B, 2415919168, clock_rate, data_stride);//////////////offset 64, starting 18gb.
+	//P_chasing2(1, A, iterations, B, 0, clock_rate, data_stride);
+	//P_chasing2(0, A, iterations, B, mod - data_stride + 3, clock_rate, data_stride);
+	
+	__syncthreads();
+}
+
+__global__ void tlb_latency_test7(long long int *A, long long int iterations, long long int *B, float clock_rate, long long int mod, long long int data_stride){
+			
+	P_chasing2(1, A, iterations, B, 2281832512, clock_rate, data_stride);//////////////offset 1m + 64 (131136), starting 17gb (2281701376).
 	//P_chasing2(1, A, iterations, B, 0, clock_rate, data_stride);
 	//P_chasing2(0, A, iterations, B, mod - data_stride + 3, clock_rate, data_stride);
 	
@@ -403,7 +412,8 @@ int main(int argc, char **argv)
 		printf("location1:\n");
 		
 		tlb_latency_test6<<<1, 1>>>(CPU_data_in, 2 * 16384/2, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb again (starting 18gb) with 32k strides to see the page size migrated for the second iteration.
-		cudaDeviceSynchronize();		
+		cudaDeviceSynchronize();
+		///////////////////conclusion: Even for later iterations, page size still always increase.
 		
 		/////////////initialization cause eviction(large size)?
 		
