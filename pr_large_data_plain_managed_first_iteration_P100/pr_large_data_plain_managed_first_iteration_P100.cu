@@ -69,7 +69,7 @@ void init_cpu_data(long long int* A, long long int size, long long int stride, l
 			A[i + 4096 * 19]=(i + 4096 * 2);
 			A[i + 4096 * 2]=(i + 4096 * 4);
 			A[i + 4096 * 4]=(i + 4096 * 6);
-			A[i + 4096 * 8]=(i + stride2);
+			A[i + 4096 * 6]=(i + stride2);
 		}
 		A[size - stride2 + 16]=16;//////////offset 16
 				
