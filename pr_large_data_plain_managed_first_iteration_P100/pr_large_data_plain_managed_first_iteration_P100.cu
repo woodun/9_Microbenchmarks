@@ -413,7 +413,7 @@ int main(int argc, char **argv)
 		
 		tlb_latency_test7<<<1, 1>>>(CPU_data_in, 16384/2, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb again (starting 18gb) with 32k strides to see the page size migrated for the second iteration.
 		cudaDeviceSynchronize();
-		///////////////////conclusion: Even for later iterations, page size still always increase.
+		////////////////conclusion: Even for later iterations, page size still always increase, and the size depends on earlier accesses.
 		
 		/////////////initialization cause eviction(large size)?
 		

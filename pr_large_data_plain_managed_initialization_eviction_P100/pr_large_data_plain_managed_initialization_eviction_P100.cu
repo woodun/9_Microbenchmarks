@@ -9,56 +9,6 @@
 
 /////////////////////////////change the data size to larger than 16 gb to test for different memories. L1 is enabled. "ALL_CCFLAGS += -Xptxas -dlcm=ca"
 
-void init_cpu_data(long long int* A, long long int size, long long int stride, long long int mod){
-	if(1){////////////normal
-		for (long long int i = 0; i < size - stride; i = i + stride){
-			A[i]=(i + stride);
-		}
-		A[size - stride]=0;
-		
-		/*
-		///////////////
-		long long int stride2 = 1 * 256 * 1024;////////2m
-		for (long long int i = 131136; i < size - stride2; i = i + stride2){
-			A[i]=(i + stride2);
-		}		
-		A[size - stride2 + 131136]=131136;//////////offset 1m + 64	
-		
-		for (long long int i = 16; i < size - stride; i = i + stride){
-			A[i]=(i + stride);
-		}		
-		A[size - stride + 16]=16;
-		///conclusion: page eviction evict the whole 2M group. Also the larger the evicted data size, the longer the new inititalization latency.
-		*/
-		
-		
-		long long int stride2 = 1 * 256 * 1024;////////2m
-		for (long long int i = 16; i < size - stride2; i = i + stride2){
-			A[i]=(i + stride2);
-		}		
-		A[size - stride2 + 16]=16;//////////offset 1m + 64	
-	}
-	
-	if(0){////////////reversed
-		//for (long long int i = 0; i <= size - stride; i = i + stride){
-		//	A[i]=(i - stride);
-		//}
-		//A[0]=size - stride;
-		
-		for (long long int i = 3; i <= size - stride + 3; i = i + stride){
-			A[i]=(i - stride);
-		}
-		A[3]=size - stride + 3;
-	}
-	
-	/////54521859 returned page fault starting point for 2147483648.
-	///////////////////2147483648 - 54521859 = 2092961789.
-	///////////////////2092961789 -4096 + 3 = 1996 * 1M = 15968 MB (out of 16280 MB out of 16384 MB)
-	/////2202267651 returned page fault starting point for 4294967296
-	///////////////////4294967296 - 2202267651 = 2092699645.
-	///////////////////2092699645 -4096 + 3 = 1995.75 * 1M = 15966 MB (out of 16280 MB out of 16384 MB)
-}
-
 long long int traverse_cpu_data(long long int *A, long long int iterations, long long int starting_index, long long int data_stride){	
 	
 	long long int j = starting_index;
@@ -68,6 +18,29 @@ long long int traverse_cpu_data(long long int *A, long long int iterations, long
 	}
 	
 	return j;
+}
+
+__global__ void gpu_initialization(long long int *A, long long int iterations, long long int *B, float clock_rate, long long int mod, long long int data_stride){			
+	
+	__shared__ long long int s_index[1];	
+	
+	long long int start_time = 0;//////clock
+	long long int end_time = 0;//////clock
+	long long int time_interval = 0;//////clock
+			
+	for(long long int it = 0; it < iterations * data_stride; it = it + data_stride){
+		
+		start_time = clock64();//////clock		
+		A[it]=23;
+		//s_index[0] = j;
+		end_time=clock64();//////clock
+		end_time=clock64();//////clock
+		time_interval = end_time - start_time;//////clock
+		printf("%lld %lld\n", j, time_interval);
+	}	
+	
+	//B[0] = j;
+	__syncthreads();
 }
 
 __device__ void P_chasing2(int mark, long long int *A, long long int iterations, long long int *B, long long int starting_index, float clock_rate, long long int data_stride){	
@@ -115,48 +88,6 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 	B[0] = j;
 }
 
-__global__ void tlb_latency_test(long long int *A, long long int iterations, long long int *B, float clock_rate, long long int mod, long long int data_stride){
-			
-	/*
-	/////////////using 32gb's iteration, address stride 1 * 128 * 1024, long long int data type
-	P_chasing2(1, A, iterations/4, B, 2147483648, clock_rate, data_stride);//////////////migrate the first 8gb, starting 16 gb however.
-	P_chasing2(0, A, iterations/8, B, 2147483648, clock_rate, data_stride);//////////////access the first 4gb again, starting 16 gb however.
-	///////////before the next migration, take a rest, and see if the additional overhead decreases.
-	long long int start_clock = clock64();
-    long long int clock_offset = 0;
-    while (clock_offset < 1000000000)
-    {
-        clock_offset = clock64() - start_clock;
-    }
-	P_chasing2(0, A, 3 * iterations/8, B, 0, clock_rate, data_stride);///////////migrate another 12gb, however starting at 0.
-	P_chasing2(0, A, iterations/4, B, 2147483648, clock_rate, data_stride);//////////////which 4gb of the first 8gb is left?
-	///////////conclusion: Still this does not change the pattern, the previous conclusion holds.
-	*/
-	/*
-	/////////////using 32gb's iteration, address stride 1 * 128 * 1024, long long int data type
-	P_chasing2(1, A, iterations/4, B, 0, clock_rate, data_stride);//////////////migrate the first 8gb
-	P_chasing2(0, A, iterations/8, B, 0, clock_rate, data_stride);//////////////access the first 4gb again
-	P_chasing2(0, A, 3 * iterations/8, B, 2147483648, clock_rate, data_stride);///////////migrate another 12gb, however starting at 16gb.
-	P_chasing2(0, A, iterations/4, B, 0, clock_rate, data_stride);//////////////which 4gb of the first 8gb is left? what's the migration latency again?
-	///////////conclusion: last access of first 8gb has low latency, 
-	///////////and starting at 16gb (not continue at 8gb) the latency of first 16gb migration is still increasing as the same (with similar values).
-	///////////It means that there is an additional warm up latency for the 2M group initialization.
-	///////////And it is relating to the memory's physical locations itself, not relating to the address of the data.
-	*/
-	/*
-	/////////////using 32gb's iteration, address stride 1 * 128 * 1024, long long int data type
-	P_chasing2(1, A, iterations/4, B, 0, clock_rate, data_stride);//////////////migrate the first 8gb
-	P_chasing2(0, A, iterations/8, B, 0, clock_rate, data_stride);//////////////access the first 4gb again
-	P_chasing2(0, A, 3 * iterations/8, B, 1073741824, clock_rate, data_stride);///////////migrate another 12gb
-	P_chasing2(0, A, iterations/4, B, 671088640, clock_rate, data_stride);//////////////which 4gb of the first 8gb is left? starting at 5gb.
-	////////////////conclusion: the latter 4gb was left, even though the first 4gb is last accessed. The LRU is for migration not for access.
-	*/
-	//P_chasing2(1, A, iterations, B, 0, clock_rate, data_stride);
-	//P_chasing2(0, A, iterations, B, mod - data_stride + 3, clock_rate, data_stride);
-	
-	__syncthreads();
-}
-
 __global__ void tlb_latency_test2(long long int *A, long long int iterations, long long int *B, float clock_rate, long long int mod, long long int data_stride){
 			
 	P_chasing2(1, A, iterations, B, 0, clock_rate, data_stride);//////////////migrate the first 8gb	
@@ -186,7 +117,26 @@ __global__ void tlb_latency_test4(long long int *A, long long int iterations, lo
 
 __global__ void tlb_latency_test5(long long int *A, long long int iterations, long long int *B, float clock_rate, long long int mod, long long int data_stride){
 			
-	P_chasing2(1, A, iterations, B, 2147483664, clock_rate, data_stride);//////////////offset 16
+	P_chasing2(1, A, iterations, B, 2147483664, clock_rate, data_stride);//////////////offset 16, starting 16gb.
+	//P_chasing2(1, A, iterations, B, 0, clock_rate, data_stride);
+	//P_chasing2(0, A, iterations, B, mod - data_stride + 3, clock_rate, data_stride);
+	
+	__syncthreads();
+}
+
+
+__global__ void tlb_latency_test6(long long int *A, long long int iterations, long long int *B, float clock_rate, long long int mod, long long int data_stride){
+			
+	P_chasing2(1, A, iterations, B, 2415919168, clock_rate, data_stride);//////////////offset 64, starting 18gb.
+	//P_chasing2(1, A, iterations, B, 0, clock_rate, data_stride);
+	//P_chasing2(0, A, iterations, B, mod - data_stride + 3, clock_rate, data_stride);
+	
+	__syncthreads();
+}
+
+__global__ void tlb_latency_test7(long long int *A, long long int iterations, long long int *B, float clock_rate, long long int mod, long long int data_stride){
+			
+	P_chasing2(1, A, iterations, B, 2281832512, clock_rate, data_stride);//////////////offset 1m + 64 (131136), starting 17gb (2281701376).
 	//P_chasing2(1, A, iterations, B, 0, clock_rate, data_stride);
 	//P_chasing2(0, A, iterations, B, mod - data_stride + 3, clock_rate, data_stride);
 	
@@ -237,9 +187,7 @@ int main(int argc, char **argv)
 	checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(long long int) * 2));			
 	
 	int counter = 0;
-	//for(long long int data_stride = 1 * 4 * 1024; data_stride <= 1 * 64 * 1024; data_stride = data_stride * 2){
-	//for(long long int data_stride = 1 * 4 * 1024; data_stride <= 1 * 128 * 1024; data_stride = data_stride * 2){
-	for(long long int data_stride = 1 * 4 * 1024; data_stride <= 1 * 128 * 1024; data_stride = data_stride * 2){
+	for(long long int data_stride = 1 * 4 * 1024; data_stride <= 1 * 4 * 1024; data_stride = data_stride * 2){
 
 	//plain managed
 	printf("*\n*\n*\n plain managed\n");	
@@ -263,59 +211,22 @@ int main(int argc, char **argv)
 		printf("###################data_stride%lld#########################\n", data_stride);
 		printf("###############Mod%lld##############%lld\n", mod, iterations);		
 
-		//tlb_latency_test<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///kernel is here	
-		//cudaDeviceSynchronize();
-		
 		/*
-		tlb_latency_test2<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///migrate 32gb to gpu	(with warmup & no eviction & no trail) and (no warmup & with eviction & no trail)
+		tlb_latency_test5<<<1, 1>>>(CPU_data_in, 14 * 16384/2, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb, with manipulated strides.
 		cudaDeviceSynchronize();
-		
-		traverse_cpu_data(CPU_data_in, iterations/2, 2147483648, data_stride);///////migrate last 16 gb to cpu, gpu is clear
 		
 		printf("location1:\n");
 		
-		tlb_latency_test2<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);///migrate 32gb to gpu again (no warmup & no eviction & no trail) and (no warmup & with eviction & no trail)
+		tlb_latency_test7<<<1, 1>>>(CPU_data_in, 16384/2, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb again (starting 18gb) with 32k strides to see the page size migrated for the second iteration.
 		cudaDeviceSynchronize();
-		
-		traverse_cpu_data(CPU_data_in, iterations/2, 2147483648, data_stride);///////migrate last 16 gb to cpu, gpu is clear
-		
-		printf("location2:\n");
-		
-		tlb_latency_test3<<<1, 1>>>(CPU_data_in, iterations/2, GPU_data_out, clock_rate, mod, data_stride);///migrate last 16gb (starting 17gb) to gpu again (no warmup & no eviction & with trail)
-		cudaDeviceSynchronize();		
-		///////////conclusion: eviction overhead exists, but page migration does not evict the page group setup (trail does exist, leave a trail when page size not dynamic).
+		////////////////conclusion: Even for later iterations, page size still always increase, and the size depends on earlier accesses.
 		*/
 		
-		/*
-		//page eviction evict the whole 2M group? 1m vs 2m strides.
-		tlb_latency_test5<<<1, 1>>>(CPU_data_in, iterations/2, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb, with 512k stride
-		cudaDeviceSynchronize();
+		/////////////initialization cause eviction(large size)?
 		
-		printf("location1:\n");
-		
-		tlb_latency_test4<<<1, 1>>>(CPU_data_in, 16384/2, GPU_data_out, clock_rate, mod, data_stride);///migrate first 16gb to gpu, with 2m stride. (see if accesssing only one data will cause eviction and see the eviction time change)
-		cudaDeviceSynchronize();
-		
-		printf("location2:\n");
-		
-		tlb_latency_test3<<<1, 1>>>(CPU_data_in, iterations/2, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb again (starting 17gb). (any page hit?)
-		cudaDeviceSynchronize();
-		///////////////////conclusion: page eviction evict the whole 2M group. Also the larger the evicted data size, the longer the new inititalization latency.
-		*/
-				
-		///////////is it migrating 64k always when not dynamic? use different stride to find out. 64 vs 128?
-		tlb_latency_test5<<<1, 1>>>(CPU_data_in, 16384/2, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb
-		cudaDeviceSynchronize();
-		
-		printf("location1:\n");
-		
-		tlb_latency_test3<<<1, 1>>>(CPU_data_in, iterations/2, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb again (starting 17gb) with smaller strides, any page hit?
-		cudaDeviceSynchronize();
-		///////////////////conclusion: 
-						
 		//checkCudaErrors(cudaFree(GPU_data_in));
 		checkCudaErrors(cudaFree(CPU_data_in));
-		//free(CPU_data_in);		
+		//free(CPU_data_in);
 	}
 	}
 			
