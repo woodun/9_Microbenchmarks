@@ -411,7 +411,7 @@ int main(int argc, char **argv)
 		
 		printf("location1:\n");
 		
-		tlb_latency_test6<<<1, 1>>>(CPU_data_in, 2 * 16384/2, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb again (starting 18gb) with 32k strides to see the page size migrated for the second iteration.
+		tlb_latency_test7<<<1, 1>>>(CPU_data_in, 2 * 16384/2, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb again (starting 18gb) with 32k strides to see the page size migrated for the second iteration.
 		cudaDeviceSynchronize();
 		///////////////////conclusion: Even for later iterations, page size still always increase.
 		
