@@ -36,7 +36,7 @@ __global__ void gpu_initialization(long long int *A, long long int iterations, l
 		end_time=clock64();//////clock
 		end_time=clock64();//////clock
 		time_interval = end_time - start_time;//////clock
-		printf("%lld %lld\n", j, time_interval);
+		printf("%lld %lld\n", it, time_interval);
 	}	
 	
 	//B[0] = j;
