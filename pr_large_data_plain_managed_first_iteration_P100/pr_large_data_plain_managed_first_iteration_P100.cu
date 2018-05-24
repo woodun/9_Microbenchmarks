@@ -63,21 +63,31 @@ void init_cpu_data(long long int* A, long long int size, long long int stride, l
 			A[i + 4096 * 5]=(i + stride2);
 			*/			
 			A[i]=(i + 4096 * 24);
-			A[i + 4096 * 24]=(i + 4096 * 30);//////////making stride larger than 128k (4096 * 4)
-			A[i + 4096 * 30]=(i + 4096 * 10);			
-			A[i + 4096 * 10]=(i + 4096 * 19);
-			A[i + 4096 * 19]=(i + 4096 * 2);
+			A[i + 4096 * 24]=(i + 4096 * 25);//////////making stride larger than 128k (4096 * 4)
+			A[i + 4096 * 25]=(i + 4096 * 28);			
+			A[i + 4096 * 28]=(i + 4096 * 30);
+			A[i + 4096 * 30]=(i + 4096 * 2);
 			A[i + 4096 * 2]=(i + 4096 * 4);
-			A[i + 4096 * 4]=(i + 4096 * 6);
-			A[i + 4096 * 6]=(i + stride2);
+			A[i + 4096 * 4]=(i + 4096 * 20);
+			A[i + 4096 * 20]=(i + stride2);
 		}
-		A[size - stride2 + 16]=16;//////////offset 16
-				
+		A[size - stride2 + 16]=16;//////////offset 16				
+		
 		long long int stride3 = 1 * 4 * 1024;/////////32k
 		for (long long int i = 64; i < size - stride3; i = i + stride3){
 			A[i]=(i + stride3);
 		}
 		A[size - stride3 + 64]=64;//////////offset 64		
+
+		/*
+		long long int stride3 = 1 * 256 * 1024;/////////2m
+		for (long long int i = 64; i < size - stride3; i = i + stride3){
+			//A[i]=(i + stride3);
+			A[i]=(i + 128 * 1024);/////////////skip first 1m
+			A[i]=(i + 192 * 1024);/////////////second half use 512k stride
+		}
+		A[size - stride3 + 64]=64;//////////offset 64
+		*/
 	}
 	
 	if(0){////////////reversed
@@ -371,8 +381,9 @@ int main(int argc, char **argv)
 		///////////////////even if 64k page group have initialized, hitting dynamic page group still have to initialized again.
 		///////////////////if 64k page group have initialized, hitting 64k page group does not need to initialize again.
 		///////////////////if dynamic page group have initialized, even a previous 64k page hit before now cause dynamic page size,
-		///////////////////and its actual size and latency depend on the number of requests within it?
-		///////////////////for irregular strides, the page size 		
+		///////////////////and its actual size depend on its current stride (not previous)?
+		///////////////////and even with the same page size, the migration latency depend on the number of requests within it.
+		///////////////////for irregular strides, the page size depend on the strides?		
 		
 		/////////////initialization cause eviction?
 		
