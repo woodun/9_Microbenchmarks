@@ -92,9 +92,9 @@ void init_cpu_data(long long int* A, long long int size, long long int stride, l
 		
 		long long int stride3 = 1 * 256 * 1024;/////////2m
 		for (long long int i = 1 * 128 * 1024 + 64; i < size - stride3; i = i + stride3){
-			//A[i]=(i + stride3);
-			A[i]=(i + 64 * 1024);/////////////second half use 512k stride
-			A[i + 64 * 1024]=(i + stride3);
+			A[i]=(i + stride3);
+			//A[i]=(i + 64 * 1024);/////////////second half use 512k stride
+			//A[i + 64 * 1024]=(i + stride3);
 		}
 		A[size - stride3 + 1 * 128 * 1024 + 64]=1 * 128 * 1024 + 64;//////////offset 1m + 64		
 	}
@@ -411,7 +411,7 @@ int main(int argc, char **argv)
 		
 		printf("location1:\n");
 		
-		tlb_latency_test7<<<1, 1>>>(CPU_data_in, 2 * 16384/2, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb again (starting 18gb) with 32k strides to see the page size migrated for the second iteration.
+		tlb_latency_test7<<<1, 1>>>(CPU_data_in, 16384/2, GPU_data_out, clock_rate, mod, data_stride);///migrate the last 16gb again (starting 18gb) with 32k strides to see the page size migrated for the second iteration.
 		cudaDeviceSynchronize();
 		///////////////////conclusion: Even for later iterations, page size still always increase.
 		
