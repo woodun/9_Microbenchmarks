@@ -185,6 +185,12 @@ int main(int argc, char **argv)
 		checkCudaErrors(cudaMallocManaged(&CPU_data_in, sizeof(long long int) * data_size));/////////////using unified memory	
 		//init_cpu_data(CPU_data_in, data_size, data_stride, mod);
 		CPU_data_in[0] = 23;//////////try with only one data.
+		CPU_data_in[8 * 1024] = 23;
+		CPU_data_in[16 * 1024] = 23;
+		CPU_data_in[24 * 1024] = 23;
+		CPU_data_in[32 * 1024] = 23;
+		CPU_data_in[40 * 1024] = 23;
+		CPU_data_in[48 * 1024] = 23;
 		///////////////////////////////////////////////////////////////////CPU data end	
 	
 		///////////////////////////////////////////////////////////////////GPU data in	
