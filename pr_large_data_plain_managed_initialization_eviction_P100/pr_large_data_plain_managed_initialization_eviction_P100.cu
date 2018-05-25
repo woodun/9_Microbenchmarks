@@ -20,6 +20,33 @@ long long int traverse_cpu_data(long long int *A, long long int iterations, long
 	return j;
 }
 
+void init_cpu_data(long long int* A, long long int size, long long int stride, long long int mod){
+	if(1){////////////normal
+		for (long long int i = 0; i < size - stride; i = i + stride){
+			A[i]=(i + stride);
+		}
+		A[size - stride]=0;
+		
+		//for (long long int i = 16; i < size - stride; i = i + stride){
+		//	A[i]=(i + stride);
+		//}		
+		//A[size - stride + 16]=16;			
+	}
+	
+	if(0){////////////reversed
+		//for (long long int i = 0; i <= size - stride; i = i + stride){
+		//	A[i]=(i - stride);
+		//}
+		//A[0]=size - stride;
+		
+		for (long long int i = 3; i <= size - stride + 3; i = i + stride){
+			A[i]=(i - stride);
+		}
+		A[3]=size - stride + 3;
+	}
+}
+
+
 __global__ void gpu_initialization(long long int *A, long long int iterations, long long int *B, float clock_rate, long long int mod, long long int data_stride){			
 	
 	//__shared__ long long int s_index[1];	
@@ -200,6 +227,7 @@ int main(int argc, char **argv)
 		long long int *CPU_data_in;
 		//CPU_data_in = (int*)malloc(sizeof(int) * data_size);
 		checkCudaErrors(cudaMallocManaged(&CPU_data_in, sizeof(long long int) * data_size));/////////////using unified memory	
+		init_cpu_data(CPU_data_in, data_size, data_stride, mod);
 		///////////////////////////////////////////////////////////////////CPU data end	
 	
 		///////////////////////////////////////////////////////////////////GPU data in	
