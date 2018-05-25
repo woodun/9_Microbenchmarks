@@ -144,7 +144,6 @@ int main(int argc, char **argv)
 	checkCudaErrors(cudaDeviceGetAttribute(&value1, cudaDevAttrConcurrentManagedAccess, dev_id));
 	printf("cudaDevAttrConcurrentManagedAccess = %d\n", value1);	
 	
-	/*
 	//plain managed
 	printf("###################\n#########################managed\n");
 	for(long long int data_stride = 1 * 1 * 1024; data_stride <= 1 * 128 * 1024; data_stride = data_stride * 2){
@@ -191,8 +190,8 @@ int main(int argc, char **argv)
 	}
 	}
 	}
-	*/
 	
+	/*
 	printf("###################\n#########################memcpy\n");
 	for(long long int data_stride = 1 * 1 * 1024; data_stride <= 1 * 128 * 1024; data_stride = data_stride * 2){
 	for(long long int mod = 536870912; mod <= 536870912; mod = mod * 2){////134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
@@ -240,6 +239,7 @@ int main(int argc, char **argv)
 	}
 	}
 	}
+	*/
 	
     exit(EXIT_SUCCESS);
 }
