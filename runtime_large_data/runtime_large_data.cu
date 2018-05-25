@@ -28,6 +28,15 @@ void init_cpu_data(long long int* A, long long int size, long long int stride){
 	*/
 }
 
+__global__ void gpu_initialization(long long int *A, long long int iterations, long long int *B, float clock_rate, long long int mod, long long int data_stride){			
+
+	long long int index = (blockIdx.x * blockDim.x + threadIdx.x) * data_stride;
+	
+	for(long long int it = 0; it < data_stride; it++){
+		A[index + it]=23;
+	}
+}
+
 long long unsigned time_diff(timespec start, timespec end){
 	struct timespec temp;
 	if ((end.tv_nsec - start.tv_nsec) < 0){
@@ -146,17 +155,22 @@ int main(int argc, char **argv)
 	
 	//plain managed
 	printf("###################\n#########################managed\n");
-	for(long long int data_stride = 1 * 1 * 1024; data_stride <= 1 * 256 * 1024; data_stride = data_stride * 2){
+	//////////////8gb to 32gb stride 2gb
+	for(long long int data_stride = 1 * 32 * 1024; data_stride <= 1 * 256 * 1024; data_stride = data_stride + 1 * 8 * 1024){
 	for(long long int mod = 4294967296; mod <= 4294967296; mod = mod * 2){////134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
 	for(long long int clock_count = 64; clock_count <= 64; clock_count = clock_count * 2){
 		///////////////////////////////////////////////////////////////////CPU data begin		
-		long long int data_size = mod;
+		//long long int data_size = mod;
+		long long int data_size = data_stride;
+		data_size = data_size * 32;
+		data_size = data_size * 512;
 		//long long int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256
 	
 		long long int *CPU_data_in;
 		//CPU_data_in = (long long int*)malloc(sizeof(long long int) * data_size);
 		checkCudaErrors(cudaMallocManaged(&CPU_data_in, sizeof(long long int) * data_size));/////////////using unified memory		
-		init_cpu_data(CPU_data_in, data_size, data_stride);				
+		//init_cpu_data(CPU_data_in, data_size, data_stride);
+		
 		///////////////////////////////////////////////////////////////////CPU data end	
 	
 		///////////////////////////////////////////////////////////////////GPU data in	
@@ -168,13 +182,15 @@ int main(int argc, char **argv)
 		long long int *GPU_data_out;
 		//checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(long long int) * data_size));
 		checkCudaErrors(cudaMallocManaged(&GPU_data_out, sizeof(long long int) * data_size));/////////////using unified memory		
-				
+		
+		gpu_initialization<<<32, 512>>>(CPU_data_in, GPU_data_out, data_stride, clock_count);///////////////1024 per block max
+		
 		/////////////////////////////////time
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
   
-		Page_visitor<<<32, 128>>>(CPU_data_in, GPU_data_out, data_stride, clock_count);///////////////1024 per block max
-		///////////////////////////////////////////////////////////////////////////////32 * 512 * 2 = 32gb	
+		Page_visitor<<<32, 512>>>(CPU_data_in, GPU_data_out, data_stride, clock_count);///////////////1024 per block max
+		///////////////////////////////////////////////////32 * 512 * 2 = 32gb, 32 * 128 * 2 = 8gb, 32 * 64 * 2 = 4gb
 		cudaDeviceSynchronize();
 				
 		/////////////////////////////////time
