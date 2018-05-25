@@ -211,7 +211,7 @@ int main(int argc, char **argv)
 		///////////////////////////////////////////////////////////////////GPU data in	
 		long long int *GPU_data_in;
 		checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(long long int) * data_size));	
-		///cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(long long int) * data_size, cudaMemcpyHostToDevice);///////moved down
+		cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(long long int) * data_size, cudaMemcpyHostToDevice);///////moved down
 		
 		///////////////////////////////////////////////////////////////////GPU data out
 		long long int *GPU_data_out;
@@ -222,7 +222,7 @@ int main(int argc, char **argv)
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
 		
-		cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(long long int) * data_size, cudaMemcpyHostToDevice);
+		//cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(long long int) * data_size, cudaMemcpyHostToDevice);
   
 		Page_visitor<<<32, 64>>>(GPU_data_in, GPU_data_out, data_stride, clock_count);///////////////1024 per block max
 		///////////////////////////////////////////////////////////////////////////////32 * 512 * 2 = 32gb, 32 * 128 * 2 = 8gb
