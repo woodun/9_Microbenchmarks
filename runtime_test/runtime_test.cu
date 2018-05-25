@@ -46,7 +46,7 @@ long long unsigned time_diff(timespec start, timespec end){
 	return time_interval_s + time_interval_ns;
 }
 
-__global__ void Page_visitor(long long int *A, long long int *B, long long int data_stride, long long int clock_count){
+__global__ void Page_visitor(long long int *A, long long int *B, long long int data_stride, long long int clock_count){////load-compute -store
 		
 	/*
 	long long int index = threadIdx.x;
@@ -66,15 +66,13 @@ __global__ void Page_visitor(long long int *A, long long int *B, long long int d
 	
 	long long int value = A[index];
 	
-	/*
 	//////////////////////////////////////////////sleep
 	long long int start_clock = clock64();
     long long int clock_offset = 0;
     while (clock_offset < clock_count)
     {
         clock_offset = clock64() - start_clock;
-    }
-	*/
+    }	
 	
 	/*
 	if(threadIdx.x == 0){/////%tid %ntid %laneid %warpid %nwarpid %ctaid %nctaid %smid %nsmid %gridid
@@ -191,55 +189,6 @@ int main(int argc, char **argv)
 		checkCudaErrors(cudaFree(GPU_data_out));
 	}
 	}
-	}
-	
-	/*
-	//memcopy
-	printf("*\n*\n*\n memcopy\n");
-	for(long long int data_stride = 1 * 128 * 1024; data_stride <= 2 * 256 * 1024; data_stride = data_stride * 2){
-	for(long long int mod = 536870912; mod <= 536870912; mod = mod * 2){////268435456 = 1gb, 536870912 = 2gb, 1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb, 8589934592 = 32gb.	
-	for(long long int clock_count = 1000; clock_count <= 1000; clock_count = clock_count * 2){
-
-		///////////////////////////////////////////////////////////////////CPU data begin		
-		long long int data_size = mod;
-		//long long int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256
-	
-		long long int *CPU_data_in;
-		CPU_data_in = (long long int*)malloc(sizeof(long long int) * data_size);		
-		init_cpu_data(CPU_data_in, data_size, data_stride);				
-		///////////////////////////////////////////////////////////////////CPU data end	
-	
-		///////////////////////////////////////////////////////////////////GPU data in	
-		long long int *GPU_data_in;
-		checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(long long int) * data_size));	
-		
-		///////////////////////////////////////////////////////////////////GPU data out
-		long long int *GPU_data_out;
-		checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(long long int) * data_size));
-				
-		/////////////////////////////////time
-		struct timespec ts1;
-		clock_gettime(CLOCK_REALTIME, &ts1);
-
-		cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(long long int) * data_size, cudaMemcpyHostToDevice);
-		Page_visitor<<<1, 512>>>(GPU_data_in, GPU_data_out, data_stride, clock_count);///////////////kernel is here	
-		cudaDeviceSynchronize();
-				
-		/////////////////////////////////time
-		struct timespec ts2;
-		clock_gettime(CLOCK_REALTIME, &ts2);
-		
-		printf("###################data_stride%d#########################clock_count:%lld\n", data_stride, clock_count);
-		printf("*\n*\n*\nruntime:  %lluns\n", time_diff(ts1, ts2));
-		
-		checkCudaErrors(cudaFree(GPU_data_in));
-		//checkCudaErrors(cudaFree(CPU_data_in));
-		free(CPU_data_in);
-		checkCudaErrors(cudaFree(GPU_data_out));
-	}
-	}
-	}
-	*/
-	
+	}	
     exit(EXIT_SUCCESS);
 }
