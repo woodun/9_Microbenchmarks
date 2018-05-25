@@ -28,7 +28,7 @@ void init_cpu_data(long long int* A, long long int size, long long int stride){
 	*/
 }
 
-__global__ void gpu_initialization(long long int *A, long long int iterations, long long int *B, float clock_rate, long long int mod, long long int data_stride){			
+__global__ void gpu_initialization(long long int *A, long long int *B, long long int data_stride, long long int clock_count){			
 
 	long long int index = (blockIdx.x * blockDim.x + threadIdx.x) * data_stride;
 	
