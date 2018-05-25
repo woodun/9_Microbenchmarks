@@ -146,7 +146,7 @@ int main(int argc, char **argv)
 	
 	//plain managed
 	printf("*\n*\n*\n plain managed\n");
-	for(long long int data_stride = 1 * 256 * 1024; data_stride <= 1 * 256 * 1024; data_stride = data_stride * 2){
+	for(long long int data_stride = 1 * 1 * 1024; data_stride <= 1 * 256 * 1024; data_stride = data_stride * 2){
 	for(long long int mod = 4294967296; mod <= 4294967296; mod = mod * 2){////134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
 	for(long long int clock_count = 64; clock_count <= 1024; clock_count = clock_count * 2){
 		///////////////////////////////////////////////////////////////////CPU data begin		
