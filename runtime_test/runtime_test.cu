@@ -180,8 +180,9 @@ int main(int argc, char **argv)
 		struct timespec ts2;
 		clock_gettime(CLOCK_REALTIME, &ts2);
 		
-		printf("###################data_stride%lld#########################clock_count:%lld\n", data_stride, clock_count);
-		printf("*\n*\n*\nruntime:  %lluns\n", time_diff(ts1, ts2));	
+		//printf("###################data_stride%lld#########################clock_count:%lld\n", data_stride, clock_count);
+		//printf("*\n*\n*\nruntime:  %lluns\n", time_diff(ts1, ts2));
+		printf("%llu\n", time_diff(ts1, ts2));
 		
 		//checkCudaErrors(cudaFree(GPU_data_in));
 		checkCudaErrors(cudaFree(CPU_data_in));
@@ -190,8 +191,7 @@ int main(int argc, char **argv)
 	}
 	}
 	}
-	
-	/*
+		
 	printf("###################\n#########################memcpy\n");
 	for(long long int data_stride = 1 * 1 * 1024; data_stride <= 1 * 128 * 1024; data_stride = data_stride * 2){
 	for(long long int mod = 536870912; mod <= 536870912; mod = mod * 2){////134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
@@ -229,8 +229,9 @@ int main(int argc, char **argv)
 		struct timespec ts2;
 		clock_gettime(CLOCK_REALTIME, &ts2);
 		
-		printf("###################data_stride%lld#########################clock_count:%lld\n", data_stride, clock_count);
-		printf("*\n*\n*\nruntime:  %lluns\n", time_diff(ts1, ts2));	
+		//printf("###################data_stride%lld#########################clock_count:%lld\n", data_stride, clock_count);
+		//printf("*\n*\n*\nruntime:  %lluns\n", time_diff(ts1, ts2));
+		printf("%llu\n", time_diff(ts1, ts2));
 		
 		checkCudaErrors(cudaFree(GPU_data_in));
 		free(CPU_data_in);
@@ -239,7 +240,6 @@ int main(int argc, char **argv)
 	}
 	}
 	}
-	*/
-	
+		
     exit(EXIT_SUCCESS);
 }
