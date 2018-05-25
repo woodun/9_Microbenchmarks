@@ -62,6 +62,8 @@ __global__ void gpu_initialization(long long int *A, long long int iterations, l
 		//s_index[0] = j;
 		end_time=clock64();//////clock
 		end_time=clock64();//////clock
+		end_time=clock64();//////clock
+		end_time=clock64();//////clock
 		time_interval = end_time - start_time;//////clock
 		printf("%lld %lld\n", it, time_interval);
 	}	
@@ -113,52 +115,6 @@ __device__ void P_chasing2(int mark, long long int *A, long long int iterations,
 	}
 
 	B[0] = j;
-}
-
-__global__ void tlb_latency_test2(long long int *A, long long int iterations, long long int *B, float clock_rate, long long int mod, long long int data_stride){
-			
-	P_chasing2(1, A, iterations, B, 0, clock_rate, data_stride);//////////////migrate the first 8gb	
-	//P_chasing2(1, A, iterations, B, 0, clock_rate, data_stride);
-	//P_chasing2(0, A, iterations, B, mod - data_stride + 3, clock_rate, data_stride);
-	
-	__syncthreads();
-}
-
-__global__ void tlb_latency_test3(long long int *A, long long int iterations, long long int *B, float clock_rate, long long int mod, long long int data_stride){
-			
-	P_chasing2(1, A, iterations, B, 2281701376, clock_rate, data_stride);//////////////offset 0, starting 17gb.
-	//P_chasing2(1, A, iterations, B, 0, clock_rate, data_stride);
-	//P_chasing2(0, A, iterations, B, mod - data_stride + 3, clock_rate, data_stride);
-	
-	__syncthreads();
-}
-
-__global__ void tlb_latency_test4(long long int *A, long long int iterations, long long int *B, float clock_rate, long long int mod, long long int data_stride){
-			
-	P_chasing2(1, A, iterations, B, 131136, clock_rate, data_stride);//////////////offset 131136, with a different stride.
-	//P_chasing2(1, A, iterations, B, 0, clock_rate, data_stride);
-	//P_chasing2(0, A, iterations, B, mod - data_stride + 3, clock_rate, data_stride);
-	
-	__syncthreads();
-}
-
-__global__ void tlb_latency_test5(long long int *A, long long int iterations, long long int *B, float clock_rate, long long int mod, long long int data_stride){
-			
-	P_chasing2(1, A, iterations, B, 2147483664, clock_rate, data_stride);//////////////offset 16, starting 16gb.
-	//P_chasing2(1, A, iterations, B, 0, clock_rate, data_stride);
-	//P_chasing2(0, A, iterations, B, mod - data_stride + 3, clock_rate, data_stride);
-	
-	__syncthreads();
-}
-
-
-__global__ void tlb_latency_test6(long long int *A, long long int iterations, long long int *B, float clock_rate, long long int mod, long long int data_stride){
-			
-	P_chasing2(1, A, iterations, B, 2415919168, clock_rate, data_stride);//////////////offset 64, starting 18gb.
-	//P_chasing2(1, A, iterations, B, 0, clock_rate, data_stride);
-	//P_chasing2(0, A, iterations, B, mod - data_stride + 3, clock_rate, data_stride);
-	
-	__syncthreads();
 }
 
 __global__ void tlb_latency_test7(long long int *A, long long int iterations, long long int *B, float clock_rate, long long int mod, long long int data_stride){
