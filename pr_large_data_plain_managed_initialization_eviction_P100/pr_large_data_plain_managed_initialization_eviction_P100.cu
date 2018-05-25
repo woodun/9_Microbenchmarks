@@ -174,7 +174,7 @@ int main(int argc, char **argv)
 
 	//plain managed
 	printf("*\n*\n*\n plain managed\n");	
-	for(long long int mod = 4294967296; mod <= 4294967296; mod = mod * 2){////134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb.
+	for(long long int mod = 1073741824; mod <= 1073741824; mod = mod * 2){////134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb.
 		counter++;
 		///////////////////////////////////////////////////////////////////CPU data begin
 		long long int data_size = mod;
@@ -190,6 +190,7 @@ int main(int argc, char **argv)
 		//CPU_data_in[32 * 1024] = 23;
 		//CPU_data_in[40 * 1024] = 23;
 		CPU_data_in[128 * 1024] = 23;
+		////////////////conclusion: initialization placement granularity 64k.
 		///////////////////////////////////////////////////////////////////CPU data end	
 	
 		///////////////////////////////////////////////////////////////////GPU data in	
