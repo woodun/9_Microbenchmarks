@@ -146,7 +146,7 @@ int main(int argc, char **argv)
 	
 	//plain managed
 	printf("###################\n#########################managed\n");
-	for(long long int data_stride = 1 * 1 * 1024; data_stride <= 1 * 256 * 1024; data_stride = data_stride * 2){
+	for(long long int data_stride = 1 * 1 * 1024; data_stride <= 1 * 128 * 1024; data_stride = data_stride * 2){
 	for(long long int mod = 536870912; mod <= 536870912; mod = mod * 2){////134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
 	for(long long int clock_count = 64; clock_count <= 1024; clock_count = clock_count * 2){
 		///////////////////////////////////////////////////////////////////CPU data begin		
@@ -173,8 +173,7 @@ int main(int argc, char **argv)
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
   
-		Page_visitor<<<32, 64>>>(CPU_data_in, GPU_data_out, data_stride, clock_count);///////////////1024 per block max
-		///////////////////////////////////////////////////32 * 512 * 2 = 32gb, 32 * 128 * 2 = 8gb, 32 * 64 * 2 = 4gb
+		Page_visitor<<<32, 128>>>(CPU_data_in, GPU_data_out, data_stride, clock_count);///////////////1024 per block max, 32 * 512 * 2 = 32gb	
 		cudaDeviceSynchronize();
 				
 		/////////////////////////////////time
@@ -194,7 +193,7 @@ int main(int argc, char **argv)
 	}
 		
 	printf("###################\n#########################memcpy\n");
-	for(long long int data_stride = 1 * 1 * 1024; data_stride <= 1 * 256 * 1024; data_stride = data_stride * 2){
+	for(long long int data_stride = 1 * 1 * 1024; data_stride <= 1 * 128 * 1024; data_stride = data_stride * 2){
 	for(long long int mod = 536870912; mod <= 536870912; mod = mod * 2){////134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
 	for(long long int clock_count = 64; clock_count <= 1024; clock_count = clock_count * 2){
 		///////////////////////////////////////////////////////////////////CPU data begin		
@@ -223,8 +222,7 @@ int main(int argc, char **argv)
 		
 		cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(long long int) * data_size, cudaMemcpyHostToDevice);
   
-		Page_visitor<<<32, 64>>>(GPU_data_in, GPU_data_out, data_stride, clock_count);///////////////1024 per block max
-		///////////////////////////////////////////////////////////////////////////////32 * 512 * 2 = 32gb, 32 * 128 * 2 = 8gb
+		Page_visitor<<<32, 128>>>(GPU_data_in, GPU_data_out, data_stride, clock_count);///////////////1024 per block max, 32 * 512 * 2 = 32gb	
 		cudaDeviceSynchronize();
 				
 		/////////////////////////////////time
