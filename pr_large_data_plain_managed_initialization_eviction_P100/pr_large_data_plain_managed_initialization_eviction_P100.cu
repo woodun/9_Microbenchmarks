@@ -22,15 +22,15 @@ long long int traverse_cpu_data(long long int *A, long long int iterations, long
 
 __global__ void gpu_initialization(long long int *A, long long int iterations, long long int *B, float clock_rate, long long int mod, long long int data_stride){			
 	
-	__shared__ long long int s_index[1];	
+	//__shared__ long long int s_index[1];	
 	
 	long long int start_time = 0;//////clock
 	long long int end_time = 0;//////clock
 	long long int time_interval = 0;//////clock
 			
-	for(long long int it = 0; it < iterations * data_stride; it = it + data_stride){
+	for(long long int it = 0; it < mod; it = it + data_stride){
 		
-		start_time = clock64();//////clock		
+		start_time = clock64();//////clock
 		A[it]=23;
 		//s_index[0] = j;
 		end_time=clock64();//////clock
