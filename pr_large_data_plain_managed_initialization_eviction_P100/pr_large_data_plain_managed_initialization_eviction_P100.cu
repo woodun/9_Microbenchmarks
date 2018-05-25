@@ -199,8 +199,7 @@ int main(int argc, char **argv)
 	
 		long long int *CPU_data_in;
 		//CPU_data_in = (int*)malloc(sizeof(int) * data_size);
-		checkCudaErrors(cudaMallocManaged(&CPU_data_in, sizeof(long long int) * data_size));/////////////using unified memory		
-		init_cpu_data(CPU_data_in, data_size, data_stride, mod);		
+		checkCudaErrors(cudaMallocManaged(&CPU_data_in, sizeof(long long int) * data_size));/////////////using unified memory	
 		///////////////////////////////////////////////////////////////////CPU data end	
 	
 		///////////////////////////////////////////////////////////////////GPU data in	
@@ -223,6 +222,7 @@ int main(int argc, char **argv)
 		*/
 		
 		/////////////initialization cause eviction(large size)?
+		gpu_initialization<<<1, 1>>>(CPU_data_in, iterations, GPU_data_out, clock_rate, mod, data_stride);
 		
 		//checkCudaErrors(cudaFree(GPU_data_in));
 		checkCudaErrors(cudaFree(CPU_data_in));
