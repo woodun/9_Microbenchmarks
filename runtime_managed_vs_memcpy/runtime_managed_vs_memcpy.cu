@@ -144,11 +144,12 @@ int main(int argc, char **argv)
 	checkCudaErrors(cudaDeviceGetAttribute(&value1, cudaDevAttrConcurrentManagedAccess, dev_id));
 	printf("cudaDevAttrConcurrentManagedAccess = %d\n", value1);	
 	
+	/*
 	//plain managed
 	printf("###################\n#########################managed\n");
-	for(long long int data_stride = 1 * 1 * 1024; data_stride <= 1 * 128 * 1024; data_stride = data_stride * 2){
+	for(long long int data_stride = 1 * 1 * 1024; data_stride <= 1 * 256 * 1024; data_stride = data_stride * 2){
 	for(long long int mod = 536870912; mod <= 536870912; mod = mod * 2){////134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
-	for(long long int clock_count = 64; clock_count <= 1024; clock_count = clock_count * 2){
+	for(long long int clock_count = 64; clock_count <= 2048; clock_count = clock_count * 2){
 		///////////////////////////////////////////////////////////////////CPU data begin		
 		long long int data_size = mod;
 		//long long int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256
@@ -173,7 +174,8 @@ int main(int argc, char **argv)
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
   
-		Page_visitor<<<32, 128>>>(CPU_data_in, GPU_data_out, data_stride, clock_count);///////////////1024 per block max, 32 * 512 * 2 = 32gb	
+		Page_visitor<<<32, 64>>>(CPU_data_in, GPU_data_out, data_stride, clock_count);///////////////1024 per block max
+		///////////////////////////////////////////////////32 * 512 * 2 = 32gb, 32 * 128 * 2 = 8gb, 32 * 64 * 2 = 4gb
 		cudaDeviceSynchronize();
 				
 		/////////////////////////////////time
@@ -191,11 +193,11 @@ int main(int argc, char **argv)
 	}
 	}
 	}
-		
+	*/
 	printf("###################\n#########################memcpy\n");
-	for(long long int data_stride = 1 * 1 * 1024; data_stride <= 1 * 128 * 1024; data_stride = data_stride * 2){
+	for(long long int data_stride = 1 * 1 * 1024; data_stride <= 1 * 256 * 1024; data_stride = data_stride * 2){
 	for(long long int mod = 536870912; mod <= 536870912; mod = mod * 2){////134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
-	for(long long int clock_count = 64; clock_count <= 1024; clock_count = clock_count * 2){
+	for(long long int clock_count = 64; clock_count <= 2048; clock_count = clock_count * 2){
 		///////////////////////////////////////////////////////////////////CPU data begin		
 		long long int data_size = mod;
 		//long long int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256
@@ -209,7 +211,7 @@ int main(int argc, char **argv)
 		///////////////////////////////////////////////////////////////////GPU data in	
 		long long int *GPU_data_in;
 		checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(long long int) * data_size));	
-		///cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(long long int) * data_size, cudaMemcpyHostToDevice);///////moved down
+		cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(long long int) * data_size, cudaMemcpyHostToDevice);///////moved down
 		
 		///////////////////////////////////////////////////////////////////GPU data out
 		long long int *GPU_data_out;
@@ -220,9 +222,10 @@ int main(int argc, char **argv)
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
 		
-		cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(long long int) * data_size, cudaMemcpyHostToDevice);
+		//cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(long long int) * data_size, cudaMemcpyHostToDevice);
   
-		Page_visitor<<<32, 128>>>(GPU_data_in, GPU_data_out, data_stride, clock_count);///////////////1024 per block max, 32 * 512 * 2 = 32gb	
+		Page_visitor<<<32, 64>>>(GPU_data_in, GPU_data_out, data_stride, clock_count);///////////////1024 per block max
+		///////////////////////////////////////////////////////////////////////////////32 * 512 * 2 = 32gb, 32 * 128 * 2 = 8gb
 		cudaDeviceSynchronize();
 				
 		/////////////////////////////////time
@@ -240,6 +243,10 @@ int main(int argc, char **argv)
 	}
 	}
 	}
+		
+	/////////////////////what happens when migration full 2m pages (not just 64k)
+	/////////////////////what happens when page fault intensity is smaller?
+		
 		
     exit(EXIT_SUCCESS);
 }
