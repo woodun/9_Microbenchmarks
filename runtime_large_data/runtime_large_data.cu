@@ -28,11 +28,12 @@ void init_cpu_data(long long int* A, long long int size, long long int stride){
 	*/
 }
 
-__global__ void gpu_initialization(long long int *A, long long int *B, long long int data_stride, long long int clock_count){			
+__global__ void gpu_initialization(long long int *A, long long int *B, long long int data_stride, long long int data_size){			
 
-	long long int index = (blockIdx.x * blockDim.x + threadIdx.x) * data_stride;
+	long long int index = (blockIdx.x * blockDim.x + threadIdx.x);
+	long long int thread_num =  gridDim.x * blockDim.x;
 	
-	for(long long int it = 0; it < data_stride; it++){
+	for(long long int it = 0; it < data_size; it = it + thread_num){
 		A[index + it]=23;
 	}
 }
@@ -184,15 +185,16 @@ int main(int argc, char **argv)
 		//checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(long long int) * data_size));
 		checkCudaErrors(cudaMallocManaged(&GPU_data_out, sizeof(long long int) * data_size));/////////////using unified memory		
 		
-		gpu_initialization<<<32, 512>>>(CPU_data_in, GPU_data_out, data_stride, clock_count);///////////////1024 per block max
+		gpu_initialization<<<32, 512>>>(CPU_data_in, GPU_data_out, data_stride, data_size);///////////////1024 per block max
+		cudaDeviceSynchronize();
 		
 		/////////////////////////////////time
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
   
-		Page_visitor<<<32, 512>>>(CPU_data_in, GPU_data_out, data_stride, clock_count);///////////////1024 per block max
+		//Page_visitor<<<32, 512>>>(CPU_data_in, GPU_data_out, data_stride, clock_count);///////////////1024 per block max
 		///////////////////////////////////////////////////32 * 512 * 2 = 32gb, 32 * 128 * 2 = 8gb, 32 * 64 * 2 = 4gb
-		cudaDeviceSynchronize();
+		//cudaDeviceSynchronize();
 				
 		/////////////////////////////////time
 		struct timespec ts2;
