@@ -192,9 +192,9 @@ int main(int argc, char **argv)
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
   
-		//Page_visitor<<<32, 512>>>(CPU_data_in, GPU_data_out, data_stride, clock_count);///////////////1024 per block max
+		Page_visitor<<<32, 512>>>(CPU_data_in, GPU_data_out, data_stride, clock_count);///////////////1024 per block max
 		///////////////////////////////////////////////////32 * 512 * 2 = 32gb, 32 * 128 * 2 = 8gb, 32 * 64 * 2 = 4gb
-		//cudaDeviceSynchronize();
+		cudaDeviceSynchronize();
 				
 		/////////////////////////////////time
 		struct timespec ts2;
