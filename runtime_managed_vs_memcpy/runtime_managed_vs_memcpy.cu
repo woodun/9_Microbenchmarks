@@ -66,12 +66,22 @@ __global__ void Page_visitor(long long int *A, long long int *B, long long int d
 	
 	long long int value = A[index];
 	
+	/*
 	//////////////////////////////////////////////sleep
 	long long int start_clock = clock64();
     long long int clock_offset = 0;
     while (clock_offset < clock_count)
     {
         clock_offset = clock64() - start_clock;
+    }
+	*/
+	
+	//////////////////////////////////////////////loop
+	long long int clock_offset = 0;
+    while (clock_offset < clock_count)
+    {
+        clock_offset++;
+		value = value + threadIdx.x;
     }	
 	
 	/*
