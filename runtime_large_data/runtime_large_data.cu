@@ -28,7 +28,7 @@ void init_cpu_data(long long int* A, long long int size, long long int stride){
 	*/
 }
 
-__global__ void gpu_initialization(long long int *A, long long int *B, long long int data_stride, long long int data_size){			
+__global__ void gpu_initialization(long long int *A, long long int data_stride, long long int data_size){			
 
 	long long int index = (blockIdx.x * blockDim.x + threadIdx.x);
 	long long int thread_num =  gridDim.x * blockDim.x;
@@ -56,7 +56,8 @@ long long unsigned time_diff(timespec start, timespec end){
 	return time_interval_s + time_interval_ns;
 }
 
-__global__ void Page_visitor(long long int *A, long long int *B, long long int data_stride, long long int clock_count){////load-compute -store
+//__global__ void Page_visitor(long long int *A, long long int *B, long long int data_stride, long long int clock_count){
+__global__ void Page_visitor(long long int *A, long long int data_stride, long long int clock_count){////load-compute -store
 		
 	/*
 	long long int index = threadIdx.x;
@@ -76,12 +77,21 @@ __global__ void Page_visitor(long long int *A, long long int *B, long long int d
 	
 	long long int value = A[index];
 	
+	/*
 	//////////////////////////////////////////////sleep
 	long long int start_clock = clock64();
     long long int clock_offset = 0;
     while (clock_offset < clock_count)
     {
         clock_offset = clock64() - start_clock;
+    }
+	*/
+	
+	//////////////////////////////////////////////loop
+	long long int clock_offset = 0;
+    while (clock_offset < clock_count){/////////////////what's the time overhead for addition and multiplication?
+        clock_offset++;
+		value = value + threadIdx.x;
     }	
 	
 	/*
@@ -100,7 +110,7 @@ __global__ void Page_visitor(long long int *A, long long int *B, long long int d
     //d_o[0] = clock_offset;
 	//////////////////////////////////////////////sleep
 	
-	B[index] = value;
+	A[index] = value;
 	
 	/*
 	__syncthreads();
@@ -155,13 +165,12 @@ int main(int argc, char **argv)
 	printf("cudaDevAttrConcurrentManagedAccess = %d\n", value1);	
 	
 	//plain managed
-	printf("###################\n#########################managed\n");
-	//////////////8gb to 64gb stride 2gb (1 * 8 * 1024)
-	//////////////1gb to 64gb stride 1gb (1 * 4 * 1024)
+	printf("###################\n#########################managed\n");	
+	//////////////0.5gb to 64gb stride 0.5gb (1 * 4 * 1024)
 	for(long long int data_stride = 1 * 4 * 1024; data_stride <= 1 * 512 * 1024; data_stride = data_stride + 1 * 4 * 1024){
 	//for(long long int data_stride = 1 * 256 * 1024; data_stride <= 1 * 256 * 1024; data_stride = data_stride + 1 * 8 * 1024){
 	for(long long int mod = 4294967296; mod <= 4294967296; mod = mod * 2){////134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
-	for(long long int clock_count = 64; clock_count <= 64; clock_count = clock_count * 2){
+	for(long long int clock_count = 1; clock_count <= 1; clock_count = clock_count * 2){
 		///////////////////////////////////////////////////////////////////CPU data begin		
 		//long long int data_size = mod;
 		long long int data_size = data_stride;
@@ -181,20 +190,22 @@ int main(int argc, char **argv)
 		//checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(long long int) * data_size));	
 		//cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(long long int) * data_size, cudaMemcpyHostToDevice);
 		
+		/*
 		///////////////////////////////////////////////////////////////////GPU data out
 		long long int *GPU_data_out;
 		//checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(long long int) * data_size));
 		checkCudaErrors(cudaMallocManaged(&GPU_data_out, sizeof(long long int) * data_size));/////////////using unified memory		
+		*/
 		
-		gpu_initialization<<<32, 512>>>(CPU_data_in, GPU_data_out, data_stride, data_size);///////////////1024 per block max
+		gpu_initialization<<<32, 512>>>(CPU_data_in, data_stride, data_size);///////////////1024 per block max
 		cudaDeviceSynchronize();
 		
 		/////////////////////////////////time
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
   
-		Page_visitor<<<32, 512>>>(CPU_data_in, GPU_data_out, data_stride, clock_count);///////////////1024 per block max
-		///////////////////////////////////////////////////32 * 512 * 2 = 32gb, 32 * 128 * 2 = 8gb, 32 * 64 * 2 = 4gb
+		Page_visitor<<<32, 512>>>(CPU_data_in, data_stride, clock_count);///////////////1024 per block max
+		///////////////////////////////////////////////////32 * 512 * 1 * 256 * 1024 = 32gb, 32 * 512 * 1 * 512 * 1024 = 64gb.
 		cudaDeviceSynchronize();
 				
 		/////////////////////////////////time
