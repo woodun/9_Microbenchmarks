@@ -167,7 +167,7 @@ int main(int argc, char **argv)
 		///////////////////////////////////////////////////////////////////CPU data begin		
 		//long long int data_size = mod;
 		long long int data_size = data_stride;
-		data_size = data_size * 256;
+		data_size = data_size * 32;
 		data_size = data_size * 512;
 		//long long int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256
 	
