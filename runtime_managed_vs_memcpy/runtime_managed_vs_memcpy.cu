@@ -160,7 +160,7 @@ int main(int argc, char **argv)
 	///32 * 64 <==> 1 * 512 * 1024 (8gb), 32 * 512 <==> 1 * 64 * 1024 (8gb), 
 	for(long long int data_stride = 1 * 1 * 1; data_stride <= 1 * 8 * 1024; data_stride = data_stride * 2){/////512 is 4m, see what happens after 2m. log2(512 * 1024) = 19. 20 positions.
 	for(long long int mod = 536870912; mod <= 536870912; mod = mod * 2){////134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
-	for(long long int clock_count = 1; clock_count <= 1024; clock_count = clock_count * 2){/////11 positions.
+	for(long long int clock_count = 128; clock_count <= 8192; clock_count = clock_count * 2){/////11 positions.
 		///////////////////////////////////////////////////////////////////CPU data begin		
 		//long long int data_size = mod;
 		long long int data_size = data_stride;
@@ -215,7 +215,7 @@ int main(int argc, char **argv)
 	printf("###################\n#########################memcpy + kernel\n");
 	for(long long int data_stride = 1 * 1 * 1; data_stride <= 1 * 8 * 1024; data_stride = data_stride * 2){////////question: when using smaller stride to migrate the whole 2M, is managed still better than memcpy?
 	for(long long int mod = 536870912; mod <= 536870912; mod = mod * 2){////134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
-	for(long long int clock_count = 1; clock_count <= 1024; clock_count = clock_count * 2){
+	for(long long int clock_count = 128; clock_count <= 8192; clock_count = clock_count * 2){
 		///////////////////////////////////////////////////////////////////CPU data begin		
 		//long long int data_size = mod;
 		long long int data_size = data_stride;
