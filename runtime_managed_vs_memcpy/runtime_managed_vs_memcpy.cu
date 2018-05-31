@@ -167,7 +167,7 @@ int main(int argc, char **argv)
 		///////////////////////////////////////////////////////////////////CPU data begin		
 		//long long int data_size = mod;
 		long long int data_size = data_stride;
-		data_size = data_size * 32;
+		data_size = data_size * 256;
 		data_size = data_size * 512;
 		//long long int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256
 	
@@ -194,7 +194,7 @@ int main(int argc, char **argv)
 		clock_gettime(CLOCK_REALTIME, &ts1);
 
 		////may want to use more thread to see clock_count effect
-		Page_visitor<<<32, 512>>>(CPU_data_in, data_stride, clock_count);///////////////1024 per block max
+		Page_visitor<<<256, 512>>>(CPU_data_in, data_stride, clock_count);///////////////1024 per block max
 		///////////////////////////////////////////////////32 * 64 * 1 * 512 * 1024 = 8gb.
 		cudaDeviceSynchronize();
 				
