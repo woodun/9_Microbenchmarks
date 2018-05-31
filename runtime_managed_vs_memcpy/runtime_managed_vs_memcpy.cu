@@ -216,6 +216,11 @@ int main(int argc, char **argv)
 	}
 
 
+	long long int t1[100][100];
+	long long int t2[100][100];
+	long long int t3[100][100];
+	unsigned counter1 = 0;
+	unsigned counter2 = 0;
 	printf("###################\n#########################memcpy + kernel\n");
 	for(long long int data_stride = 1 * 1 * 1; data_stride <= 1 * 1 * 256; data_stride = data_stride * 2){////////question: when using smaller stride to migrate the whole 2M, is managed still better than memcpy?
 	for(long long int mod = 536870912; mod <= 536870912; mod = mod * 2){////134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
@@ -264,16 +269,43 @@ int main(int argc, char **argv)
 		
 		//printf("###################data_stride%lld#########################clock_count:%lld\n", data_stride, clock_count);
 		//printf("*\n*\n*\nruntime:  %lluns\n", time_diff(ts1, ts2));
-		printf("%llu %llu %llu ", time_diff(ts1, ts2), time_diff(ts2, ts3), time_diff(ts1, ts3));		
+		//printf("%llu %llu %llu ", time_diff(ts1, ts2), time_diff(ts2, ts3), time_diff(ts1, ts3));		
+		t1[counter1][counter2] = time_diff(ts1, ts2);
+		t2[counter1][counter2] = time_diff(ts2, ts3);
+		t3[counter1][counter2] = time_diff(ts1, ts3);
 		
 		checkCudaErrors(cudaFree(GPU_data_in));
 		free(CPU_data_in);
 		//checkCudaErrors(cudaFree(CPU_data_in));		
 		//checkCudaErrors(cudaFree(GPU_data_out));
+		counter2++;
 	}
-	printf("\n");
+	counter1++;
+	//printf("\n");
 	}
 	}
+	
+	for(unsigned i = 0; i < counter1; i++){
+		for(unsigned j = 0; j < counter2; j++){
+			printf("%llu ", t1[i][j]);		
+		}
+		printf("\n");
+	}
+	printf("############################\n");
+	for(unsigned i = 0; i < counter1; i++){
+		for(unsigned j = 0; j < counter2; j++){
+			printf("%llu ", t2[i][j]);		
+		}
+		printf("\n");
+	}
+	printf("############################\n");
+	for(unsigned i = 0; i < counter1; i++){
+		for(unsigned j = 0; j < counter2; j++){
+			printf("%llu ", t3[i][j]);		
+		}
+		printf("\n");
+	}
+	printf("############################\n");
 		
 	/////////////////////what happens when migration full 2m pages (not just 64k)
 	/////////////////////what happens when page fault intensity is smaller?		
