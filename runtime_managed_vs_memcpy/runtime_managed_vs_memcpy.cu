@@ -280,6 +280,7 @@ int main(int argc, char **argv)
 		//checkCudaErrors(cudaFree(GPU_data_out));
 		counter2++;
 	}
+	counter2 = 0;
 	counter1++;
 	//printf("\n");
 	}
