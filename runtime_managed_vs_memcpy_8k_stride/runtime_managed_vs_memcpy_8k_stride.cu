@@ -159,7 +159,7 @@ int main(int argc, char **argv)
 	printf("###################\n#########################managed\n");
 	///32 * 64 <==> 1 * 512 * 1024 (8gb), 32 * 512 <==> 1 * 64 * 1024 (8gb), 
 	///is it still true that in multi threads the dynamic page threshold is still 64k? no, it seems to be 8k.
-	for(long long int data_stride = 1 * 4 * 1024; data_stride <= 1 * 4 * 1024; data_stride = data_stride * 2){
+	for(long long int data_stride = 1 * 1 * 1024; data_stride <= 1 * 1 * 1024; data_stride = data_stride * 2){
 	//for(long long int data_stride = 1 * 1 * 1; data_stride <= 1 * 8 * 1024; data_stride = data_stride * 2){/////512 is 4m, see what happens after 2m. log2(512 * 1024) = 19. 20 positions.
 	//for(long long int block_num = 16; block_num <= 2048; block_num = block_num + 16){////////up to 64gb
 	for(long long int block_num = 128; block_num <= 128; block_num = block_num + 16){////////up to 64gb

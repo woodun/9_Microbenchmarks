@@ -175,7 +175,7 @@ int main(int argc, char **argv)
 	//plain managed
 	printf("###################\n#########################managed\n");	
 	//////////////0.5gb to 64gb stride 0.5gb (1 * 4 * 1024)
-	for(long long int data_stride = 1 * 8 * 1024; data_stride <= 1 * 8 * 1024; data_stride = data_stride + 1 * 4 * 1024){/////512 is 4m, see what happens after 2m. 128 positions.
+	for(long long int data_stride = 1 * 1 * 1024; data_stride <= 1 * 1 * 1024; data_stride = data_stride + 1 * 4 * 1024){/////512 is 4m, see what happens after 2m. 128 positions.
 	//for(long long int data_stride = 1 * 256 * 1024; data_stride <= 1 * 256 * 1024; data_stride = data_stride + 1 * 8 * 1024){
 	for(long long int block_num = 16; block_num <= 2048; block_num = block_num + 16){////////up to 64gb
 	//for(long long int block_num = 256; block_num <= 256; block_num = block_num + 16){////////up to 64gb
