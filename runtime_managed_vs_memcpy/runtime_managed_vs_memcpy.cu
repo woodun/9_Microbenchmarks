@@ -223,6 +223,7 @@ int main(int argc, char **argv)
 	unsigned counter2 = 0;
 	printf("###################\n#########################memcpy + kernel\n");
 	for(long long int data_stride = 1 * 1 * 1; data_stride <= 1 * 1 * 256; data_stride = data_stride * 2){////////question: when using smaller stride to migrate the whole 2M, is managed still better than memcpy?
+	counter2 = 0;
 	for(long long int mod = 536870912; mod <= 536870912; mod = mod * 2){////134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
 	for(long long int clock_count = 128; clock_count <= 8192; clock_count = clock_count * 2){
 		///////////////////////////////////////////////////////////////////CPU data begin		
@@ -279,8 +280,7 @@ int main(int argc, char **argv)
 		//checkCudaErrors(cudaFree(CPU_data_in));		
 		//checkCudaErrors(cudaFree(GPU_data_out));
 		counter2++;
-	}
-	counter2 = 0;
+	}	
 	counter1++;
 	//printf("\n");
 	}
