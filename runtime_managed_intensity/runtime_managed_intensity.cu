@@ -77,7 +77,7 @@ __global__ void Page_visitor(long long int *A, long long int data_stride, long l
 	asm("mov.u32 %0, %nsmid;" : "=r"(nsmid) );
 	int nwarpid = 1;
 	asm("mov.u32 %0, %nwarpid;" : "=r"(nwarpid) );
-	if(smid == 0){
+	if(smid == 20){
 		if(threadIdx.x % 32 == 0){/////%tid %ntid %laneid %warpid %nwarpid %ctaid %nctaid %smid %nsmid %gridid
 			printf("###1###warpid: %d, ctaid: %d, blockIdx.x: %d, blockIdx.y: %d, blockIdx.z: %d, nctaid.x: %d, ntid: %d, nsmid: %d, nwarpid: %d \n", warpid, ctaid, blockIdx.x, blockIdx.y, blockIdx.z, nctaid, ntid, nsmid, nwarpid);
 		}			
@@ -87,7 +87,7 @@ __global__ void Page_visitor(long long int *A, long long int data_stride, long l
 	
 	long long int value = A[index];
 	
-	if(smid == 0){
+	if(smid == 20){
 		if(threadIdx.x % 32 == 0){/////%tid %ntid %laneid %warpid %nwarpid %ctaid %nctaid %smid %nsmid %gridid
 			printf("###2###warpid: %d, ctaid: %d, blockIdx.x: %d\n", warpid, ctaid, blockIdx.x );
 		}			
@@ -110,7 +110,7 @@ __global__ void Page_visitor(long long int *A, long long int data_stride, long l
 		value = value + threadIdx.x;
     }
 	
-	if(smid == 0){
+	if(smid == 20){
 		if(threadIdx.x % 32 == 0){/////%tid %ntid %laneid %warpid %nwarpid %ctaid %nctaid %smid %nsmid %gridid
 			printf("###3###warpid: %d, ctaid: %d, blockIdx.x: %d\n", warpid, ctaid, blockIdx.x );
 		}			
@@ -134,7 +134,7 @@ __global__ void Page_visitor(long long int *A, long long int data_stride, long l
 	
 	A[index] = value;
 	
-	if(smid == 0){
+	if(smid == 20){
 		if(threadIdx.x % 32 == 0){/////%tid %ntid %laneid %warpid %nwarpid %ctaid %nctaid %smid %nsmid %gridid
 			printf("###4###warpid: %d, ctaid: %d, blockIdx.x: %d\n", warpid, ctaid, blockIdx.x );
 		}	
