@@ -97,6 +97,18 @@ __global__ void Page_visitor(long long int *A, long long int data_stride, long l
 	}
 	*/
 	
+
+	
+	int smid = 1;
+	asm("mov.u32 %0, %smid;" : "=r"(smid) );
+	int warpid = 1;	
+	if(smid == 0){
+		if(threadIdx.x % 32 == 0){/////%tid %ntid %laneid %warpid %nwarpid %ctaid %nctaid %smid %nsmid %gridid				
+		asm("mov.u32 %0, %warpid;" : "=r"(warpid) );
+print
+		}			
+	}
+	
     //d_o[0] = clock_offset;
 	//////////////////////////////////////////////sleep
 	
@@ -160,10 +172,11 @@ int main(int argc, char **argv)
 	printf("###################\n#########################managed\n");
 	///32 * 64 <==> 1 * 512 * 1024 (8gb), 32 * 512 <==> 1 * 64 * 1024 (8gb), 
 	///is it still true that in multi threads the dynamic page threshold is still 64k? no, it seems to be 2k.
-	for(long long int data_stride = 1 * 1 * 1; data_stride <= 1 * 512 * 1024; data_stride = data_stride * 2){////not necessarily migrating whole 2m page. (not fair comparison but interesting to look at) 512 * 1024 is 4m, see what happens after 2m.
+	//for(long long int data_stride = 1 * 1 * 1; data_stride <= 1 * 512 * 1024; data_stride = data_stride * 2){////not necessarily migrating whole 2m page. (not fair comparison but interesting to look at) 512 * 1024 is 4m, see what happens after 2m.
+	for(long long int data_stride = 1 * 1 * 256; data_stride <= 1 * 1 * 256; data_stride = data_stride * 2){///test
 	for(long long int mod = 536870912; mod <= 536870912; mod = mod * 2){////134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
-	for(long long int clock_count = 128; clock_count <= 8192; clock_count = clock_count * 2){/////11 positions.
-	//for(long long int clock_count = 1; clock_count <= 1; clock_count = clock_count * 2){/////11 positions.
+	//for(long long int clock_count = 128; clock_count <= 8192; clock_count = clock_count * 2){/////11 positions.
+	for(long long int clock_count = 1; clock_count <= 1; clock_count = clock_count * 2){/////test
 		///////////////////////////////////////////////////////////////////CPU data begin		
 		//long long int data_size = mod;
 		long long int data_size = data_stride;
@@ -203,6 +216,7 @@ int main(int argc, char **argv)
 	}
 	}	
 	
+	/*
 	//plain managed
 	//causing eviction
 	printf("###################\n#########################managed\n");
@@ -250,6 +264,7 @@ int main(int argc, char **argv)
 	printf("\n");
 	}
 	}	
+	*/
 	
     exit(EXIT_SUCCESS);
 }
