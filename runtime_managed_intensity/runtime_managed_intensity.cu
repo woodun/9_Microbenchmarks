@@ -156,11 +156,11 @@ int main(int argc, char **argv)
 	printf("cudaDevAttrConcurrentManagedAccess = %d\n", value1);	
 	
 	//plain managed
+	//does not cause eviction
 	printf("###################\n#########################managed\n");
 	///32 * 64 <==> 1 * 512 * 1024 (8gb), 32 * 512 <==> 1 * 64 * 1024 (8gb), 
 	///is it still true that in multi threads the dynamic page threshold is still 64k? no, it seems to be 2k.
-	for(long long int data_stride = 1 * 1 * 1; data_stride <= 1 * 1 * 256; data_stride = data_stride * 2){////////migrating whole 2m
-	//for(long long int data_stride = 1 * 1 * 1; data_stride <= 1 * 512 * 1024; data_stride = data_stride * 2){////not necessarily migrating whole 2m. 512 * 1024 is 4m, see what happens after 2m. log2(512 * 1024) = 19. 20 positions.
+	for(long long int data_stride = 1 * 1 * 1; data_stride <= 1 * 512 * 1024; data_stride = data_stride * 2){////not necessarily migrating whole 2m page. (not fair comparison but interesting to look at) 512 * 1024 is 4m, see what happens after 2m.
 	for(long long int mod = 536870912; mod <= 536870912; mod = mod * 2){////134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
 	for(long long int clock_count = 128; clock_count <= 8192; clock_count = clock_count * 2){/////11 positions.
 	//for(long long int clock_count = 1; clock_count <= 1; clock_count = clock_count * 2){/////11 positions.
@@ -176,19 +176,7 @@ int main(int argc, char **argv)
 		checkCudaErrors(cudaMallocManaged(&CPU_data_in, sizeof(long long int) * data_size));/////////////using unified memory
 		init_cpu_data(CPU_data_in, data_size, data_stride);				
 		///////////////////////////////////////////////////////////////////CPU data end	
-	
-		///////////////////////////////////////////////////////////////////GPU data in	
-		//long long int *GPU_data_in;
-		//checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(long long int) * data_size));	
-		//cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(long long int) * data_size, cudaMemcpyHostToDevice);
-		
-		/*
-		///////////////////////////////////////////////////////////////////GPU data out
-		long long int *GPU_data_out;
-		//checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(long long int) * data_size));
-		checkCudaErrors(cudaMallocManaged(&GPU_data_out, sizeof(long long int) * data_size));/////////////using unified memory		
-		*/		
-		
+			
 		/////////////////////////////////time
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
@@ -213,19 +201,17 @@ int main(int argc, char **argv)
 	}
 	printf("\n");
 	}
-	}
-
-	/*
-	long long int t1[100][100];
-	long long int t2[100][100];
-	long long int t3[100][100];
-	unsigned counter1 = 0;
-	unsigned counter2 = 0;
-	printf("###################\n#########################memcpy + kernel\n");
-	for(long long int data_stride = 1 * 1 * 1; data_stride <= 1 * 1 * 256; data_stride = data_stride * 2){////////question: when using smaller stride to migrate the whole 2M, is managed still better than memcpy? no, it's always worse when migrate the whole 2m pages. Therefore the reason why managed becomes better than memcpy with larger stride is that it actually migrates less data.
-	counter2 = 0;
+	}	
+	
+	//plain managed
+	//causing eviction
+	printf("###################\n#########################managed\n");
+	///32 * 64 <==> 1 * 512 * 1024 (8gb), 32 * 512 <==> 1 * 64 * 1024 (8gb), 
+	///is it still true that in multi threads the dynamic page threshold is still 64k? no, it seems to be 2k.
+	for(long long int data_stride = 1 * 1 * 1; data_stride <= 1 * 512 * 1024; data_stride = data_stride * 2){////not necessarily migrating whole 2m. 512 * 1024 is 4m, see what happens after 2m.
 	for(long long int mod = 536870912; mod <= 536870912; mod = mod * 2){////134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
-	for(long long int clock_count = 128; clock_count <= 8192; clock_count = clock_count * 2){
+	for(long long int clock_count = 128; clock_count <= 8192; clock_count = clock_count * 2){/////11 positions.
+	//for(long long int clock_count = 1; clock_count <= 1; clock_count = clock_count * 2){/////11 positions.
 		///////////////////////////////////////////////////////////////////CPU data begin		
 		//long long int data_size = mod;
 		long long int data_size = data_stride;
@@ -234,84 +220,36 @@ int main(int argc, char **argv)
 		//long long int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256
 	
 		long long int *CPU_data_in;
-		CPU_data_in = (long long int*)malloc(sizeof(long long int) * data_size);//////////////mempcy
-		//checkCudaErrors(cudaMallocManaged(&CPU_data_in, sizeof(long long int) * data_size));/////////////using unified memory		
+		//CPU_data_in = (long long int*)malloc(sizeof(long long int) * data_size);
+		checkCudaErrors(cudaMallocManaged(&CPU_data_in, sizeof(long long int) * data_size));/////////////using unified memory
 		init_cpu_data(CPU_data_in, data_size, data_stride);				
 		///////////////////////////////////////////////////////////////////CPU data end	
-	
-		///////////////////////////////////////////////////////////////////GPU data in	
-		long long int *GPU_data_in;
-		checkCudaErrors(cudaMalloc(&GPU_data_in, sizeof(long long int) * data_size));	
-		//cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(long long int) * data_size, cudaMemcpyHostToDevice);///////moved down
-		
-		/*
-		///////////////////////////////////////////////////////////////////GPU data out
-		long long int *GPU_data_out;
-		checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(long long int) * data_size));//////////////mempcy
-		//checkCudaErrors(cudaMallocManaged(&GPU_data_out, sizeof(long long int) * data_size));/////////////using unified memory		
-		*/
-		
-		/*
+			
 		/////////////////////////////////time
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
-		
-		cudaMemcpy(GPU_data_in, CPU_data_in, sizeof(long long int) * data_size, cudaMemcpyHostToDevice);
-		
-		struct timespec ts2;
-		clock_gettime(CLOCK_REALTIME, &ts2);
-  
-		Page_visitor<<<8192, 512>>>(GPU_data_in, data_stride, clock_count);///////////////1024 per block max
-		///////////////////////////////////////////////////32 * 512 * 2 = 32gb, 32 * 128 * 2 = 8gb, 32 * 64 * 2 = 4gb, 32 * 32 * 2 = 2gb
+
+		////may want to use more thread to see clock_count effect
+		Page_visitor<<<8192, 512>>>(CPU_data_in, data_stride, clock_count);///////////////1024 per block max
+		///////////////////////////////////////////////////32 * 64 * 1 * 512 * 1024 = 8gb.
 		cudaDeviceSynchronize();
 				
 		/////////////////////////////////time
-		struct timespec ts3;
-		clock_gettime(CLOCK_REALTIME, &ts3);
+		struct timespec ts2;
+		clock_gettime(CLOCK_REALTIME, &ts2);
 		
 		//printf("###################data_stride%lld#########################clock_count:%lld\n", data_stride, clock_count);
 		//printf("*\n*\n*\nruntime:  %lluns\n", time_diff(ts1, ts2));
-		//printf("%llu %llu %llu ", time_diff(ts1, ts2), time_diff(ts2, ts3), time_diff(ts1, ts3));		
-		t1[counter1][counter2] = time_diff(ts1, ts2);
-		t2[counter1][counter2] = time_diff(ts2, ts3);
-		t3[counter1][counter2] = time_diff(ts1, ts3);
+		printf("%llu ", time_diff(ts1, ts2));
 		
-		checkCudaErrors(cudaFree(GPU_data_in));
-		free(CPU_data_in);
-		//checkCudaErrors(cudaFree(CPU_data_in));		
+		//checkCudaErrors(cudaFree(GPU_data_in));
+		checkCudaErrors(cudaFree(CPU_data_in));
+		//free(CPU_data_in);
 		//checkCudaErrors(cudaFree(GPU_data_out));
-		counter2++;
+	}
+	printf("\n");
+	}
 	}	
-	counter1++;
-	//printf("\n");
-	}
-	}
 	
-	for(unsigned i = 0; i < counter1; i++){
-		for(unsigned j = 0; j < counter2; j++){
-			printf("%llu ", t1[i][j]);		
-		}
-		printf("\n");
-	}
-	printf("############################\n");
-	for(unsigned i = 0; i < counter1; i++){
-		for(unsigned j = 0; j < counter2; j++){
-			printf("%llu ", t2[i][j]);		
-		}
-		printf("\n");
-	}
-	printf("############################\n");
-	for(unsigned i = 0; i < counter1; i++){
-		for(unsigned j = 0; j < counter2; j++){
-			printf("%llu ", t3[i][j]);		
-		}
-		printf("\n");
-	}
-	printf("############################\n");
-	*/
-	
-	/////////////////////what happens when migration full 2m pages (not just 64k, which is the current implementation.)
-	/////////////////////what happens when page fault intensity is smaller?	(not migrate the whole 2m. cannot compare with memcpy in this case because their data sizes migrated are different. when not migrating the whole 2m, the data size migrated cannot be accurately controlled.)	
-		
     exit(EXIT_SUCCESS);
 }

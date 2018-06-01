@@ -167,14 +167,14 @@ int main(int argc, char **argv)
 	//plain managed
 	printf("###################\n#########################managed\n");	
 	//////////////0.5gb to 64gb stride 0.5gb (1 * 4 * 1024)
-	for(long long int data_stride = 1 * 4 * 1024; data_stride <= 1 * 512 * 1024; data_stride = data_stride + 1 * 4 * 1024){/////512 is 4m, see what happens after 2m. 128 positions.
+	for(long long int data_stride = 1 * 1 * 4; data_stride <= 1 * 1 * 256; data_stride = data_stride + 1 * 1 * 4){/////512 is 4m, see what happens after 2m. 128 positions.
 	//for(long long int data_stride = 1 * 256 * 1024; data_stride <= 1 * 256 * 1024; data_stride = data_stride + 1 * 8 * 1024){
 	for(long long int mod = 4294967296; mod <= 4294967296; mod = mod * 2){////134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
-	for(long long int clock_count = 1; clock_count <= 1; clock_count = clock_count * 2){
+	for(long long int clock_count = 128; clock_count <= 128; clock_count = clock_count * 2){
 		///////////////////////////////////////////////////////////////////CPU data begin		
 		//long long int data_size = mod;
 		long long int data_size = data_stride;
-		data_size = data_size * 32;
+		data_size = data_size * 32768;
 		data_size = data_size * 512;
 		//long long int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256
 	
@@ -197,14 +197,14 @@ int main(int argc, char **argv)
 		checkCudaErrors(cudaMallocManaged(&GPU_data_out, sizeof(long long int) * data_size));/////////////using unified memory		
 		*/
 		
-		gpu_initialization<<<32, 512>>>(CPU_data_in, data_stride, data_size);///////////////1024 per block max
+		gpu_initialization<<<32768, 512>>>(CPU_data_in, data_stride, data_size);///////////////1024 per block max
 		cudaDeviceSynchronize();
 		
 		/////////////////////////////////time
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
   
-		Page_visitor<<<32, 512>>>(CPU_data_in, data_stride, clock_count);///////////////1024 per block max
+		Page_visitor<<<32768, 512>>>(CPU_data_in, data_stride, clock_count);///////////////1024 per block max
 		///////////////////////////////////////////////////32 * 512 * 1 * 256 * 1024 = 32gb, 32 * 512 * 1 * 512 * 1024 = 64gb.
 		cudaDeviceSynchronize();
 				
