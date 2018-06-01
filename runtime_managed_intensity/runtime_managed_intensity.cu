@@ -84,7 +84,7 @@ __global__ void Page_visitor(long long int *A, long long int data_stride, long l
 	}
 	
 	if(threadIdx.x % 32 == 0){
-		printf("warpid: %d, blockIdx.x: %d, smid: %d",  warpid, blockIdx.x, smid);
+		printf("warpid: %d, blockIdx.x: %d, smid: %d, threadIdx.x: %d\n",  warpid, blockIdx.x, smid, threadIdx.x);
 	}
 	
 	long long int index = (blockIdx.x * blockDim.x + threadIdx.x) * data_stride;
@@ -93,7 +93,7 @@ __global__ void Page_visitor(long long int *A, long long int data_stride, long l
 	
 	if(smid == 20){
 		if(threadIdx.x % 32 == 0){/////%tid %ntid %laneid %warpid %nwarpid %ctaid %nctaid %smid %nsmid %gridid
-			printf("###2###warpid: %d, ctaid: %d, blockIdx.x: %d, threadIdx.x: %d\n", warpid, ctaid, blockIdx.x, threadIdx.x);
+			printf("###2###warpid: %d, ctaid: %d, blockIdx.x: %d \n", warpid, ctaid, blockIdx.x);
 		}			
 	}
 	
