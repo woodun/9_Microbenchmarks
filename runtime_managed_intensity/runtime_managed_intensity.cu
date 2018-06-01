@@ -70,10 +70,14 @@ __global__ void Page_visitor(long long int *A, long long int data_stride, long l
 	int ctaid = 1;
 	asm("mov.u32 %0, %ctaid.x;" : "=r"(ctaid) );
 	int nctaid = 1;
-	asm("mov.u32 %0, %nctaid;" : "=r"(nctaid) );
+	asm("mov.u32 %0, %nctaid.x;" : "=r"(nctaid) );
+	int ntid = 1;
+	asm("mov.u32 %0, %ntid.x;" : "=r"(ntid) );
+	int nsmid = 1;
+	asm("mov.u32 %0, %nsmid;" : "=r"(nsmid) );
 	if(smid == 0){
 		if(threadIdx.x % 32 == 0){/////%tid %ntid %laneid %warpid %nwarpid %ctaid %nctaid %smid %nsmid %gridid
-			printf("###1###warpid: %d, ctaid: %d, blockIdx.x: %d, nctaid: %d \n", warpid, ctaid, blockIdx.x, nctaid );
+			printf("###1###warpid: %d, ctaid: %d, blockIdx.x: %d, nctaid.x: %d, ntid: %d, nsmid: %d \n", warpid, ctaid, blockIdx.x, nctaid, ntid, nsmid);
 		}			
 	}
 	
