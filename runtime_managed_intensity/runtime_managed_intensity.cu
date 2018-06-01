@@ -79,7 +79,7 @@ __global__ void Page_visitor(long long int *A, long long int data_stride, long l
 	asm("mov.u32 %0, %nwarpid;" : "=r"(nwarpid) );
 	if(smid == 0){
 		if(threadIdx.x % 32 == 0){/////%tid %ntid %laneid %warpid %nwarpid %ctaid %nctaid %smid %nsmid %gridid
-			printf("###1###warpid: %d, ctaid: %d, blockIdx.x: %d, nctaid.x: %d, ntid: %d, nsmid: %d, nwarpid: %d \n", warpid, ctaid, blockIdx.x, nctaid, ntid, nsmid, nwarpid);
+			printf("###1###warpid: %d, ctaid: %d, blockIdx.x: %d, blockIdx.y: %d, blockIdx.z: %d, nctaid.x: %d, ntid: %d, nsmid: %d, nwarpid: %d \n", warpid, ctaid, blockIdx.x, blockIdx.y, blockIdx.z, nctaid, ntid, nsmid, nwarpid);
 		}			
 	}
 	
