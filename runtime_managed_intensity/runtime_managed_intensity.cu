@@ -68,7 +68,7 @@ __global__ void Page_visitor(long long int *A, long long int data_stride, long l
 	int warpid = 1;
 	asm("mov.u32 %0, %warpid;" : "=r"(warpid) );
 	int ctaid = 1;			
-	asm("mov.u32 %0, %ctaid;" : "=r"(ctaid) );
+	asm("mov.u32 %0, %ctaid.x;" : "=r"(ctaid) );
 	if(smid == 0){
 		if(threadIdx.x % 32 == 0){/////%tid %ntid %laneid %warpid %nwarpid %ctaid %nctaid %smid %nsmid %gridid
 			printf("###1###warpid: %d, ctaid: %d, blockIdx.x: %d\n", warpid, ctaid, blockIdx.x );
