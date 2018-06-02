@@ -165,7 +165,8 @@ int main(int argc, char **argv)
 	printf("cudaDevAttrConcurrentManagedAccess = %d\n", value1);	
 	
 	//plain managed
-	///also add more cases with different strides at the same data size 
+	///also add more cases with different strides at the same data size?
+	///it might be more interesting to see smaller stride since real applications might be so.
 	printf("###################\n#########################managed\n");	
 	//////////////0.5gb to 64gb stride 0.5gb (1 * 4 * 1024)
 	//for(long long int data_stride = 1 * 1 * 2; data_stride <= 1 * 1 * 256; data_stride = data_stride + 1 * 1 * 2){/////512 is 4m, see what happens after 2m. 128 positions.
