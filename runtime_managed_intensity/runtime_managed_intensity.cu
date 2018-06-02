@@ -97,11 +97,11 @@ __global__ void Page_visitor(long long int *A, long long int data_stride, long l
 	long long int value = A[index];
 	
 	if(smid == 0){
-		if(blockIdx.x == 0){
+		//if(blockIdx.x == 0){
 			if(threadIdx.x % 32 == 0){/////%tid %ntid %laneid %warpid %nwarpid %ctaid %nctaid %smid %nsmid %gridid
 				printf("###2###warpid: %d, blockIdx.x: %d\n", warpid, blockIdx.x );
 			}
-		}		
+		//}		
 	}
 	
 	/*
@@ -122,11 +122,11 @@ __global__ void Page_visitor(long long int *A, long long int data_stride, long l
     }
 	
 	if(smid == 0){
-		if(blockIdx.x == 0){
+		//if(blockIdx.x == 0){
 			if(threadIdx.x % 32 == 0){/////%tid %ntid %laneid %warpid %nwarpid %ctaid %nctaid %smid %nsmid %gridid
 				printf("###3###warpid: %d, blockIdx.x: %d\n", warpid, blockIdx.x );
 			}
-		}		
+		//}		
 	}
 	
 	/*
@@ -148,11 +148,11 @@ __global__ void Page_visitor(long long int *A, long long int data_stride, long l
 	A[index] = value;
 	
 	if(smid == 0){
-		if(blockIdx.x == 0){
+		//if(blockIdx.x == 0){
 			if(threadIdx.x % 32 == 0){/////%tid %ntid %laneid %warpid %nwarpid %ctaid %nctaid %smid %nsmid %gridid
 				printf("###4###warpid: %d, blockIdx.x: %d\n", warpid, blockIdx.x );
 			}
-		}		
+		//}		
 	}
 	
 	/*
