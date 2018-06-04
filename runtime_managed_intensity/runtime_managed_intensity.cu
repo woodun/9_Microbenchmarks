@@ -186,6 +186,7 @@ int main(int argc, char **argv)
     //long long int dev_id = findCudaDevice(argc, (const char **) argv);
 	long long int dev_id = 7;
     checkCudaErrors(cudaGetDeviceProperties(&device_prop, dev_id));
+	checkCudaErrors(cudaSetDevice(dev_id));
 	
 	int peak_clk = 1;//kHz
 	checkCudaErrors(cudaDeviceGetAttribute(&peak_clk, cudaDevAttrClockRate, dev_id));
