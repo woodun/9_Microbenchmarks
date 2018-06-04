@@ -214,14 +214,14 @@ int main(int argc, char **argv)
 	///32 * 64 <==> 1 * 512 * 1024 (8gb), 32 * 512 <==> 1 * 64 * 1024 (8gb), 
 	///is it still true that in multi threads the dynamic page threshold is still 64k? no, it seems to be 2k.
 	//for(long long int data_stride = 1 * 1 * 1; data_stride <= 1 * 512 * 1024; data_stride = data_stride * 2){////not necessarily migrating whole 2m page. (not fair comparison but interesting to look at) 512 * 1024 is 4m, see what happens after 2m.
-	for(long long int data_stride = 1 * 8 * 1024; data_stride <= 1 * 8 * 1024; data_stride = data_stride * 2){///test
+	for(long long int data_stride = 1 * 16 * 1024; data_stride <= 1 * 16 * 1024; data_stride = data_stride * 2){///test
 	for(long long int mod = 536870912; mod <= 536870912; mod = mod * 2){////134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
 	//for(long long int clock_count = 128; clock_count <= 8192; clock_count = clock_count * 2){/////11 positions.
 	for(long long int clock_count = 1; clock_count <= 1; clock_count = clock_count * 2){/////test
 		///////////////////////////////////////////////////////////////////CPU data begin		
 		//long long int data_size = mod;
 		long long int data_size = data_stride;
-		data_size = data_size * 256;
+		data_size = data_size * 128;
 		data_size = data_size * 512;
 		//long long int iterations = mod / data_stride;////32 * 32 * 4 / 32 * 2 = 256
 	
@@ -236,7 +236,7 @@ int main(int argc, char **argv)
 		clock_gettime(CLOCK_REALTIME, &ts1);
 
 		////may want to use more thread to see clock_count effect
-		Page_visitor<<<256, 512>>>(CPU_data_in, data_stride, clock_count);///////////////1024 per block max
+		Page_visitor<<<128, 512>>>(CPU_data_in, data_stride, clock_count);///////////////1024 per block max
 		///////////////////////////////////////////////////32 * 64 * 1 * 512 * 1024 = 8gb.
 		cudaDeviceSynchronize();
 				
