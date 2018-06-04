@@ -167,11 +167,11 @@ int main(int argc, char **argv)
 	//plain managed
 	///also add more cases with different strides at the same data size?
 	///it might be more interesting to see smaller stride since real applications might be so.
-	///will warpid(in the same sm) and catid be assigned again?
+	///will warpid(in the same sm) and ctaid be assigned again? //////////warpid will be reused, ctaid will not.
 	printf("###################\n#########################managed\n");	
 	//////////////0.5gb to 64gb stride 0.5gb (1 * 4 * 1024)
 	//for(long long int data_stride = 1 * 1 * 2; data_stride <= 1 * 1 * 256; data_stride = data_stride + 1 * 1 * 2){/////512 is 4m, see what happens after 2m. 128 positions.
-	for(long long int data_stride = 1 * 1 * 16; data_stride <= 1 * 1 * 1024; data_stride = data_stride + 1 * 1 * 16){////test
+	for(long long int data_stride = 1 * 1 * 8; data_stride <= 1 * 1 * 512; data_stride = data_stride + 1 * 1 * 8){////test
 	//for(long long int data_stride = 1 * 256 * 1024; data_stride <= 1 * 256 * 1024; data_stride = data_stride + 1 * 8 * 1024){
 	for(long long int mod = 4294967296; mod <= 4294967296; mod = mod * 2){////134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
 	for(long long int clock_count = 128; clock_count <= 128; clock_count = clock_count * 2){
