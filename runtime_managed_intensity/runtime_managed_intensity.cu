@@ -98,9 +98,9 @@ __global__ void Page_visitor(long long int *A, long long int data_stride, long l
 		//}		
 	}
 	
-	//if(threadIdx.x % 32 == 0){
-	//	printf("warpid: %d, blockIdx.x: %d, smid: %d, threadIdx.x: %d\n",  warpid, blockIdx.x, smid, threadIdx.x);
-	//}
+	if(threadIdx.x % 32 == 0){
+		printf("warpid: %d, blockIdx.x: %d, smid: %d, threadIdx.x: %d\n",  warpid, blockIdx.x, smid, threadIdx.x);
+	}
 	
 	long long int index = (blockIdx.x * blockDim.x + threadIdx.x) * data_stride;
 	
