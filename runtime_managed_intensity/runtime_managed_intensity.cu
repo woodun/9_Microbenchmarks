@@ -93,7 +93,7 @@ __global__ void Page_visitor(long long int *A, long long int data_stride, long l
 	if(smid == 0){
 		//if(blockIdx.x == 0){
 			if(threadIdx.x % 32 == 0){/////%tid %ntid %laneid %warpid %nwarpid %ctaid %nctaid %smid %nsmid %gridid
-				printf("###1###warpid: %d, blockIdx.x: %d\n", warpid, blockIdx.x );
+				printf("###1###warpid: %d, blockIdx.x: %d\n", warpid, blockIdx.x );///printf does not reliably print everything
 			}
 		//}		
 	}
