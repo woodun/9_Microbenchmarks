@@ -130,7 +130,7 @@ int main(int argc, char **argv)
     // set device
     cudaDeviceProp device_prop;
     //long long int dev_id = findCudaDevice(argc, (const char **) argv);
-	long long int dev_id = 0;
+	long long int dev_id = 7;
     checkCudaErrors(cudaGetDeviceProperties(&device_prop, dev_id));
 	
 	int peak_clk = 1;//kHz
