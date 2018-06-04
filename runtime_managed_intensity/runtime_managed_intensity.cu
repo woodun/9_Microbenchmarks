@@ -28,6 +28,16 @@ void init_cpu_data(long long int* A, long long int size, long long int stride){
 	*/
 }
 
+__global__ void gpu_initialization(long long int *A, long long int data_stride, long long int data_size){			
+
+	long long int index = (blockIdx.x * blockDim.x + threadIdx.x);
+	long long int thread_num =  gridDim.x * blockDim.x;
+	
+	for(long long int it = 0; it < data_size; it = it + thread_num){
+		A[index + it]=23;
+	}
+}
+
 long long unsigned time_diff(timespec start, timespec end){
 	struct timespec temp;
 	if ((end.tv_nsec - start.tv_nsec) < 0){
@@ -228,9 +238,12 @@ int main(int argc, char **argv)
 		long long int *CPU_data_in;
 		//CPU_data_in = (long long int*)malloc(sizeof(long long int) * data_size);
 		checkCudaErrors(cudaMallocManaged(&CPU_data_in, sizeof(long long int) * data_size));/////////////using unified memory
-		init_cpu_data(CPU_data_in, data_size, data_stride);				
+		//init_cpu_data(CPU_data_in, data_size, data_stride);				
 		///////////////////////////////////////////////////////////////////CPU data end	
 			
+		gpu_initialization<<<128, 512>>>(CPU_data_in, data_stride, data_size);///////////////1024 per block max
+		cudaDeviceSynchronize();
+		
 		/////////////////////////////////time
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
