@@ -57,7 +57,7 @@ long long unsigned time_diff(timespec start, timespec end){
 }
 
 //__global__ void Page_visitor(long long int *A, long long int *B, long long int data_stride, long long int clock_count){
-__global__ void Page_visitor(long long int *A1, long long int *A2, long long int *B, long long int data_stride, long long int clock_count){////load-compute -store
+__global__ void Page_visitor(long long int *A1, long long int *A2, long long int *B, long long int data_stride, long long int clock_count){////load-compute-store
 			
 	long long int index = (blockIdx.x * blockDim.x + threadIdx.x) * data_stride;
 	
@@ -148,13 +148,12 @@ int main(int argc, char **argv)
 			
 		long long int *CPU_data_in1;
 		checkCudaErrors(cudaMallocManaged(&CPU_data_in1, sizeof(long long int) * data_size));/////////////using unified memory
-		//init_cpu_data(CPU_data_in, data_size, data_stride);
-		
+		//init_cpu_data(CPU_data_in, data_size, data_stride);		
 		long long int *CPU_data_in2;
 		checkCudaErrors(cudaMallocManaged(&CPU_data_in2, sizeof(long long int) * data_size));/////////////using unified memory		
 		///////////////////////////////////////////////////////////////////CPU data end	
 				
-		long long int *GPU_data_out;		//checkCudaErrors(cudaMalloc(&GPU_data_out, sizeof(long long int) * data_size));
+		long long int *GPU_data_out;
 		checkCudaErrors(cudaMallocManaged(&GPU_data_out, sizeof(long long int) * data_size));/////////////using unified memory
 		///////////////////////////////////////////////////////////////////GPU data out	end	
 			
@@ -162,13 +161,15 @@ int main(int argc, char **argv)
 		cudaDeviceSynchronize();
 		gpu_initialization<<<8192 * 512, 512>>>(CPU_data_in2, data_stride, data_size);///////////////1024 per block max
 		cudaDeviceSynchronize();
+		gpu_initialization<<<8192 * 512, 512>>>(GPU_data_out, data_stride, data_size);///////////////1024 per block max
+		cudaDeviceSynchronize();
 		
 		/////////////////////////////////time
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
 
 		////may want to use more thread to see clock_count effect
-		Page_visitor<<<8192 * 512, 512>>>(CPU_data_in1, CPU_data_in2, GPU_data_out, data_stride, clock_count);///////////////1024 per block max
+		Page_visitor<<<8192 * 512, 512>>>(CPU_data_in1, CPU_data_in2, GPU_data_out, data_stride, clock_count);///1024 per block max
 		///////////////////////////////////////////////////32 * 64 * 1 * 512 * 1024 = 8gb.
 		cudaDeviceSynchronize();
 				
