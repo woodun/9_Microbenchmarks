@@ -223,9 +223,7 @@ int main(int argc, char **argv)
 		//printf("*\n*\n*\nruntime:  %lluns\n", time_diff(ts1, ts2));
 		printf("%llu ", time_diff(ts1, ts2));
 		
-		//checkCudaErrors(cudaFree(GPU_data_in));
-		checkCudaErrors(cudaFree(CPU_data_in));
-		//free(CPU_data_in);
+		checkCudaErrors(cudaFree(CPU_data_in));		
 		//checkCudaErrors(cudaFree(GPU_data_out));
 	}
 	printf("\n");
