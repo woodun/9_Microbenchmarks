@@ -80,7 +80,7 @@ __global__ void Page_visitor(long long int *A1, long long int *A2, long long int
 		"cvta.to.global.u64  t1, %2;\n\t"
 		"add.s64  %t3, %t2, %t1;"		
 		"ld.global.u64 	%0, [t3];\n\t"
-		: "=l"(prefetch_A2) : "=l"(prefetch_index), "=l"(A2));		
+		: "=l"(prefetch_A2) : "l"(prefetch_index), "l"(A2));		
 		
 		//prefetch_A2 = A2[prefetch_index];
 	}
