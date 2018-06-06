@@ -67,12 +67,11 @@ __global__ void Page_visitor(long long int *A1, long long int *A2, long long int
 	long long int index = (blockIdx.x * 512 + threadIdx.x) * data_stride;
 	long long int value1;
 	long long int prefetch_A2;
+	long long int prefetch_index = (blockIdx.x * 512 + 0) * data_stride;
 	
 	if(threadIdx.x < 512){
 		value1 = A1[index];
-	}else{
-		long long int prefetch_index = (blockIdx.x * 512 + 0) * data_stride;
-		
+	}else{		
 		asm volatile(".reg.u64  t1;\n\t"
 		".reg.u64  t2;\n\t"
 		".reg.u64  t3;\n\t"
@@ -98,7 +97,20 @@ __global__ void Page_visitor(long long int *A1, long long int *A2, long long int
     }
 		
 		value2 = A2[index];
-	}
+	}else{		
+		asm volatile(".reg.u64  t1;\n\t"
+		".reg.u64  t2;\n\t"
+		".reg.u64  t3;\n\t"
+		"shl.b64  t2, %1, 3;\n\t"
+		"cvta.to.global.u64  t1, %2;\n\t"
+		"add.s64  t3, t2, t1;\n\t"		
+		"ld.global.u64 	%0, [t3];"
+		: "=l"(prefetch_A2) : "l"(prefetch_index), "l"(B));		
+		
+		//prefetch_A2 = A2[prefetch_index];
+	}	
+	
+	block.sync();
 	
 	if(threadIdx.x < 512){
 	//////////////////////////////////////////////loop
