@@ -109,6 +109,8 @@ __global__ void Page_visitor(long long int *A1, long long int *A2, long long int
     }
 	
 	B[index] = value1 + value2;
+	}else{
+		B[0] = prefetch_A2;
 	}
 	
 	/*
