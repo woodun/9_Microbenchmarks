@@ -71,9 +71,11 @@ __global__ void Page_visitor(long long int *A1, long long int *A2, long long int
 	if(threadIdx.x < 512){	
 		value1 = A1[index];
 	}else{
-		long long int prefetch_index = (blockIdx.x * blockDim.x + threadIdx.x) * data_stride;
-		prefetch_A2 = 
+		long long int prefetch_index = (blockIdx.x * blockDim.x + 0) * data_stride;
+		prefetch_A2 = A2[prefetch_index];
 	}
+	
+	block.sync();
 	
 	long long int prefetch_B;
 	long long int value2;
@@ -188,7 +190,7 @@ int main(int argc, char **argv)
 		clock_gettime(CLOCK_REALTIME, &ts1);
 
 		////may want to use more thread to see clock_count effect
-		Page_visitor<<<8192 * 512, 512>>>(CPU_data_in1, CPU_data_in2, GPU_data_out, data_stride, clock_count);///1024 per block max
+		Page_visitor<<<8192 * 512, 512 + 32>>>(CPU_data_in1, CPU_data_in2, GPU_data_out, data_stride, clock_count);///1024 per block max
 		///////////////////////////////////////////////////32 * 64 * 1 * 512 * 1024 = 8gb.
 		cudaDeviceSynchronize();
 				
