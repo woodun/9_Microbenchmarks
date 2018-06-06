@@ -71,7 +71,7 @@ __global__ void Page_visitor(long long int *A1, long long int *A2, long long int
 	if(threadIdx.x < 512){	
 		value1 = A1[index];
 	}else{
-		long long int prefetch_index = (blockIdx.x * blockDim.x + 0) * data_stride;
+		//long long int prefetch_index = (blockIdx.x * blockDim.x + 0) * data_stride;
 		
 		/*
 		asm volatile(".reg.u64  t1;\n\t"
@@ -84,7 +84,7 @@ __global__ void Page_visitor(long long int *A1, long long int *A2, long long int
 		: "=l"(prefetch_A2) : "l"(prefetch_index), "l"(A2));		
 		*/
 		
-		prefetch_A2 = A2[prefetch_index];
+		//prefetch_A2 = A2[prefetch_index];
 	}
 	
 	block.sync();
@@ -112,7 +112,7 @@ __global__ void Page_visitor(long long int *A1, long long int *A2, long long int
 	
 	B[index] = value1 + value2;
 	}else{
-		B[0] = prefetch_A2;
+		//B[0] = prefetch_A2;
 	}
 	
 	/*
