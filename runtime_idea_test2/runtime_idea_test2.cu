@@ -64,16 +64,15 @@ __global__ void Page_visitor(long long int *A1, long long int *A2, long long int
 			
 	thread_block block = this_thread_block();
 	
-	long long int index = (blockIdx.x * blockDim.x + threadIdx.x) * data_stride;
+	long long int index = (blockIdx.x * 512 + threadIdx.x) * data_stride;
 	long long int value1;
 	long long int prefetch_A2;
 	
-	if(threadIdx.x < 512){	
+	if(threadIdx.x < 512){
 		value1 = A1[index];
 	}else{
-		//long long int prefetch_index = (blockIdx.x * blockDim.x + 0) * data_stride;
+		long long int prefetch_index = (blockIdx.x * 512 + 0) * data_stride;
 		
-		/*
 		asm volatile(".reg.u64  t1;\n\t"
 		".reg.u64  t2;\n\t"
 		".reg.u64  t3;\n\t"
@@ -82,7 +81,6 @@ __global__ void Page_visitor(long long int *A1, long long int *A2, long long int
 		"add.s64  t3, t2, t1;\n\t"		
 		"ld.global.u64 	%0, [t3];"
 		: "=l"(prefetch_A2) : "l"(prefetch_index), "l"(A2));		
-		*/
 		
 		//prefetch_A2 = A2[prefetch_index];
 	}
@@ -111,8 +109,6 @@ __global__ void Page_visitor(long long int *A1, long long int *A2, long long int
     }
 	
 	B[index] = value1 + value2;
-	}else{
-		//B[0] = prefetch_A2;
 	}
 	
 	/*
@@ -175,7 +171,7 @@ int main(int argc, char **argv)
 	printf("###################\n#########################managed\n");
 	for(long long int data_stride = 1 * 1 * 1; data_stride <= 1 * 1 * 1; data_stride = data_stride * 2){////////migrating whole 2m
 	for(long long int mod = 536870912; mod <= 536870912; mod = mod * 2){////134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
-	for(long long int clock_count = 128; clock_count <= 128; clock_count = clock_count * 2){
+	for(long long int clock_count = 128; clock_count <= 8192; clock_count = clock_count * 2){
 		///////////////////////////////////////////////////////////////////CPU data begin		
 		long long int data_size = data_stride;
 		data_size = data_size * 8192 * 512;
