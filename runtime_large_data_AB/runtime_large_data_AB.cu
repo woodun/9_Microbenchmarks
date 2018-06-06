@@ -170,6 +170,7 @@ int main(int argc, char **argv)
 	///it might be more interesting to see smaller stride since real applications might be so.
 	///will warpid(in the same sm) and ctaid be assigned again? //////////warpid will be reused, ctaid will not.
 	//////////questions: write a script to run with nvprof and get the eviction amount (minus the eviction caused by initialization)
+	//////////see the ptx for cooperative group.
 	//////////////0.5gb to 64gb stride 0.5gb (1 * 4 * 1024)
 	//for(long long int data_stride = 1 * 1 * 2; data_stride <= 1 * 1 * 256; data_stride = data_stride + 1 * 1 * 2){/////512 is 4m, see what happens after 2m. 128 positions.
 	for(long long int factor = 1; factor <= 8; factor = factor * 2){
