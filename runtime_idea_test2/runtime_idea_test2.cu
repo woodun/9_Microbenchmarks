@@ -72,7 +72,17 @@ __global__ void Page_visitor(long long int *A1, long long int *A2, long long int
 		value1 = A1[index];
 	}else{
 		long long int prefetch_index = (blockIdx.x * blockDim.x + 0) * data_stride;
-		prefetch_A2 = A2[prefetch_index];
+		
+		asm(".reg.u64  t1;\n\t"
+		".reg.u64  t2;\n\t"
+		".reg.u64  t3;\n\t"
+		"shl.b64  %t2, %1, 3;\n\t"
+		"cvta.to.global.u64  t1, %2;\n\t"
+		"add.s64  %t3, %t2, %t1;"		
+		"ld.global.u64 	%0, [t3];\n\t"
+		: "=l"(prefetch_A2) : "=l"(prefetch_index), "=l"(A2));		
+		
+		//prefetch_A2 = A2[prefetch_index];
 	}
 	
 	block.sync();
