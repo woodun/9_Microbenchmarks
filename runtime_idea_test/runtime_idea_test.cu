@@ -77,7 +77,7 @@ __global__ void Page_visitor(long long int *A1, long long int *A2, long long int
 	
 	//////////////////////////////////////////////loop
 	long long int clock_offset2 = 0;
-    while (clock_offset < clock_count){/////////////////what's the time overhead for addition and multiplication?
+    while (clock_offset2 < clock_count){/////////////////what's the time overhead for addition and multiplication?
         clock_offset2++;
 		value2 = value2 + threadIdx.x;
     }

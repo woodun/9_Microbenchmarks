@@ -81,9 +81,9 @@ __global__ void Page_visitor(long long int *A1, long long int *A2, long long int
 	long long int value2;
 	if(threadIdx.x < 512){
 	//////////////////////////////////////////////loop
-	long long int clock_offset2 = 0;
+	long long int clock_offset = 0;
     while (clock_offset < clock_count){/////////////////what's the time overhead for addition and multiplication?
-        clock_offset2++;
+        clock_offset++;
 		value1 = value1 + threadIdx.x;
     }
 		
@@ -92,9 +92,9 @@ __global__ void Page_visitor(long long int *A1, long long int *A2, long long int
 	
 	if(threadIdx.x < 512){
 	//////////////////////////////////////////////loop
-	long long int clock_offset = 0;
-    while (clock_offset < clock_count){/////////////////what's the time overhead for addition and multiplication?
-        clock_offset++;
+	long long int clock_offset2 = 0;
+    while (clock_offset2 < clock_count){/////////////////what's the time overhead for addition and multiplication?
+        clock_offset2++;
 		value2 = value2 + threadIdx.x;
     }
 	
