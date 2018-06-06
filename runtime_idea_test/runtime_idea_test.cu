@@ -160,13 +160,18 @@ int main(int argc, char **argv)
 		checkCudaErrors(cudaMallocManaged(&GPU_data_out, sizeof(long long int) * data_size));/////////////using unified memory
 		///////////////////////////////////////////////////////////////////GPU data out	end	
 		
+		/*
 		gpu_initialization<<<8192 * 512 / factor, 512>>>(GPU_data_out, data_stride, data_size);///////////////1024 per block max
 		cudaDeviceSynchronize();
 		gpu_initialization<<<8192 * 512 / factor, 512>>>(CPU_data_in2, data_stride, data_size);///////////////1024 per block max
 		cudaDeviceSynchronize();
 		gpu_initialization<<<8192 * 512 / factor, 512>>>(CPU_data_in1, data_stride, data_size);///////////////1024 per block max
 		cudaDeviceSynchronize();
-		//init_cpu_data(CPU_data_in, data_size, data_stride);
+		*/
+		
+		init_cpu_data(GPU_data_out, data_size, data_stride);
+		init_cpu_data(CPU_data_in2, data_size, data_stride);
+		init_cpu_data(CPU_data_in1, data_size, data_stride);
 		
 		/////////////////////////////////time
 		struct timespec ts1;
