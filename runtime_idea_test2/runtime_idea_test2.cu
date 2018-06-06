@@ -62,19 +62,33 @@ long long unsigned time_diff(timespec start, timespec end){
 //__global__ void Page_visitor(long long int *A, long long int *B, long long int data_stride, long long int clock_count){
 __global__ void Page_visitor(long long int *A1, long long int *A2, long long int *B, long long int data_stride, long long int clock_count){////load-compute-store
 			
-	long long int index = (blockIdx.x * blockDim.x + threadIdx.x) * data_stride;
+	thread_block block = this_thread_block();
 	
-	long long int value1 = A1[index];
-		
+	long long int index = (blockIdx.x * blockDim.x + threadIdx.x) * data_stride;
+	long long int value1;
+	long long int prefetch_A2;
+	
+	if(threadIdx.x < 512){	
+		value1 = A1[index];
+	}else{
+		long long int prefetch_index = (blockIdx.x * blockDim.x + threadIdx.x) * data_stride;
+		prefetch_A2 = 
+	}
+	
+	long long int prefetch_B;
+	long long int value2;
+	if(threadIdx.x < 512){
 	//////////////////////////////////////////////loop
 	long long int clock_offset = 0;
     while (clock_offset < clock_count){/////////////////what's the time overhead for addition and multiplication?
         clock_offset++;
 		value1 = value1 + threadIdx.x;
     }
+		
+		value2 = A2[index];
+	}
 	
-	long long int value2 = A2[index];
-	
+	if(threadIdx.x < 512){
 	//////////////////////////////////////////////loop
 	long long int clock_offset = 0;
     while (clock_offset < clock_count){/////////////////what's the time overhead for addition and multiplication?
@@ -83,6 +97,7 @@ __global__ void Page_visitor(long long int *A1, long long int *A2, long long int
     }
 	
 	B[index] = value1 + value2;
+	}
 	
 	/*
 	if(threadIdx.x == 0){/////%tid %ntid %laneid %warpid %nwarpid %ctaid %nctaid %smid %nsmid %gridid
@@ -140,6 +155,7 @@ int main(int argc, char **argv)
 	printf("cudaDevAttrConcurrentManagedAccess = %d\n", value1);	
 	
 	//plain managed
+	//when was 64k and 4k pages used?
 	printf("###################\n#########################managed\n");
 	for(long long int data_stride = 1 * 1 * 1; data_stride <= 1 * 1 * 1; data_stride = data_stride * 2){////////migrating whole 2m
 	for(long long int mod = 536870912; mod <= 536870912; mod = mod * 2){////134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
@@ -158,7 +174,7 @@ int main(int argc, char **argv)
 				
 		long long int *GPU_data_out;
 		checkCudaErrors(cudaMallocManaged(&GPU_data_out, sizeof(long long int) * data_size));/////////////using unified memory
-		///////////////////////////////////////////////////////////////////GPU data out	end	
+		///////////////////////////////////////////////////////////////////GPU data out	end
 		
 		gpu_initialization<<<8192 * 512, 512>>>(GPU_data_out, data_stride, data_size);///////////////1024 per block max
 		cudaDeviceSynchronize();
