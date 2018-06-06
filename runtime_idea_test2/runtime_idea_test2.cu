@@ -73,7 +73,7 @@ __global__ void Page_visitor(long long int *A1, long long int *A2, long long int
 	}else{
 		long long int prefetch_index = (blockIdx.x * blockDim.x + 0) * data_stride;
 		
-		asm(".reg.u64  t1;\n\t"
+		asm volatile(".reg.u64  t1;\n\t"
 		".reg.u64  t2;\n\t"
 		".reg.u64  t3;\n\t"
 		"shl.b64  t2, %1, 3;\n\t"
