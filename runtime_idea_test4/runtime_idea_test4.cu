@@ -165,8 +165,8 @@ int main(int argc, char **argv)
 			
 		long long int *CPU_data_in1;
 		checkCudaErrors(cudaMallocManaged(&CPU_data_in1, sizeof(long long int) * data_size));/////////////using unified memory
-		long long int *CPU_data_in2;
-		checkCudaErrors(cudaMallocManaged(&CPU_data_in2, sizeof(long long int) * data_size));/////////////using unified memory		
+		//long long int *CPU_data_in2;
+		//checkCudaErrors(cudaMallocManaged(&CPU_data_in2, sizeof(long long int) * data_size));/////////////using unified memory		
 		///////////////////////////////////////////////////////////////////CPU data end	
 				
 		long long int *GPU_data_out;
@@ -176,8 +176,8 @@ int main(int argc, char **argv)
 		if(1){
 		gpu_initialization<<<16384 * 512 / factor, 512>>>(GPU_data_out, data_stride, data_size);///////////////1024 per block max
 		cudaDeviceSynchronize();
-		gpu_initialization<<<16384 * 512 / factor, 512>>>(CPU_data_in2, data_stride, data_size);///////////////1024 per block max
-		cudaDeviceSynchronize();
+		//gpu_initialization<<<16384 * 512 / factor, 512>>>(CPU_data_in2, data_stride, data_size);///////////////1024 per block max
+		//cudaDeviceSynchronize();
 		gpu_initialization<<<16384 * 512 / factor, 512>>>(CPU_data_in1, data_stride, data_size);///////////////1024 per block max
 		cudaDeviceSynchronize();
 		}else{		
@@ -191,7 +191,7 @@ int main(int argc, char **argv)
 		clock_gettime(CLOCK_REALTIME, &ts1);
 
 		////may want to use more thread to see clock_count effect
-		Page_visitor<<<16384 * 512 / factor, 512>>>(CPU_data_in1, CPU_data_in2, GPU_data_out, data_stride, clock_count);///1024 per block max
+		Page_visitor<<<16384 * 512 / factor, 512>>>(CPU_data_in1, GPU_data_out, data_stride, clock_count);///1024 per block max
 		///////////////////////////////////////////////////32 * 64 * 1 * 512 * 1024 = 8gb.
 		cudaDeviceSynchronize();
 				
