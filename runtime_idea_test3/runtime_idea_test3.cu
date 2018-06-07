@@ -71,8 +71,8 @@ __global__ void Page_visitor(long long int *A1, long long int *A2, long long int
 	long long int prefetch_B;
 	long long int value2;
 	
-	if(threadIdx.x < 480){
-	//if(threadIdx.x > 31){
+	//if(threadIdx.x < 480){
+	if(threadIdx.x > 31){
 	//if(0){
 		value1 = A1[index];
 		
@@ -89,8 +89,8 @@ __global__ void Page_visitor(long long int *A1, long long int *A2, long long int
 		value1 = value1 + threadIdx.x;
     }
 	
-	if(threadIdx.x < 480){		
-	//if(threadIdx.x > 31){
+	//if(threadIdx.x < 480){		
+	if(threadIdx.x > 31){
 	//if(0){/////////////////////////question: find out which part is causing the benefit.
 		value2 = A2[index];
 	}else{
@@ -173,7 +173,7 @@ int main(int argc, char **argv)
 		checkCudaErrors(cudaMallocManaged(&GPU_data_out, sizeof(long long int) * data_size));/////////////using unified memory
 		///////////////////////////////////////////////////////////////////GPU data out	end
 		
-		if(1){
+		if(0){
 		gpu_initialization<<<16384 * 512 / factor, 512>>>(GPU_data_out, data_stride, data_size);///////////////1024 per block max
 		cudaDeviceSynchronize();
 		gpu_initialization<<<16384 * 512 / factor, 512>>>(CPU_data_in2, data_stride, data_size);///////////////1024 per block max
