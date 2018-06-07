@@ -95,7 +95,7 @@ __global__ void Page_visitor(long long int *A1, long long int *A2, long long int
 		value2 = A2[index];
 	}else{
 		value2 = A2[index];		
-		B[prefetch_index] = 0;
+		//B[prefetch_index] = 0;
 	}	
 	
 	//block.sync();
