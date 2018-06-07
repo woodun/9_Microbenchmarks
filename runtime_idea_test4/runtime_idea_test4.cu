@@ -163,7 +163,7 @@ int main(int argc, char **argv)
 		cudaDeviceSynchronize();
 		}else{		
 		init_cpu_data(GPU_data_out, data_size, data_stride);
-		init_cpu_data(CPU_data_in2, data_size, data_stride);
+		//init_cpu_data(CPU_data_in2, data_size, data_stride);
 		init_cpu_data(CPU_data_in1, data_size, data_stride);
 		}
 		
@@ -185,7 +185,7 @@ int main(int argc, char **argv)
 		printf("%llu ", time_diff(ts1, ts2));
 				
 		checkCudaErrors(cudaFree(CPU_data_in1));
-		checkCudaErrors(cudaFree(CPU_data_in2));
+		//checkCudaErrors(cudaFree(CPU_data_in2));
 		checkCudaErrors(cudaFree(GPU_data_out));
 	}
 	printf("\n");
