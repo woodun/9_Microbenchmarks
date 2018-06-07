@@ -60,16 +60,14 @@ long long unsigned time_diff(timespec start, timespec end){
 }
 
 //__global__ void Page_visitor(long long int *A, long long int *B, long long int data_stride, long long int clock_count){
-__global__ void Page_visitor(long long int *A1, long long int *A2, long long int *B, long long int data_stride, long long int clock_count){////load-compute-store
+__global__ void Page_visitor(long long int *A1, long long int *B, long long int data_stride, long long int clock_count){////load-compute-store
 			
 	thread_block block = this_thread_block();
 	
 	long long int index = (blockIdx.x * 512 + threadIdx.x) * data_stride;
 	long long int value1;
-	long long int prefetch_A2;
 	long long int prefetch_index = (blockIdx.x * 512 + 0) * data_stride;
-	long long int prefetch_B;
-	long long int value2;
+
 	
 	//if(threadIdx.x < 480){
 	if(threadIdx.x > 31){
@@ -78,7 +76,7 @@ __global__ void Page_visitor(long long int *A1, long long int *A2, long long int
 		
 	}else{
 		value1 = A1[index];
-		//value2 = A2[index];
+		//B[prefetch_index] = 0;
 	}
 	
 	//block.sync();
@@ -88,25 +86,8 @@ __global__ void Page_visitor(long long int *A1, long long int *A2, long long int
         clock_offset++;
 		value1 = value1 + threadIdx.x;
     }
-	
-	//if(threadIdx.x < 480){		
-	if(threadIdx.x > 31){
-	//if(0){/////////////////////////question: find out which part is causing the benefit.
-		value2 = A2[index];
-	}else{
-		value2 = A2[index];		
-		//B[prefetch_index] = 0;
-	}	
-	
-	//block.sync();
-	
-	long long int clock_offset2 = 0;
-    while (clock_offset2 < clock_count){/////////////////what's the time overhead for addition and multiplication?
-        clock_offset2++;
-		value2 = value2 + threadIdx.x;
-    }
 
-	B[index] = value1 + value2;	
+	B[index] = value1;	
 }
 
 int main(int argc, char **argv)
