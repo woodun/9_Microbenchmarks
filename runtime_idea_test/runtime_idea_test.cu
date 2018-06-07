@@ -141,7 +141,7 @@ int main(int argc, char **argv)
 	
 	//plain managed
 	printf("###################\n#########################managed\n");
-	for(long long int factor = 1; factor <= 16; factor = factor * 2){
+	for(long long int factor = 2; factor <= 16; factor = factor * 2){
 	for(long long int data_stride = 1 * 1 * 1; data_stride <= 1 * 1 * 1; data_stride = data_stride * 2){////////migrating whole 2m
 	for(long long int mod = 536870912; mod <= 536870912; mod = mod * 2){////134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
 	for(long long int clock_count = 8192; clock_count <= 8192; clock_count = clock_count * 2){
@@ -159,13 +159,15 @@ int main(int argc, char **argv)
 		long long int *GPU_data_out;
 		checkCudaErrors(cudaMallocManaged(&GPU_data_out, sizeof(long long int) * data_size));/////////////using unified memory
 		///////////////////////////////////////////////////////////////////GPU data out	end	
-				
+		
+		///*
 		gpu_initialization<<<16384 * 512 / factor, 512>>>(GPU_data_out, data_stride, data_size);///////////////1024 per block max
 		cudaDeviceSynchronize();
 		gpu_initialization<<<16384 * 512 / factor, 512>>>(CPU_data_in2, data_stride, data_size);///////////////1024 per block max
 		cudaDeviceSynchronize();
 		gpu_initialization<<<16384 * 512 / factor, 512>>>(CPU_data_in1, data_stride, data_size);///////////////1024 per block max
 		cudaDeviceSynchronize();
+		//*/
 		
 		//init_cpu_data(GPU_data_out, data_size, data_stride);
 		//init_cpu_data(CPU_data_in2, data_size, data_stride);
