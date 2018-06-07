@@ -64,73 +64,45 @@ __global__ void Page_visitor(long long int *A1, long long int *A2, long long int
 			
 	thread_block block = this_thread_block();
 	
-	long long int index = (blockIdx.x * 512 + (threadIdx.x - 32) ) * data_stride;
+	long long int index = (blockIdx.x * 512 + threadIdx.x) * data_stride;
 	long long int value1;
 	long long int prefetch_A2;
 	long long int prefetch_index = (blockIdx.x * 512 + 0) * data_stride;
+	long long int prefetch_B;
+	long long int value2;
+	
 	
 	if(threadIdx.x > 31){
 		value1 = A1[index];
-	}else{		
-		asm volatile(".reg.u64  t1;\n\t"
-		".reg.u64  t2;\n\t"
-		".reg.u64  t3;\n\t"
-		"shl.b64  t2, %1, 3;\n\t"
-		"cvta.to.global.u64  t1, %2;\n\t"
-		"add.s64  t3, t2, t1;\n\t"		
-		"ld.global.u64 	%0, [t3];"
-		: "=l"(prefetch_A2) : "l"(prefetch_index), "l"(A2));		
 		
-		//prefetch_A2 = A2[prefetch_index];
+	}else{
+		value1 = A1[index];
+		value2 = A2[index];
 	}
 	
 	//block.sync();
-	
-	long long int prefetch_B;
-	long long int value2;
-	if(threadIdx.x > 31){
-	//////////////////////////////////////////////loop
+		
 	long long int clock_offset = 0;
     while (clock_offset < clock_count){/////////////////what's the time overhead for addition and multiplication?
         clock_offset++;
 		value1 = value1 + threadIdx.x;
     }
-		
+	
+	if(threadIdx.x > 31){		
 		value2 = A2[index];
 	}else{		
-		asm volatile("cvta.to.global.u64  t1, %1;\n\t"
-		"add.s64  t3, t2, t1;\n\t"		
-		"ld.global.u64 	%0, [t3];"
-		: "=l"(prefetch_B) : "l"(B));		
-		
-		//prefetch_A2 = A2[prefetch_index];
+		B[prefetch_index] = 0;
 	}	
 	
 	//block.sync();
 	
-	if(threadIdx.x > 31){
-	//////////////////////////////////////////////loop
 	long long int clock_offset2 = 0;
     while (clock_offset2 < clock_count){/////////////////what's the time overhead for addition and multiplication?
         clock_offset2++;
 		value2 = value2 + threadIdx.x;
     }
-	
-	B[index] = value1 + value2;
-	}
-	
-	/*
-	if(threadIdx.x == 0){/////%tid %ntid %laneid %warpid %nwarpid %ctaid %nctaid %smid %nsmid %gridid
-		int smid = 1;
-		asm("mov.u32 %0, %smid;" : "=r"(smid) );
-		printf("blockIdx.x: %d, smid: %d\n", blockIdx.x, smid);
-		if(blockIdx.x == 55){
-			int nsmid = 1;
-			asm("mov.u32 %0, %smid;" : "=r"(nsmid) );
-			printf("nsmid: %d\n", nsmid);
-		}
-	}
-	*/
+
+	B[index] = value1 + value2;	
 }
 
 int main(int argc, char **argv)
@@ -215,7 +187,7 @@ int main(int argc, char **argv)
 		clock_gettime(CLOCK_REALTIME, &ts1);
 
 		////may want to use more thread to see clock_count effect
-		Page_visitor<<<16384 * 512 / factor, 512 + 32>>>(CPU_data_in1, CPU_data_in2, GPU_data_out, data_stride, clock_count);///1024 per block max
+		Page_visitor<<<16384 * 512 / factor, 512>>>(CPU_data_in1, CPU_data_in2, GPU_data_out, data_stride, clock_count);///1024 per block max
 		///////////////////////////////////////////////////32 * 64 * 1 * 512 * 1024 = 8gb.
 		cudaDeviceSynchronize();
 				
