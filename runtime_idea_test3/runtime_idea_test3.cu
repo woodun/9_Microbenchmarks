@@ -72,13 +72,13 @@ __global__ void Page_visitor(long long int *A1, long long int *A2, long long int
 	long long int value2;
 	
 	//if(threadIdx.x < 480){
-	if(threadIdx.x > 31){
-	//if(0){
+	//if(threadIdx.x > 31){
+	if(0){
 		value1 = A1[index];
 		
 	}else{
 		value1 = A1[index];
-		//value2 = A2[index];
+		value2 = A2[index];
 	}
 	
 	//block.sync();
@@ -90,12 +90,12 @@ __global__ void Page_visitor(long long int *A1, long long int *A2, long long int
     }
 	
 	//if(threadIdx.x < 480){		
-	if(threadIdx.x > 31){
-	//if(0){/////////////////////////question: find out which part is causing the benefit.
+	//if(threadIdx.x > 31){
+	if(0){/////////////////////////question: find out which part is causing the benefit.
 		value2 = A2[index];
 	}else{
-		value2 = A2[index];
-		//B[prefetch_index] = 0;
+		//value2 = A2[index];
+		B[prefetch_index] = 0;
 	}	
 	
 	//block.sync();
