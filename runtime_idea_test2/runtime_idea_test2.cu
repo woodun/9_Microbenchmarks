@@ -89,12 +89,12 @@ __global__ void Page_visitor(long long int *A1, long long int *A2, long long int
 	long long int prefetch_B;
 	long long int value2;
 	if(threadIdx.x > 31){
-	//////////////////////////////////////////////loop
-	long long int clock_offset = 0;
-    while (clock_offset < clock_count){/////////////////what's the time overhead for addition and multiplication?
-        clock_offset++;
-		value1 = value1 + threadIdx.x;
-    }
+		//////////////////////////////////////////////loop
+		long long int clock_offset = 0;
+		while (clock_offset < clock_count){/////////////////what's the time overhead for addition and multiplication?
+			clock_offset++;
+			value1 = value1 + threadIdx.x;
+		}
 		
 		value2 = A2[index];
 	}else{		
@@ -109,14 +109,14 @@ __global__ void Page_visitor(long long int *A1, long long int *A2, long long int
 	//block.sync();
 	
 	if(threadIdx.x > 31){
-	//////////////////////////////////////////////loop
-	long long int clock_offset2 = 0;
-    while (clock_offset2 < clock_count){/////////////////what's the time overhead for addition and multiplication?
-        clock_offset2++;
-		value2 = value2 + threadIdx.x;
-    }
+		//////////////////////////////////////////////loop
+		long long int clock_offset2 = 0;
+		while (clock_offset2 < clock_count){/////////////////what's the time overhead for addition and multiplication?
+			clock_offset2++;
+			value2 = value2 + threadIdx.x;
+		}
 	
-	B[index] = value1 + value2;
+		B[index] = value1 + value2;
 	}
 	
 	/*
