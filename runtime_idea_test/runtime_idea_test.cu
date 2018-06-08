@@ -149,7 +149,7 @@ int main(int argc, char **argv)
 		long long int data_size = data_stride;
 		data_size = data_size * 16384 * 512 / factor;
 		data_size = data_size * 512;
-			
+		
 		long long int *CPU_data_in1;
 		checkCudaErrors(cudaMallocManaged(&CPU_data_in1, sizeof(long long int) * data_size));/////////////using unified memory			
 		long long int *CPU_data_in2;

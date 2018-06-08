@@ -60,16 +60,14 @@ long long unsigned time_diff(timespec start, timespec end){
 }
 
 //__global__ void Page_visitor(long long int *A, long long int *B, long long int data_stride, long long int clock_count){
-__global__ void Page_visitor(long long int *A1, long long int *A2, long long int *B, long long int data_stride, long long int clock_count){////load-compute-store
+__global__ void Page_visitor(long long int *A1, long long int *B, long long int data_stride, long long int clock_count){////load-compute-store
 			
 	thread_block block = this_thread_block();
 	
 	long long int index = (blockIdx.x * 512 + threadIdx.x) * data_stride;
 	long long int value1;
-	long long int prefetch_A2;
 	long long int prefetch_index = (blockIdx.x * 512 + 0) * data_stride;
-	long long int prefetch_B;
-	long long int value2;
+
 	
 	//if(threadIdx.x < 480){
 	if(threadIdx.x > 31){
@@ -78,7 +76,7 @@ __global__ void Page_visitor(long long int *A1, long long int *A2, long long int
 		
 	}else{
 		value1 = A1[index];
-		value2 = A2[index];
+		B[prefetch_index] = 0;
 	}
 	
 	//block.sync();
@@ -88,25 +86,8 @@ __global__ void Page_visitor(long long int *A1, long long int *A2, long long int
         clock_offset++;
 		value1 = value1 + threadIdx.x;
     }
-	
-	//if(threadIdx.x < 480){		
-	if(threadIdx.x > 31){
-	//if(0){/////////////////////////question: find out which part is causing the benefit.
-		value2 = A2[index];
-	}else{
-		//value2 = A2[index];
-		B[prefetch_index] = 0;
-	}	
-	
-	//block.sync();
-	
-	long long int clock_offset2 = 0;
-    while (clock_offset2 < clock_count){/////////////////what's the time overhead for addition and multiplication?
-        clock_offset2++;
-		value2 = value2 + threadIdx.x;
-    }
 
-	B[index] = value1 + value2;	
+	B[index] = value1;	
 }
 
 int main(int argc, char **argv)
@@ -154,8 +135,8 @@ int main(int argc, char **argv)
 	//when was 64k and 4k pages used?
 	//how to decrease the overhead of sync?
 	printf("###################\n#########################managed\n");
-	for(long long int factor = 2; factor <= 8; factor = factor * 2){
-	for(long long int data_stride = 1 * 1 * 1; data_stride <= 1 * 1 * 4; data_stride = data_stride * 2){////////migrating whole 2m
+	for(long long int factor = 2; factor <= 16; factor = factor * 2){
+	for(long long int data_stride = 1 * 1 * 1; data_stride <= 1 * 1 * 1; data_stride = data_stride * 2){////////migrating whole 2m
 	for(long long int mod = 536870912; mod <= 536870912; mod = mod * 2){////134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
 	for(long long int clock_count = 8192; clock_count <= 8192; clock_count = clock_count * 2){
 		///////////////////////////////////////////////////////////////////CPU data begin		
@@ -169,19 +150,19 @@ int main(int argc, char **argv)
 		checkCudaErrors(cudaMallocManaged(&CPU_data_in2, sizeof(long long int) * data_size));/////////////using unified memory		
 		///////////////////////////////////////////////////////////////////CPU data end	
 				
-		long long int *GPU_data_out;
-		checkCudaErrors(cudaMallocManaged(&GPU_data_out, sizeof(long long int) * data_size));/////////////using unified memory
+		long long int *GPU_data_out1;
+		checkCudaErrors(cudaMallocManaged(&GPU_data_out1, sizeof(long long int) * data_size));/////////////using unified memory
 		///////////////////////////////////////////////////////////////////GPU data out	end
 		
 		if(1){
-		gpu_initialization<<<16384 * 512 / factor, 512>>>(GPU_data_out, data_stride, data_size);///////////////1024 per block max
+		gpu_initialization<<<16384 * 512 / factor, 512>>>(GPU_data_out1, data_stride, data_size);///////////////1024 per block max
 		cudaDeviceSynchronize();
 		gpu_initialization<<<16384 * 512 / factor, 512>>>(CPU_data_in2, data_stride, data_size);///////////////1024 per block max
 		cudaDeviceSynchronize();
 		gpu_initialization<<<16384 * 512 / factor, 512>>>(CPU_data_in1, data_stride, data_size);///////////////1024 per block max
 		cudaDeviceSynchronize();
 		}else{		
-		init_cpu_data(GPU_data_out, data_size, data_stride);
+		init_cpu_data(GPU_data_out1, data_size, data_stride);
 		init_cpu_data(CPU_data_in2, data_size, data_stride);
 		init_cpu_data(CPU_data_in1, data_size, data_stride);
 		}
@@ -191,7 +172,7 @@ int main(int argc, char **argv)
 		clock_gettime(CLOCK_REALTIME, &ts1);
 
 		////may want to use more thread to see clock_count effect
-		Page_visitor<<<16384 * 512 / factor, 512>>>(CPU_data_in1, CPU_data_in2, GPU_data_out, data_stride, clock_count);///1024 per block max
+		Page_visitor<<<16384 * 512 / factor, 512>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);///1024 per block max
 		///////////////////////////////////////////////////32 * 64 * 1 * 512 * 1024 = 8gb.
 		cudaDeviceSynchronize();
 				
@@ -204,12 +185,12 @@ int main(int argc, char **argv)
 		printf("%llu ", time_diff(ts1, ts2));
 				
 		checkCudaErrors(cudaFree(CPU_data_in1));
-		checkCudaErrors(cudaFree(CPU_data_in2));
+		//checkCudaErrors(cudaFree(CPU_data_in2));
 		checkCudaErrors(cudaFree(GPU_data_out));
-	}	
-	}
 	}
 	printf("\n");
+	}
+	}
 	}
 
 	exit(EXIT_SUCCESS);
