@@ -84,7 +84,7 @@ __global__ void Page_visitor(long long int *A1, long long int *A2, long long int
 		//prefetch_A2 = A2[prefetch_index];
 	}
 	
-	block.sync();
+	//block.sync();
 	
 	long long int prefetch_B;
 	long long int value2;
@@ -106,7 +106,7 @@ __global__ void Page_visitor(long long int *A1, long long int *A2, long long int
 		//prefetch_A2 = A2[prefetch_index];
 	}	
 	
-	block.sync();
+	//block.sync();
 	
 	if(threadIdx.x > 31){
 		//////////////////////////////////////////////loop
