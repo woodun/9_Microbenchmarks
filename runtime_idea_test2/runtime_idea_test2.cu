@@ -72,7 +72,7 @@ __global__ void Page_visitor(long long int *A1, long long int *A2, long long int
 	if(threadIdx.x > 31){
 		value1 = A1[index];
 	}else{
-		/*
+		
 		asm volatile(".reg.u64  t1;\n\t"
 		".reg.u64  t2;\n\t"
 		".reg.u64  t3;\n\t"
@@ -80,15 +80,14 @@ __global__ void Page_visitor(long long int *A1, long long int *A2, long long int
 		"cvta.to.global.u64  t1, %2;\n\t"
 		"add.s64  t3, t2, t1;\n\t"		
 		"ld.global.u64 	%0, [t3];"
-		: "=l"(prefetch_A2) : "l"(prefetch_index), "l"(A2));		
-		*/
+		: "=l"(value2) : "l"(prefetch_index), "l"(A2));		
 		
-		value2 = A2[prefetch_index];
+		
+		//value2 = A2[prefetch_index];
 	}
 	
-	block.sync();
+	//block.sync();
 	
-
 	if(threadIdx.x > 31){
 		//////////////////////////////////////////////loop
 		long long int clock_offset = 0;
@@ -99,17 +98,17 @@ __global__ void Page_visitor(long long int *A1, long long int *A2, long long int
 		
 		value2 = A2[index];
 	}else{
-		/*
+		
 		asm volatile("cvta.to.global.u64  t1, %1;\n\t"
 		"add.s64  t3, t2, t1;\n\t"		
-		"ld.global.u64 	%0, [t3];"
-		: "=l"(prefetch_B) : "l"(B));
-		*/		
+		"st.global.u64 	[t3], %0;"
+		: "=l"(value2) : "l"(B));
+				
 		
-		B[prefetch_index] = value2;
+		//B[prefetch_index] = value2;
 	}	
 	
-	block.sync();
+	//block.sync();
 	
 	if(threadIdx.x > 31){
 		//////////////////////////////////////////////loop
@@ -186,8 +185,8 @@ int main(int argc, char **argv)
 	for(double data_stride = 1 * 1 * 0.25 * factor; data_stride <= 1 * 1 * 4 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
 	for(long long int clock_count = 512; clock_count <= 16384; clock_count = clock_count * 2){
 	*/
-	for(long long int factor = 1; factor <= 4; factor = factor * 2){
-	for(double data_stride = 1 * 1 * 1 * factor; data_stride <= 1 * 1 * 4 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
+	for(long long int factor = 1; factor <= 1; factor = factor * 2){
+	for(double data_stride = 1 * 1 * 1 * factor; data_stride <= 1 * 1 * 1 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
 	for(long long int clock_count = 4096; clock_count <= 4096; clock_count = clock_count * 2){
 		///////////////////////////////////////////////////////////////////CPU data begin		
 		long long int data_size = data_stride * 512;
