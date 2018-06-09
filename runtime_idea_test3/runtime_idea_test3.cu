@@ -14,7 +14,7 @@ using namespace cooperative_groups;
 /////////////////////////////L1 is enabled. "ALL_CCFLAGS += -Xptxas -dlcm=ca"
 //////////////large vs small data.
 
-void init_cpu_data(long long int* A, long long int size, long long int stride){
+void init_cpu_data(long long int* A, long long int size, double stride){
 	
 	for (long long int i = 0; i < size; i++){
 		A[i]=1;
@@ -31,7 +31,7 @@ void init_cpu_data(long long int* A, long long int size, long long int stride){
 	*/
 }
 
-__global__ void gpu_initialization(long long int *A, long long int data_stride, long long int data_size){			
+__global__ void gpu_initialization(long long int *A, double data_stride, long long int data_size){			
 
 	long long int index = (blockIdx.x * blockDim.x + threadIdx.x);
 	long long int thread_num =  gridDim.x * blockDim.x;
@@ -60,14 +60,14 @@ long long unsigned time_diff(timespec start, timespec end){
 }
 
 //__global__ void Page_visitor(long long int *A, long long int *B, long long int data_stride, long long int clock_count){
-__global__ void Page_visitor(long long int *A1, long long int *A2, long long int *B, long long int data_stride, long long int clock_count){////load-compute-store
+__global__ void Page_visitor(long long int *A1, long long int *A2, long long int *B, double data_stride, long long int clock_count){////load-compute-store
 			
 	thread_block block = this_thread_block();
 	
 	long long int index = (blockIdx.x * 512 + threadIdx.x) * data_stride;
 	long long int value1;
 	long long int prefetch_A2;
-	long long int prefetch_index = (blockIdx.x * 512 + 0) * data_stride;
+	long long int prefetch_index = (blockIdx.x * 512 + threadIdx.x * 16) * data_stride;
 	long long int prefetch_B;
 	long long int value2;
 	
@@ -123,7 +123,7 @@ int main(int argc, char **argv)
 	checkCudaErrors(cudaDeviceGetAttribute(&peak_clk, cudaDevAttrClockRate, dev_id));
 	float clock_rate = (float) peak_clk;
 	
-	printf("clock_rate:%f\n", clock_rate);
+	//printf("clock_rate:%f\n", clock_rate);
 
     if (!device_prop.managedMemory) { 
         // This samples requires being run on a device that supports Unified Memory
@@ -140,47 +140,53 @@ int main(int argc, char **argv)
         exit(EXIT_WAIVED);
     }
 	
+	/*
 	if (device_prop.concurrentManagedAccess == 1){
 		printf("This device supports concurrent Managed Access.\n");
     }else{
 		printf("This device does not support concurrent Managed Access.\n");
 	}
+	*/
 	
 	int value1 = 1;
 	checkCudaErrors(cudaDeviceGetAttribute(&value1, cudaDevAttrConcurrentManagedAccess, dev_id));
-	printf("cudaDevAttrConcurrentManagedAccess = %d\n", value1);	
+	//printf("cudaDevAttrConcurrentManagedAccess = %d\n", value1);	
 	
+	//changeable: block size, number of blocks(8192 * 512 max?), data size, data stride, computation length (best not too long nor too short?), ways of implementation (stand alone or incorporated? verticle or parallel prefetch?)
 	//plain managed
 	//when was 64k and 4k pages used?
 	//how to decrease the overhead of sync?
-	printf("###################\n#########################managed\n");
-	for(long long int factor = 2; factor <= 8; factor = factor * 2){
-	for(long long int data_stride = 1 * 1 * 1; data_stride <= 1 * 1 * 4; data_stride = data_stride * 2){////////migrating whole 2m
-	for(long long int mod = 536870912; mod <= 536870912; mod = mod * 2){////134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
-	for(long long int clock_count = 2048; clock_count <= 2048; clock_count = clock_count * 2){
+	//printf("###################\n#########################managed\n");
+	/*
+	for(long long int factor = 1; factor <= 128; factor = factor * 2){
+	for(double data_stride = 1 * 1 * 0.25 * factor; data_stride <= 1 * 1 * 4 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
+	for(long long int clock_count = 512; clock_count <= 16384; clock_count = clock_count * 2){
+	*/
+	for(long long int factor = 1; factor <= 4; factor = factor * 2){
+	for(double data_stride = 1 * 1 * 1 * factor; data_stride <= 1 * 1 * 4 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
+	for(long long int clock_count = 4096; clock_count <= 4096; clock_count = clock_count * 2){
 		///////////////////////////////////////////////////////////////////CPU data begin		
-		long long int data_size = data_stride;
-		data_size = data_size * 16384 * 512 / factor;
-		data_size = data_size * 512;
+		long long int data_size = data_stride * 512;
+		data_size = data_size * 8192 * 512 / factor;
 		
 		long long int *CPU_data_in1;
 		checkCudaErrors(cudaMallocManaged(&CPU_data_in1, sizeof(long long int) * data_size));/////////////using unified memory
 		long long int *CPU_data_in2;
 		checkCudaErrors(cudaMallocManaged(&CPU_data_in2, sizeof(long long int) * data_size));/////////////using unified memory		
-		///////////////////////////////////////////////////////////////////CPU data end	
-				
+		///////////////////////////////////////////////////////////////////CPU data end
+		
 		long long int *GPU_data_out;
 		checkCudaErrors(cudaMallocManaged(&GPU_data_out, sizeof(long long int) * data_size));/////////////using unified memory
 		///////////////////////////////////////////////////////////////////GPU data out	end
 		
 		if(1){
-		gpu_initialization<<<16384 * 512 / factor, 512>>>(GPU_data_out, data_stride, data_size);///////////////1024 per block max
+		gpu_initialization<<<8192 * 512 / factor, 512>>>(GPU_data_out, data_stride, data_size);///////////////1024 per block max
 		cudaDeviceSynchronize();
-		gpu_initialization<<<16384 * 512 / factor, 512>>>(CPU_data_in2, data_stride, data_size);///////////////1024 per block max
+		gpu_initialization<<<8192 * 512 / factor, 512>>>(CPU_data_in2, data_stride, data_size);///////////////1024 per block max
 		cudaDeviceSynchronize();
-		gpu_initialization<<<16384 * 512 / factor, 512>>>(CPU_data_in1, data_stride, data_size);///////////////1024 per block max
+		gpu_initialization<<<8192 * 512 / factor, 512>>>(CPU_data_in1, data_stride, data_size);///////////////1024 per block max
 		cudaDeviceSynchronize();
-		}else{		
+		}else{
 		init_cpu_data(GPU_data_out, data_size, data_stride);
 		init_cpu_data(CPU_data_in2, data_size, data_stride);
 		init_cpu_data(CPU_data_in1, data_size, data_stride);
@@ -191,7 +197,7 @@ int main(int argc, char **argv)
 		clock_gettime(CLOCK_REALTIME, &ts1);
 
 		////may want to use more thread to see clock_count effect
-		Page_visitor<<<16384 * 512 / factor, 512>>>(CPU_data_in1, CPU_data_in2, GPU_data_out, data_stride, clock_count);///1024 per block max
+		Page_visitor<<<8192 * 512 / factor, 512>>>(CPU_data_in1, CPU_data_in2, GPU_data_out, data_stride, clock_count);///1024 per block max
 		///////////////////////////////////////////////////32 * 64 * 1 * 512 * 1024 = 8gb.
 		cudaDeviceSynchronize();
 				
@@ -202,14 +208,14 @@ int main(int argc, char **argv)
 		//printf("###################data_stride%lld#########################clock_count:%lld\n", data_stride, clock_count);
 		//printf("*\n*\n*\nruntime:  %lluns\n", time_diff(ts1, ts2));
 		printf("%llu ", time_diff(ts1, ts2));
-				
+		
 		checkCudaErrors(cudaFree(CPU_data_in1));
 		checkCudaErrors(cudaFree(CPU_data_in2));
 		checkCudaErrors(cudaFree(GPU_data_out));
-	}	
-	}
 	}
 	printf("\n");
+	}
+	printf("####################%llu\n", factor);
 	}
 
 	exit(EXIT_SUCCESS);
