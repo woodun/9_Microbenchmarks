@@ -108,7 +108,7 @@ __global__ void Page_visitor(long long int *A1, long long int *A2, long long int
 		*/
 		
 		B[prefetch_index] = value2;
-	}	
+	}
 	
 	//block.sync();
 	

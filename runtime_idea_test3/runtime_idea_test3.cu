@@ -152,7 +152,7 @@ int main(int argc, char **argv)
 	checkCudaErrors(cudaDeviceGetAttribute(&value1, cudaDevAttrConcurrentManagedAccess, dev_id));
 	//printf("cudaDevAttrConcurrentManagedAccess = %d\n", value1);	
 	
-	//changeable: block size, number of blocks(8192 * 512 max?), data size, data stride, computation length (best not too long nor too short?), ways of implementation (stand alone or incorporated? verticle or parallel prefetch?)
+	//changeable: block size, number of blocks(8192 * 512 max?), data size, data stride, computation length (best not too long nor too short?), ways of implementation (stand alone or incorporated? verticle or parallel prefetch?), span of prefetching (fetch for other blocks even verticlly)?
 	//plain managed
 	//when was 64k and 4k pages used?
 	//how to decrease the overhead of sync?
