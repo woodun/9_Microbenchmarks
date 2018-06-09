@@ -73,6 +73,7 @@ __global__ void Page_visitor(long long int *A1, long long int *A2, long long int
 		value1 = A1[index];
 	}else{
 		
+		/*
 		asm volatile(".reg.u64  t1;\n\t"
 		".reg.u64  t2;\n\t"
 		".reg.u64  t3;\n\t"
@@ -81,9 +82,9 @@ __global__ void Page_visitor(long long int *A1, long long int *A2, long long int
 		"add.s64  t3, t2, t1;\n\t"		
 		"ld.global.u64 	%0, [t3];"
 		: "=l"(value2) : "l"(prefetch_index), "l"(A2));		
+		*/
 		
-		
-		//value2 = A2[prefetch_index];
+		value2 = A2[prefetch_index];
 	}
 	
 	//block.sync();
@@ -99,13 +100,14 @@ __global__ void Page_visitor(long long int *A1, long long int *A2, long long int
 		value2 = A2[index];
 	}else{
 		
+		/*
 		asm volatile("cvta.to.global.u64  t1, %1;\n\t"
 		"add.s64  t3, t2, t1;\n\t"		
 		"st.global.u64 	[t3], %0;"
 		: "=l"(value2) : "l"(B));
-				
+		*/
 		
-		//B[prefetch_index] = value2;
+		B[prefetch_index] = value2;
 	}	
 	
 	//block.sync();
