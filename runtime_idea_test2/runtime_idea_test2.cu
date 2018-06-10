@@ -62,9 +62,11 @@ long long unsigned time_diff(timespec start, timespec end){
 //__global__ void Page_visitor(long long int *A, long long int *B, long long int data_stride, long long int clock_count){
 __global__ void Page_visitor(long long int *A1, long long int *A2, long long int *B, double data_stride, long long int clock_count){////load-compute-store
 			
-	thread_block block = this_thread_block();
+	//thread_block block = this_thread_block();
 	
-	long long int index = (blockIdx.x * 512 + (threadIdx.x - 32) ) * data_stride;
+	double temp = (blockIdx.x * 512 + (threadIdx.x - 32) ) * data_stride;
+	long long int index = __double2ll_rd(temp);
+
 	long long int value1;
 	long long int prefetch_index = (blockIdx.x * 512 + threadIdx.x * 16) * data_stride;
 	long long int value2;
@@ -184,16 +186,17 @@ int main(int argc, char **argv)
 	//printf("###################\n#########################managed\n");
 
 	for(long long int factor = 1; factor <= 128; factor = factor * 2){
-	for(double data_stride = 1 * 1 * 0.25 * factor; data_stride <= 1 * 1 * 4 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
+	for(double data_stride = 0.25 * factor; data_stride <= 1 * 1 * 4 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
 	for(long long int clock_count = 512; clock_count <= 16384; clock_count = clock_count * 2){
-
+		
 	/*
 	for(long long int factor = 1; factor <= 1; factor = factor * 2){
 	for(double data_stride = 1 * 1 * 1 * factor; data_stride <= 1 * 1 * 1 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
 	for(long long int clock_count = 4096; clock_count <= 4096; clock_count = clock_count * 2){
 	*/
-		///////////////////////////////////////////////////////////////////CPU data begin		
-		long long int data_size = data_stride * 512;
+		///////////////////////////////////////////////////////////////////CPU data begin
+		double temp = data_stride * 512;
+		long long int data_size = (long long int) temp;
 		data_size = data_size * 8192 * 512 / factor;
 		
 		long long int *CPU_data_in1;
@@ -207,16 +210,21 @@ int main(int argc, char **argv)
 		///////////////////////////////////////////////////////////////////GPU data out	end
 		
 		if(1){
-		gpu_initialization<<<8192 * 512 / factor, 512>>>(GPU_data_out, data_stride, data_size);///////////////1024 per block max
-		cudaDeviceSynchronize();
-		gpu_initialization<<<8192 * 512 / factor, 512>>>(CPU_data_in2, data_stride, data_size);///////////////1024 per block max
-		cudaDeviceSynchronize();
-		gpu_initialization<<<8192 * 512 / factor, 512>>>(CPU_data_in1, data_stride, data_size);///////////////1024 per block max
-		cudaDeviceSynchronize();
+			double scale = 1;
+			if(data_stride < 1){
+				scale = data_stride;/////////make sure threadIdx is smaller than data_size in the initialization
+			}
+			
+			gpu_initialization<<<8192 * 512 * scale / factor, 512>>>(GPU_data_out, data_stride, data_size);///////////////1024 per block max
+			cudaDeviceSynchronize();
+			gpu_initialization<<<8192 * 512 * scale / factor, 512>>>(CPU_data_in2, data_stride, data_size);///////////////1024 per block max
+			cudaDeviceSynchronize();
+			gpu_initialization<<<8192 * 512 * scale / factor, 512>>>(CPU_data_in1, data_stride, data_size);///////////////1024 per block max
+			cudaDeviceSynchronize();
 		}else{
-		init_cpu_data(GPU_data_out, data_size, data_stride);
-		init_cpu_data(CPU_data_in2, data_size, data_stride);
-		init_cpu_data(CPU_data_in1, data_size, data_stride);
+			init_cpu_data(GPU_data_out, data_size, data_stride);
+			init_cpu_data(CPU_data_in2, data_size, data_stride);
+			init_cpu_data(CPU_data_in1, data_size, data_stride);
 		}
 		
 		/////////////////////////////////time
