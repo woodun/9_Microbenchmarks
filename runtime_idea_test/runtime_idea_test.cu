@@ -63,7 +63,7 @@ long long unsigned time_diff(timespec start, timespec end){
 __global__ void Page_visitor(long long int *A1, long long int *A2, long long int *B, double data_stride, long long int clock_count){////load-compute-store
 	
 	double temp = (blockIdx.x * blockDim.x + threadIdx.x) * data_stride;
-	long long int index = (long long int)floor(temp);
+	long long int index = __double2ll_rd(temp);
 	
 	long long int value1 = A1[index];
 		
@@ -144,7 +144,7 @@ int main(int argc, char **argv)
 	//printf("###################\n#########################managed\n");
 	
 	for(long long int factor = 1; factor <= 128; factor = factor * 2){
-	for(double data_stride = 1 * 1 * 0.25 * factor; data_stride <= 1 * 1 * 4 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
+	for(double data_stride = 0.25 * factor; data_stride <= 1 * 1 * 4 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
 	for(long long int clock_count = 512; clock_count <= 16384; clock_count = clock_count * 2){
 		
 	/*
