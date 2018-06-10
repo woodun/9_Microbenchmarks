@@ -63,7 +63,7 @@ long long unsigned time_diff(timespec start, timespec end){
 __global__ void Page_visitor(long long int *A1, long long int *A2, long long int *B, double data_stride, long long int clock_count){////load-compute-store
 	
 	double temp = (blockIdx.x * blockDim.x + threadIdx.x) * data_stride;
-	long long int index = (long long int)temp;
+	long long int index = (int)temp;
 	
 	long long int value1 = A1[index];
 		
