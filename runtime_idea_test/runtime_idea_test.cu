@@ -201,6 +201,7 @@ int main(int argc, char **argv)
 		//printf("###################data_stride%lld#########################clock_count:%lld\n", data_stride, clock_count);
 		//printf("*\n*\n*\nruntime:  %lluns\n", time_diff(ts1, ts2));
 		printf("%llu ", time_diff(ts1, ts2));
+		fflush(stdout);
 		
 		checkCudaErrors(cudaFree(CPU_data_in1));
 		checkCudaErrors(cudaFree(CPU_data_in2));
