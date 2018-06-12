@@ -84,6 +84,7 @@ __global__ void baseline(long long int *A1, long long int *B1, double data_strid
 	B1[index] = value1;	
 }
 
+//262144 2m
 //__global__ void Page_visitor(long long int *A, long long int *B, long long int data_stride, long long int clock_count){
 __global__ void Page_visitor(long long int *A1, long long int *B1, double data_stride, long long int clock_count){////load-compute-store
 			
@@ -94,9 +95,9 @@ __global__ void Page_visitor(long long int *A1, long long int *B1, double data_s
 	
 	long long int value1;
 	
-	double temp2 = (blockIdx.x * 512 + threadIdx.x * 16) * data_stride;
-	long long int prefetch_index = __double2ll_rd(temp2);
-	long long int value2;
+	//double temp2 = (blockIdx.x * 512 + threadIdx.x * 16) * data_stride;//////////////vertical
+	double temp2 = ( (blockIdx.x + ) * 512 + threadIdx.x * 16) * data_stride;//////////////horizontal
+	long long int prefetch_index = __double2ll_rd(temp2);	
 	
 	//if(threadIdx.x < 480){
 	if(threadIdx.x > 31){
@@ -105,6 +106,7 @@ __global__ void Page_visitor(long long int *A1, long long int *B1, double data_s
 		
 	}else{
 		value1 = A1[index];
+		//B1[prefetch_index] = 0;
 		B1[prefetch_index] = 0;
 	}
 	
