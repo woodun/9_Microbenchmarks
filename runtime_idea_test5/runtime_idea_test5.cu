@@ -269,6 +269,8 @@ int main(int argc, char **argv)
 		
 		checkCudaErrors(cudaFree(CPU_data_in1));		
 		checkCudaErrors(cudaFree(GPU_data_out1));
+		checkCudaErrors(cudaFree(CPU_data_in2));		
+		checkCudaErrors(cudaFree(GPU_data_out2));
 	}
 	printf("\n");
 	}
@@ -338,6 +340,8 @@ int main(int argc, char **argv)
 		
 		checkCudaErrors(cudaFree(CPU_data_in1));		
 		checkCudaErrors(cudaFree(GPU_data_out1));
+		checkCudaErrors(cudaFree(CPU_data_in2));		
+		checkCudaErrors(cudaFree(GPU_data_out2));
 	}
 	printf("\n");
 	}
