@@ -203,6 +203,8 @@ int main(int argc, char **argv)
 		
 		long long int *CPU_data_in1;
 		checkCudaErrors(cudaMallocManaged(&CPU_data_in1, sizeof(long long int) * data_size));/////////////using unified memory
+		long long int *CPU_data_in2;
+		checkCudaErrors(cudaMallocManaged(&CPU_data_in2, sizeof(long long int) * data_size));/////////////using unified memory
 		///////////////////////////////////////////////////////////////////CPU data end
 		
 		long long int *GPU_data_out1;
@@ -245,7 +247,8 @@ int main(int argc, char **argv)
 		printf("%llu ", time_diff(ts1, ts2));
 		fflush(stdout);
 		
-		checkCudaErrors(cudaFree(CPU_data_in1));		
+		checkCudaErrors(cudaFree(CPU_data_in1));
+		checkCudaErrors(cudaFree(CPU_data_in2));		
 		checkCudaErrors(cudaFree(GPU_data_out1));
 	}
 	printf("\n");
@@ -265,6 +268,8 @@ int main(int argc, char **argv)
 		
 		long long int *CPU_data_in1;
 		checkCudaErrors(cudaMallocManaged(&CPU_data_in1, sizeof(long long int) * data_size));/////////////using unified memory
+		long long int *CPU_data_in2;
+		checkCudaErrors(cudaMallocManaged(&CPU_data_in2, sizeof(long long int) * data_size));/////////////using unified memory
 		///////////////////////////////////////////////////////////////////CPU data end
 		
 		long long int *GPU_data_out1;
@@ -307,7 +312,8 @@ int main(int argc, char **argv)
 		printf("%llu ", time_diff(ts1, ts2));
 		fflush(stdout);
 		
-		checkCudaErrors(cudaFree(CPU_data_in1));		
+		checkCudaErrors(cudaFree(CPU_data_in1));
+		checkCudaErrors(cudaFree(CPU_data_in2));		
 		checkCudaErrors(cudaFree(GPU_data_out1));
 	}
 	printf("\n");
