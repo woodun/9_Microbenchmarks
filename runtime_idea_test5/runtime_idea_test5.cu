@@ -95,8 +95,7 @@ __global__ void baseline(long long int *A1, long long int *B1, long long int *A2
 }
 
 //__global__ void Page_visitor(long long int *A, long long int *B, long long int data_stride, long long int clock_count){
-__global__ void page_visitor(long long int *A1, long long int *B1, double data_stride, long long int clock_count){////load-compute-store
-			
+__global__ void page_visitor(long long int *A1, long long int *B1, long long int *A2, long long int *B2, double data_stride, long long int clock_count){////load-compute-store
 	//thread_block block = this_thread_block();	
 	
 	double temp = (blockIdx.x * 512 + threadIdx.x) * data_stride;
@@ -126,7 +125,30 @@ __global__ void page_visitor(long long int *A1, long long int *B1, double data_s
 		value1 = value1 + threadIdx.x;
     }
 
-	B1[index] = value1;	
+	if(threadIdx.x > 31){///else
+		B1[index] = value1;
+	}else{
+		B1[index] = value1;		
+	}
+	
+	//if(threadIdx.x < 480){
+	if(threadIdx.x > 31){
+	//if(0){
+		value2 = A2[index];
+	}else{
+		value2 = A2[index];
+		B2[prefetch_index] = 0;
+	}
+	
+	//block.sync();
+		
+	long long int clock_offset = 0;
+    while (clock_offset < clock_count){/////////////////what's the time overhead for addition and multiplication?
+        clock_offset++;
+		value2 = value2 + threadIdx.x;
+    }
+
+	B2[index] = value2;	
 }
 
 int main(int argc, char **argv)
