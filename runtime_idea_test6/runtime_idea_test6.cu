@@ -85,7 +85,7 @@ __global__ void baseline(long long int *A1, long long int *A2, long long int *B,
 	B[index] = value1 + value2;
 }
 
-__global__ void Page_visitor(long long int *A1, long long int *A2, long long int *B, double data_stride, long long int clock_count){////load-compute-store
+__global__ void page_visitor(long long int *A1, long long int *A2, long long int *B, double data_stride, long long int clock_count){////load-compute-store
 			
 	//thread_block block = this_thread_block();	
 	

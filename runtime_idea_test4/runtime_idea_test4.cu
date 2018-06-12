@@ -86,7 +86,7 @@ __global__ void baseline(long long int *A1, long long int *B1, double data_strid
 
 //262144 2m
 //__global__ void Page_visitor(long long int *A, long long int *B, long long int data_stride, long long int clock_count){
-__global__ void Page_visitor(long long int *A1, long long int *B1, double data_stride, long long int clock_count){////load-compute-store
+__global__ void page_visitor(long long int *A1, long long int *B1, double data_stride, long long int clock_count){////load-compute-store
 			
 	//thread_block block = this_thread_block();	
 	
@@ -214,7 +214,7 @@ int main(int argc, char **argv)
 		clock_gettime(CLOCK_REALTIME, &ts1);
 
 		////may want to use more thread to see clock_count effect
-		Page_visitor<<<8192 * 512 / factor, 512>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);///1024 per block max
+		page_visitor<<<8192 * 512 / factor, 512>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);///1024 per block max
 		///////////////////////////////////////////////////32 * 64 * 1 * 512 * 1024 = 8gb.
 		cudaDeviceSynchronize();
 				
