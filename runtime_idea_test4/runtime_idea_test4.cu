@@ -96,7 +96,7 @@ __global__ void page_visitor(long long int *A1, long long int *B1, double data_s
 	long long int value1;
 	
 	//double temp2 = (blockIdx.x * 512 + threadIdx.x * 16) * data_stride;//////////////vertical
-	double temp2 = ( (blockIdx.x + ) * 512 + threadIdx.x * 16) * data_stride;//////////////horizontal
+	double temp2 = ( blockIdx.x * 512 + threadIdx.x * 16) * data_stride;//////////////horizontal
 	long long int prefetch_index = __double2ll_rd(temp2);	
 	
 	//if(threadIdx.x < 480){
