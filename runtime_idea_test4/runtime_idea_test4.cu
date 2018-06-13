@@ -95,8 +95,7 @@ __global__ void page_visitor(long long int *A1, long long int *B1, double data_s
 	
 	long long int value1;
 	
-	//double temp2 = (blockIdx.x * 512 + threadIdx.x * 16) * data_stride;//////////////vertical
-	double temp2 = ( blockIdx.x * 512 + threadIdx.x * 16) * data_stride;//////////////horizontal
+	double temp2 = (blockIdx.x * 512 + threadIdx.x * 16) * data_stride;//////////////vertical	
 	long long int prefetch_index = __double2ll_rd(temp2);	
 	
 	//if(threadIdx.x < 480){
@@ -105,8 +104,7 @@ __global__ void page_visitor(long long int *A1, long long int *B1, double data_s
 		value1 = A1[index];
 		
 	}else{
-		value1 = A1[index];
-		//B1[prefetch_index] = 0;
+		value1 = A1[index];		
 		B1[prefetch_index] = 0;
 	}
 	
@@ -119,6 +117,49 @@ __global__ void page_visitor(long long int *A1, long long int *B1, double data_s
     }
 
 	B1[index] = value1;	
+}
+
+__global__ void page_visitor2(long long int *A1, long long int *B1, double data_stride, long long int clock_count){////load-compute-store
+			
+	//thread_block block = this_thread_block();	
+	
+	double temp = (blockIdx.x * 512 + threadIdx.x) * data_stride;
+	long long int index = __double2ll_rd(temp);
+	
+	long long int value1;
+	long long int value2;	
+	
+	double temp2 = ( (blockIdx.x + 512) * 512 + threadIdx.x * 16) * data_stride;//////////////horizontal
+	long long int prefetch_index = __double2ll_rd(temp2);	
+	
+	//if(threadIdx.x < 480){
+	if(threadIdx.x > 31){
+	//if(0){
+		value1 = A1[index];
+		
+	}else{
+		value1 = A1[index];
+		if(blockIdx.x < 4194304 - 512){
+		value2 = A1[prefetch_index];
+		}
+	}
+	
+	//block.sync();
+		
+	long long int clock_offset = 0;
+    while (clock_offset < clock_count){/////////////////what's the time overhead for addition and multiplication?
+        clock_offset++;
+		value1 = value1 + threadIdx.x;
+    }
+
+	if(threadIdx.x > 31){
+		B1[index] = value1;	
+	}else{
+		B1[index] = value1;
+		if(blockIdx.x < 4194304 - 512){
+		B1[prefetch_index] = value2;
+		}		
+	}
 }
 
 int main(int argc, char **argv)
@@ -214,7 +255,7 @@ int main(int argc, char **argv)
 		clock_gettime(CLOCK_REALTIME, &ts1);
 
 		////may want to use more thread to see clock_count effect
-		page_visitor<<<8192 * 512 / factor, 512>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);///1024 per block max
+		page_visitor2<<<8192 * 512 / factor, 512>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);///1024 per block max
 		///////////////////////////////////////////////////32 * 64 * 1 * 512 * 1024 = 8gb.
 		cudaDeviceSynchronize();
 				
