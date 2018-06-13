@@ -59,7 +59,7 @@ long long unsigned time_diff(timespec start, timespec end){
 	return time_interval_s + time_interval_ns;
 }
 
-__global__ void baseline(long long int *A1, long long int *A2, long long int *B, double data_stride, long long int clock_count){////load-compute-store
+__global__ void baseline(long long int *A1, long long int *A2, long long int *A3, long long int *B, double data_stride, long long int clock_count){////load-compute-store
 	
 	double temp = (blockIdx.x * blockDim.x + threadIdx.x) * data_stride;
 	long long int index = __double2ll_rd(temp);
@@ -82,10 +82,19 @@ __global__ void baseline(long long int *A1, long long int *A2, long long int *B,
 		value2 = value2 + threadIdx.x;
     }
 	
-	B[index] = value1 + value2;
+	long long int value3 = A3[index];
+	
+	//////////////////////////////////////////////loop
+	long long int clock_offset3 = 0;
+    while (clock_offset3 < clock_count){/////////////////what's the time overhead for addition and multiplication?
+        clock_offset3++;
+		value3 = value3 + threadIdx.x;
+    }
+	
+	B[index] = value1 + value2 + value3;
 }
 
-__global__ void page_visitor(long long int *A1, long long int *A2, long long int *B, double data_stride, long long int clock_count){////load-compute-store
+__global__ void page_visitor(long long int *A1, long long int *A2, long long int *A3, long long int *B, double data_stride, long long int clock_count){////load-compute-store
 			
 	//thread_block block = this_thread_block();	
 	
@@ -97,6 +106,7 @@ __global__ void page_visitor(long long int *A1, long long int *A2, long long int
 	double temp2 = (blockIdx.x * 512 + threadIdx.x * 16) * data_stride;
 	long long int prefetch_index = __double2ll_rd(temp2);
 	long long int value2;
+	long long int value3;
 	
 	//if(threadIdx.x < 480){
 	if(threadIdx.x > 31){
@@ -114,26 +124,41 @@ __global__ void page_visitor(long long int *A1, long long int *A2, long long int
     while (clock_offset < clock_count){/////////////////what's the time overhead for addition and multiplication?
         clock_offset++;
 		value1 = value1 + threadIdx.x;
-    }
+    }	
 	
-	//if(threadIdx.x < 480){		
+	//if(threadIdx.x < 480){
 	if(threadIdx.x > 31){
-	//if(0){/////////////////////////question: find out which part is causing the benefit.
-		value2 = A2[index];
-	}else{
-		//value2 = A2[index];
-		B[prefetch_index] = 0;
-	}	
+	//if(0){
+		value2 = A1[index];		
+	}else{		
+		value3 = A3[index];
+	}
 	
 	//block.sync();
-	
+		
 	long long int clock_offset2 = 0;
     while (clock_offset2 < clock_count){/////////////////what's the time overhead for addition and multiplication?
         clock_offset2++;
 		value2 = value2 + threadIdx.x;
     }
+		
+	//if(threadIdx.x < 480){		
+	if(threadIdx.x > 31){
+	//if(0){/////////////////////////question: find out which part is causing the benefit.
+		value3 = A3[index];
+	}else{		
+		B[prefetch_index] = 0;
+	}	
+	
+	//block.sync();
+	
+	long long int clock_offset3 = 0;
+    while (clock_offset3 < clock_count){/////////////////what's the time overhead for addition and multiplication?
+        clock_offset3++;
+		value3 = value3 + threadIdx.x;
+    }
 
-	B[index] = value1 + value2;	
+	B[index] = value1 + value2 + value3;	
 }
 
 int main(int argc, char **argv)
@@ -205,6 +230,8 @@ int main(int argc, char **argv)
 		checkCudaErrors(cudaMallocManaged(&CPU_data_in1, sizeof(long long int) * data_size));/////////////using unified memory
 		long long int *CPU_data_in2;
 		checkCudaErrors(cudaMallocManaged(&CPU_data_in2, sizeof(long long int) * data_size));/////////////using unified memory
+		long long int *CPU_data_in3;
+		checkCudaErrors(cudaMallocManaged(&CPU_data_in3, sizeof(long long int) * data_size));/////////////using unified memory
 		///////////////////////////////////////////////////////////////////CPU data end
 		
 		long long int *GPU_data_out1;
@@ -223,10 +250,13 @@ int main(int argc, char **argv)
 			cudaDeviceSynchronize();
 			gpu_initialization<<<8192 * 512 * scale / factor, 512>>>(CPU_data_in2, data_stride, data_size);//////////1024 per block max
 			cudaDeviceSynchronize();
+			gpu_initialization<<<8192 * 512 * scale / factor, 512>>>(CPU_data_in3, data_stride, data_size);//////////1024 per block max
+			cudaDeviceSynchronize();
 		}else{
 			init_cpu_data(GPU_data_out1, data_size, data_stride);
 			init_cpu_data(CPU_data_in1, data_size, data_stride);
-			init_cpu_data(CPU_data_in2, data_size, data_stride);		
+			init_cpu_data(CPU_data_in2, data_size, data_stride);
+			init_cpu_data(CPU_data_in3, data_size, data_stride);			
 		}
 		
 		/////////////////////////////////time
@@ -234,7 +264,7 @@ int main(int argc, char **argv)
 		clock_gettime(CLOCK_REALTIME, &ts1);
 
 		////may want to use more thread to see clock_count effect
-		page_visitor<<<8192 * 512 / factor, 512>>>(CPU_data_in1, CPU_data_in2, GPU_data_out1, data_stride, clock_count);
+		page_visitor<<<8192 * 512 / factor, 512>>>(CPU_data_in1, CPU_data_in2, CPU_data_in3, GPU_data_out1, data_stride, clock_count);
 		///////////////////////////////////////////////////32 * 64 * 1 * 512 * 1024 = 8gb.
 		cudaDeviceSynchronize();
 				
@@ -248,7 +278,8 @@ int main(int argc, char **argv)
 		fflush(stdout);
 		
 		checkCudaErrors(cudaFree(CPU_data_in1));
-		checkCudaErrors(cudaFree(CPU_data_in2));		
+		checkCudaErrors(cudaFree(CPU_data_in2));
+		checkCudaErrors(cudaFree(CPU_data_in3));		
 		checkCudaErrors(cudaFree(GPU_data_out1));
 	}
 	printf("\n");
@@ -270,6 +301,8 @@ int main(int argc, char **argv)
 		checkCudaErrors(cudaMallocManaged(&CPU_data_in1, sizeof(long long int) * data_size));/////////////using unified memory
 		long long int *CPU_data_in2;
 		checkCudaErrors(cudaMallocManaged(&CPU_data_in2, sizeof(long long int) * data_size));/////////////using unified memory
+		long long int *CPU_data_in3;
+		checkCudaErrors(cudaMallocManaged(&CPU_data_in3, sizeof(long long int) * data_size));/////////////using unified memory
 		///////////////////////////////////////////////////////////////////CPU data end
 		
 		long long int *GPU_data_out1;
@@ -288,10 +321,13 @@ int main(int argc, char **argv)
 			cudaDeviceSynchronize();
 			gpu_initialization<<<8192 * 512 * scale / factor, 512>>>(CPU_data_in2, data_stride, data_size);//////////1024 per block max
 			cudaDeviceSynchronize();
+			gpu_initialization<<<8192 * 512 * scale / factor, 512>>>(CPU_data_in3, data_stride, data_size);//////////1024 per block max
+			cudaDeviceSynchronize();
 		}else{
 			init_cpu_data(GPU_data_out1, data_size, data_stride);
 			init_cpu_data(CPU_data_in1, data_size, data_stride);
-			init_cpu_data(CPU_data_in2, data_size, data_stride);			
+			init_cpu_data(CPU_data_in2, data_size, data_stride);
+			init_cpu_data(CPU_data_in3, data_size, data_stride);			
 		}
 		
 		/////////////////////////////////time
@@ -299,7 +335,7 @@ int main(int argc, char **argv)
 		clock_gettime(CLOCK_REALTIME, &ts1);
 
 		////may want to use more thread to see clock_count effect
-		baseline<<<8192 * 512 / factor, 512>>>(CPU_data_in1, CPU_data_in2, GPU_data_out1, data_stride, clock_count);
+		baseline<<<8192 * 512 / factor, 512>>>(CPU_data_in1, CPU_data_in2, CPU_data_in3, GPU_data_out1, data_stride, clock_count);
 		///////////////////////////////////////////////////32 * 64 * 1 * 512 * 1024 = 8gb.
 		cudaDeviceSynchronize();
 				
@@ -313,7 +349,8 @@ int main(int argc, char **argv)
 		fflush(stdout);
 		
 		checkCudaErrors(cudaFree(CPU_data_in1));
-		checkCudaErrors(cudaFree(CPU_data_in2));		
+		checkCudaErrors(cudaFree(CPU_data_in2));
+		checkCudaErrors(cudaFree(CPU_data_in3));		
 		checkCudaErrors(cudaFree(GPU_data_out1));
 	}
 	printf("\n");
