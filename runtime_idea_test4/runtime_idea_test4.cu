@@ -156,9 +156,49 @@ __global__ void page_visitor2(long long int *A1, long long int *B1, double data_
 		B1[index] = value1;	
 	}else{
 		B1[index] = value1;
-		if(blockIdx.x < 4194304 - 512){
+		if(blockIdx.x < 4194304 - offset){
 		B1[prefetch_index] = value2;
 		}		
+	}
+}
+
+__global__ void page_visitor3(long long int *A1, long long int *B1, double data_stride, long long int clock_count, long long int offset){////load-compute-store
+			
+	//thread_block block = this_thread_block();	
+	
+	double temp = (blockIdx.x * 512 + threadIdx.x) * data_stride;
+	long long int index = __double2ll_rd(temp);
+	
+	long long int value1;
+	long long int value2;	
+	
+	double temp2 = ( (blockIdx.x + offset) * 512 + threadIdx.x * 16) * data_stride;//////////////horizontal
+	long long int prefetch_index = __double2ll_rd(temp2);	
+	
+	//if(threadIdx.x < 480){
+	if(threadIdx.x > 31){
+	//if(0){
+		value1 = A1[index];
+		
+	}else{
+		value1 = A1[index];
+		if(blockIdx.x < 4194304 - offset){
+		B1[prefetch_index] = 0;
+		}
+	}
+	
+	//block.sync();
+		
+	long long int clock_offset = 0;
+    while (clock_offset < clock_count){/////////////////what's the time overhead for addition and multiplication?
+        clock_offset++;
+		value1 = value1 + threadIdx.x;
+    }
+
+	if(threadIdx.x > 31){
+		B1[index] = value1;	
+	}else{
+		B1[index] = value1;
 	}
 }
 
