@@ -70,8 +70,6 @@ __global__ void baseline(long long int *A1, long long int *B1, double data_strid
 	
 	double temp2 = (blockIdx.x * 512 + threadIdx.x * 16) * data_stride;
 	long long int prefetch_index = __double2ll_rd(temp2);
-	long long int value2;
-	
 
 	value1 = A1[index];
 		
@@ -169,8 +167,7 @@ __global__ void page_visitor3(long long int *A1, long long int *B1, double data_
 	double temp = (blockIdx.x * 512 + threadIdx.x) * data_stride;
 	long long int index = __double2ll_rd(temp);
 	
-	long long int value1;
-	long long int value2;	
+	long long int value1;	
 	
 	double temp2 = ( (blockIdx.x + offset) * 512 + threadIdx.x * 16) * data_stride;//////////////horizontal
 	long long int prefetch_index = __double2ll_rd(temp2);	
