@@ -201,7 +201,7 @@ __global__ void page_visitor3(long long int *A1, long long int *B1, double data_
 
 __global__ void page_visitor4(long long int *A1, long long int *B1, double data_stride, long long int clock_count, long long int offset, long long int time){////load-compute-store
 			
-	//thread_block block = this_thread_block();	
+	thread_block block = this_thread_block();	
 	
 	double temp = (blockIdx.x * 512 + threadIdx.x) * data_stride;
 	long long int index = __double2ll_rd(temp);
@@ -232,7 +232,7 @@ __global__ void page_visitor4(long long int *A1, long long int *B1, double data_
 		}
 	}
 	
-	//block.sync();////////////////////////////////////try to sync here?
+	block.sync();////////////////////////////////////try to sync here?
 	
 	clock_offset = 0;
     while (clock_offset < time){/////////////////what's the time overhead for addition and multiplication?
