@@ -182,7 +182,7 @@ __global__ void page_visitor3(long long int *A1, long long int *A2, long long in
 		value2 = value2 + threadIdx.x;
     }
 
-	B[index] = value1 + value2;	
+	B1[index] = value1 + value2;	
 }
 
 int main(int argc, char **argv)
