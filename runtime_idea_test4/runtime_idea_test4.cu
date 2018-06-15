@@ -249,7 +249,7 @@ __global__ void page_visitor4(long long int *A1, long long int *B1, double data_
 	}
 }
 
-__global__ void Page_visitor5(long long int *A1, long long int *B, double data_stride, long long int clock_count, long long int offset){////load-compute-store
+__global__ void page_visitor5(long long int *A1, long long int *B, double data_stride, long long int clock_count, long long int offset){////load-compute-store
 			
 	//thread_block block = this_thread_block();
 	
