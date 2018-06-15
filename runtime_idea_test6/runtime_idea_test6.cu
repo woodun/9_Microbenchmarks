@@ -233,6 +233,8 @@ int main(int argc, char **argv)
 	//how to decrease the overhead of sync?
 	//printf("###################\n#########################managed\n");
 	
+	
+	/////////////questions: nvprof to see where's the benefits
 	/*
 	for(long long int factor = 1; factor <= 128; factor = factor * 2){
 	for(double data_stride = 0.25 * factor; data_stride <= 1 * 1 * 4 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
@@ -242,7 +244,7 @@ int main(int argc, char **argv)
 	printf("############approach\n");
 	
 	long long int coverage2 = 0;
-	for(long long int coverage = 8192; coverage <= 8192 * 8; coverage = coverage * 2){///////////////8192 is 2m.
+	for(long long int coverage = 0; coverage <= 8192 * 8; coverage = coverage * 2){///////////////8192 is 2m.
 		coverage2++;
 		if(coverage2 == 2){
 			coverage = 1;
@@ -252,7 +254,7 @@ int main(int argc, char **argv)
 	for(long long int rate = 1; rate <= 8192; rate = rate * 2){
 		printf("############rate: %llu\n", rate);
 		
-	for(long long int offset = 64; offset <= 64; offset = offset * 2){	
+	for(long long int offset = 0; offset <= 0; offset = offset * 2){	
 	for(long long int factor = 1; factor <= 1; factor = factor * 2){
 	for(double data_stride = 1 * factor; data_stride <= 1 * 1 * 1 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
 	for(long long int clock_count = 32; clock_count <= 32; clock_count = clock_count * 2){
@@ -314,9 +316,9 @@ int main(int argc, char **argv)
 	}
 	printf("\n");
 	}
-	printf("####################%llu\n", factor);
+	printf("####################factor: %llu\n", factor);
 	}
-	printf("####################%llu\n", offset);
+	printf("####################offset: %llu\n", offset);
 	}
 	
 	}
