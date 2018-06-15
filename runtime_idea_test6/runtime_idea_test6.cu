@@ -242,14 +242,14 @@ int main(int argc, char **argv)
 	printf("############approach\n");
 	
 	long long int coverage2 = 0;
-	for(long long int coverage = 0; coverage <= 16 * 512; coverage = coverage * 2){
+	for(long long int coverage = 8192; coverage <= 8192 * 8; coverage = coverage * 2){///////////////8192 is 2m.
 		coverage2++;
 		if(coverage2 == 2){
 			coverage = 1;
 		}
 		printf("############coverage: %llu\n", coverage);
 		
-	for(long long int rate = 1; rate <= 64; rate = rate * 2){
+	for(long long int rate = 1; rate <= 8192; rate = rate * 2){
 		printf("############rate: %llu\n", rate);
 		
 	for(long long int offset = 64; offset <= 64; offset = offset * 2){	
