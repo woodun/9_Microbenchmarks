@@ -136,14 +136,14 @@ __global__ void page_visitor(long long int *A1, long long int *A2, long long int
 	B[index] = value1 + value2;	
 }
 
-__global__ void page_visitor3(long long int *A1, long long int *A2, long long int *B1, double data_stride, long long int clock_count, long long int offset){////vertical + horizontal
+__global__ void page_visitor3(long long int *A1, long long int *A2, long long int *B1, double data_stride, long long int clock_count, long long int offset , long long int rate, long long int coverage){////vertical + horizontal
 
 	double temp = (blockIdx.x * 512 + threadIdx.x) * data_stride;
 	long long int index = __double2ll_rd(temp);
 	
 	long long int value1;
 	
-	double temp2 = ( (blockIdx.x + offset) * 512 + threadIdx.x * 16) * data_stride;
+	double temp2 = ( (blockIdx.x + offset) * 512 + threadIdx.x * coverage) * data_stride;
 	long long int prefetch_index = __double2ll_rd(temp2);
 	long long int value2;
 	
@@ -154,7 +154,7 @@ __global__ void page_visitor3(long long int *A1, long long int *A2, long long in
 		
 	}else{
 		value1 = A1[index];
-		if(blockIdx.x < 4194304 - offset){
+		if(blockIdx.x < 4194304 - offset && blockIdx.x % rate == 0){////////////////////////
 		value2 = A2[index];
 		}
 	}
@@ -171,7 +171,7 @@ __global__ void page_visitor3(long long int *A1, long long int *A2, long long in
 		value2 = A2[index];
 	}else{
 		//value2 = A2[index];
-		if(blockIdx.x < 4194304 - offset){
+		if(blockIdx.x < 4194304 - offset && blockIdx.x % rate == 0){////////////////////////
 		B1[prefetch_index] = 0;
 		}
 	}	
@@ -240,9 +240,21 @@ int main(int argc, char **argv)
 	*/
 
 	printf("############approach\n");
+	
+	long long int coverage2 = 0;
+	for(long long int coverage = 0; coverage <= 16 * 512; coverage = coverage * 2){
+		coverage2++;
+		if(coverage2 == 2){
+			coverage = 1;
+		}
+		printf("############coverage: %llu\n", coverage);
+		
+	for(long long int rate = 1; rate <= 64; rate = rate * 2){
+		printf("############rate: %llu\n", rate);
+		
 	for(long long int offset = 64; offset <= 64; offset = offset * 2){	
-	for(long long int factor = 256; factor <= 4096; factor = factor * 2){
-	for(double data_stride = 0.25 * factor; data_stride <= 1 * 1 * 4 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
+	for(long long int factor = 1; factor <= 1; factor = factor * 2){
+	for(double data_stride = 1 * factor; data_stride <= 1 * 1 * 1 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
 	for(long long int clock_count = 32; clock_count <= 32; clock_count = clock_count * 2){
 
 		///////////////////////////////////////////////////////////////////CPU data begin
@@ -283,7 +295,7 @@ int main(int argc, char **argv)
 		clock_gettime(CLOCK_REALTIME, &ts1);
 
 		////may want to use more thread to see clock_count effect
-		page_visitor3<<<8192 * 512 / factor, 512>>>(CPU_data_in1, CPU_data_in2, GPU_data_out1, data_stride, clock_count, offset);
+		page_visitor3<<<8192 * 512 / factor, 512>>>(CPU_data_in1, CPU_data_in2, GPU_data_out1, data_stride, clock_count, offset, rate, coverage);
 		///////////////////////////////////////////////////32 * 64 * 1 * 512 * 1024 = 8gb.
 		cudaDeviceSynchronize();
 				
@@ -307,9 +319,13 @@ int main(int argc, char **argv)
 	printf("####################%llu\n", offset);
 	}
 	
+	}
+	}
+	
+	
 	printf("############baseline\n");
-	for(long long int factor = 256; factor <= 4096; factor = factor * 2){
-	for(double data_stride = 0.25 * factor; data_stride <= 1 * 1 * 4 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
+	for(long long int factor = 1; factor <= 1; factor = factor * 2){
+	for(double data_stride = 1 * factor; data_stride <= 1 * 1 * 1 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
 	for(long long int clock_count = 32; clock_count <= 32; clock_count = clock_count * 2){
 
 		///////////////////////////////////////////////////////////////////CPU data begin
@@ -371,6 +387,6 @@ int main(int argc, char **argv)
 	}
 	printf("####################%llu\n", factor);
 	}
-
+	
 	exit(EXIT_SUCCESS);
 }
