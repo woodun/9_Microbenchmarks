@@ -241,7 +241,7 @@ int main(int argc, char **argv)
 
 	printf("############approach\n");
 	for(long long int offset = 64; offset <= 64; offset = offset * 2){	
-	for(long long int factor = 1; factor <= 128; factor = factor * 2){
+	for(long long int factor = 256; factor <= 4096; factor = factor * 2){
 	for(double data_stride = 0.25 * factor; data_stride <= 1 * 1 * 4 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
 	for(long long int clock_count = 32; clock_count <= 32; clock_count = clock_count * 2){
 
@@ -308,7 +308,7 @@ int main(int argc, char **argv)
 	}
 	
 	printf("############baseline\n");
-	for(long long int factor = 1; factor <= 128; factor = factor * 2){
+	for(long long int factor = 256; factor <= 4096; factor = factor * 2){
 	for(double data_stride = 0.25 * factor; data_stride <= 1 * 1 * 4 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
 	for(long long int clock_count = 32; clock_count <= 32; clock_count = clock_count * 2){
 
