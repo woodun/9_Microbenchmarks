@@ -195,10 +195,9 @@ int main(int argc, char **argv)
 	long long int dev_id = 0;
     checkCudaErrors(cudaGetDeviceProperties(&device_prop, dev_id));
 	
-	int peak_clk = 1;//kHz
-	checkCudaErrors(cudaDeviceGetAttribute(&peak_clk, cudaDevAttrClockRate, dev_id));
-	float clock_rate = (float) peak_clk;
-	
+	//int peak_clk = 1;//kHz
+	//checkCudaErrors(cudaDeviceGetAttribute(&peak_clk, cudaDevAttrClockRate, dev_id));
+	//float clock_rate = (float) peak_clk;
 	//printf("clock_rate:%f\n", clock_rate);
 
     if (!device_prop.managedMemory) { 
