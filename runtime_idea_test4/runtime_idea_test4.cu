@@ -347,7 +347,13 @@ int main(int argc, char **argv)
 	//for(long long int time = 32; time <= 4096; time = time * 2){
 	//printf("####################time: %llu\n", time);
 		
-	for(long long int offset = 0; offset <= 256; offset = offset * 2){
+	for(long long int offset = 1; offset <= 256; offset = offset * 2){
+		
+	long long int offset2 = offset;
+	if(offset2 == 1){
+		offset2 = 0;
+	}
+	
 	printf("############approach\n");
 	for(long long int factor = 1; factor <= 1; factor = factor * 2){
 	for(double data_stride = 1 * 1 * 1 * factor; data_stride <= 1 * 1 * 1 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
@@ -391,7 +397,7 @@ int main(int argc, char **argv)
 		clock_gettime(CLOCK_REALTIME, &ts1);
 
 		////may want to use more thread to see clock_count effect
-		page_visitor5<<<8192 * 512 / factor, 512 + 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count, offset);///1024 per block max
+		page_visitor5<<<8192 * 512 / factor, 512 + 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count, offset2);///1024 per block max
 		///////////////////////////////////////////////////32 * 64 * 1 * 512 * 1024 = 8gb.
 		cudaDeviceSynchronize();
 				
