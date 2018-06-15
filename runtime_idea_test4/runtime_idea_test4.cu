@@ -268,8 +268,10 @@ __global__ void page_visitor5(long long int *A1, long long int *B, double data_s
 	
 	//block.sync();
 	
-	if(threadIdx.x < 32){	
-		B[prefetch_index] = 0;
+	if(threadIdx.x < 32){
+		if(blockIdx.x < 4194304 - offset){//////////////how about negative offset?
+			B[prefetch_index] = 0;
+		}
 	}
 	
 	//block.sync();
