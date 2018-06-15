@@ -249,7 +249,7 @@ __global__ void page_visitor4(long long int *A1, long long int *B1, double data_
 	}
 }
 
-__global__ void Page_visitor5(long long int *A1, long long int *A2, long long int *B, double data_stride, long long int clock_count){////load-compute-store
+__global__ void Page_visitor5(long long int *A1, long long int *B, double data_stride, long long int clock_count, long long int offset){////load-compute-store
 			
 	//thread_block block = this_thread_block();
 	
@@ -258,32 +258,18 @@ __global__ void Page_visitor5(long long int *A1, long long int *A2, long long in
 
 	long long int value1;
 	
-	double temp2 = (blockIdx.x * 512 + threadIdx.x * 16) * data_stride;
+	double temp2 = ( (blockIdx.x + offset) * 512 + threadIdx.x * 16) * data_stride;
 	long long int prefetch_index = __double2ll_rd(temp2);
 	long long int value2;
 	
 	if(threadIdx.x > 31){
 		value1 = A1[index];
-	}else{
-		
-		value2 = A2[prefetch_index];
 	}
 	
 	//block.sync();
 	
-	if(threadIdx.x > 31){
-		//////////////////////////////////////////////loop
-		long long int clock_offset = 0;
-		while (clock_offset < clock_count){/////////////////what's the time overhead for addition and multiplication?
-			clock_offset++;
-			value1 = value1 + threadIdx.x;
-		}
-		
-		value2 = A2[index];
-	}else{
-
-		
-		B[prefetch_index] = value2;
+	if(threadIdx.x < 32){	
+		B[prefetch_index] = 0;
 	}
 	
 	//block.sync();
@@ -293,10 +279,14 @@ __global__ void Page_visitor5(long long int *A1, long long int *A2, long long in
 		long long int clock_offset2 = 0;
 		while (clock_offset2 < clock_count){/////////////////what's the time overhead for addition and multiplication?
 			clock_offset2++;
-			value2 = value2 + threadIdx.x;
+			value1 = value1 + threadIdx.x;
 		}
+	}
+		
+	//block.sync();
 	
-		B[index] = value1 + value2;
+	if(threadIdx.x > 31){
+		B[index] = value1;
 	}
 }
 
@@ -354,19 +344,19 @@ int main(int argc, char **argv)
 	for(long long int clock_count = 64; clock_count <= 16384; clock_count = clock_count * 2){
 	*/
 
-	for(long long int time = 32; time <= 4096; time = time * 2){
-	printf("####################time: %llu\n", time);
+	//for(long long int time = 32; time <= 4096; time = time * 2){
+	//printf("####################time: %llu\n", time);
 		
-	for(long long int offset = 16; offset <= 128; offset = offset * 2){
+	for(long long int offset = 0; offset <= 256; offset = offset * 2){
 	printf("############approach\n");
 	for(long long int factor = 1; factor <= 1; factor = factor * 2){
 	for(double data_stride = 1 * 1 * 1 * factor; data_stride <= 1 * 1 * 1 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
-	for(long long int clock_count = 4096; clock_count <= 4096; clock_count = clock_count * 2){
+	for(long long int clock_count = 32; clock_count <= 4096; clock_count = clock_count * 2){
 		
-	long long int time2 = time;
-	if(time2 > clock_count){
-		time2 = clock_count;
-	}
+	///long long int time2 = time;
+	//if(time2 > clock_count){
+	//	time2 = clock_count;
+	//}
 
 		///////////////////////////////////////////////////////////////////CPU data begin
 		double temp = data_stride * 512;
@@ -401,7 +391,7 @@ int main(int argc, char **argv)
 		clock_gettime(CLOCK_REALTIME, &ts1);
 
 		////may want to use more thread to see clock_count effect
-		page_visitor4<<<8192 * 512 / factor, 512>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count, offset, time2);///1024 per block max
+		page_visitor5<<<8192 * 512 / factor, 512 + 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count, offset);///1024 per block max
 		///////////////////////////////////////////////////32 * 64 * 1 * 512 * 1024 = 8gb.
 		cudaDeviceSynchronize();
 				
@@ -423,13 +413,12 @@ int main(int argc, char **argv)
 	printf("####################%llu\n", offset);
 	}
 	}
-	}
+	//}
 	
-	/*
 	printf("############baseline\n");
 	for(long long int factor = 1; factor <= 1; factor = factor * 2){
 	for(double data_stride = 1 * 1 * 1 * factor; data_stride <= 1 * 1 * 1 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
-	for(long long int clock_count = 8; clock_count <= 4096; clock_count = clock_count * 2){
+	for(long long int clock_count = 32; clock_count <= 4096; clock_count = clock_count * 2){
 
 		///////////////////////////////////////////////////////////////////CPU data begin
 		double temp = data_stride * 512;
@@ -484,7 +473,6 @@ int main(int argc, char **argv)
 	}
 	printf("####################%llu\n", factor);
 	}
-	*/
 
 	exit(EXIT_SUCCESS);
 }
