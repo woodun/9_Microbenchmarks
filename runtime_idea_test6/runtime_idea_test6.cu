@@ -254,7 +254,7 @@ int main(int argc, char **argv)
 	for(long long int rate = 1; rate <= 8192; rate = rate * 2){
 		printf("############rate: %llu\n", rate);
 		
-	for(long long int offset = 0; offset <= 0; offset = offset * 2){	
+	for(long long int offset = 0; offset <= 0; offset = offset + 4){	
 	for(long long int factor = 1; factor <= 1; factor = factor * 2){
 	for(double data_stride = 1 * factor; data_stride <= 1 * 1 * 1 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
 	for(long long int clock_count = 32; clock_count <= 32; clock_count = clock_count * 2){
