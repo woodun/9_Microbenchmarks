@@ -138,6 +138,8 @@ __global__ void page_visitor(long long int *A1, long long int *A2, long long int
 
 __global__ void page_visitor3(long long int *A1, long long int *A2, long long int *B1, double data_stride, long long int clock_count, long long int offset , long long int rate, long long int coverage){////vertical + horizontal
 
+	thread_block block = this_thread_block();
+
 	double temp = (blockIdx.x * 512 + threadIdx.x) * data_stride;
 	long long int index = __double2ll_rd(temp);
 	
@@ -154,11 +156,13 @@ __global__ void page_visitor3(long long int *A1, long long int *A2, long long in
 		
 	}else{
 		value1 = A1[index];
-		//if( (blockIdx.x < 4194304 - offset) && (blockIdx.x % rate == 0) ){////////////////////////
-		if( (blockIdx.x < 4194304 - offset) ){
+		if( (blockIdx.x < 4194304 - offset) && (blockIdx.x % rate == 0) ){////////////////////////
+		//if( (blockIdx.x < 4194304 - offset) ){
 		value2 = A2[index];
 		}
 	}
+	
+	block.sync();
 			
 	long long int clock_offset = 0;
     while (clock_offset < clock_count){/////////////////what's the time overhead for addition and multiplication?
@@ -172,11 +176,13 @@ __global__ void page_visitor3(long long int *A1, long long int *A2, long long in
 		value2 = A2[index];
 	}else{
 		//value2 = A2[index];
-		//if( (blockIdx.x < 4194304 - offset) && (blockIdx.x % rate == 0) ){////////////////////////
-		if( (blockIdx.x < 4194304 - offset) ){
+		if( (blockIdx.x < 4194304 - offset) && (blockIdx.x % rate == 0) ){////////////////////////
+		//if( (blockIdx.x < 4194304 - offset) ){
 		B1[prefetch_index] = 0;
 		}
 	}
+	
+	block.sync();
 	
 	long long int clock_offset2 = 0;
     while (clock_offset2 < clock_count){/////////////////what's the time overhead for addition and multiplication?
@@ -185,6 +191,67 @@ __global__ void page_visitor3(long long int *A1, long long int *A2, long long in
     }
 
 	B1[index] = value1 + value2;	
+}
+
+__global__ void page_visitor2(long long int *A1, long long int *A2, long long int *B1, double data_stride, long long int clock_count, long long int offset , long long int rate, long long int coverage){////vertical + horizontal
+
+	double temp = (blockIdx.x * 512 + threadIdx.x) * data_stride;
+	long long int index = __double2ll_rd(temp);
+	
+	long long int value1;
+	
+	double temp2 = ( (blockIdx.x + offset) * 512 + threadIdx.x * coverage) * data_stride;
+	long long int prefetch_index = __double2ll_rd(temp2);
+	long long int value2;
+	long long int value3;
+	
+	//if(threadIdx.x < 480){
+	if(threadIdx.x > 31){
+	//if(0){
+		value1 = A1[index];
+		
+	}else{
+		value1 = A1[index];
+		//if( (blockIdx.x < 4194304 - offset) && (blockIdx.x % rate == 0) ){////////////////////////
+		//if( (blockIdx.x < 4194304 - offset) ){
+		//value2 = A2[index];
+		//}
+	}
+			
+	long long int clock_offset = 0;
+    while (clock_offset < clock_count){/////////////////what's the time overhead for addition and multiplication?
+        clock_offset++;
+		value1 = value1 + threadIdx.x;
+    }
+	
+	//if(threadIdx.x < 480){		
+	if(threadIdx.x > 31){
+	//if(0){/////////////////////////question: find out which part is causing the benefit.
+		value2 = A2[index];
+	}else{
+		value2 = A2[index];
+		//if( (blockIdx.x < 4194304 - offset) && (blockIdx.x % rate == 0) ){////////////////////////
+		if( (blockIdx.x < 4194304 - offset) ){
+			value3 = A2[prefetch_index];
+		}
+	}
+	
+	long long int clock_offset2 = 0;
+    while (clock_offset2 < clock_count){/////////////////what's the time overhead for addition and multiplication?
+        clock_offset2++;
+		value2 = value2 + threadIdx.x;
+    }
+	
+	if(threadIdx.x > 31){
+	//if(0){/////////////////////////question: find out which part is causing the benefit.
+			B1[index] = value1 + value2;
+	}else{
+			B1[index] = value1 + value2;
+		//if( (blockIdx.x < 4194304 - offset) && (blockIdx.x % rate == 0) ){////////////////////////
+		if( (blockIdx.x < 4194304 - offset) ){
+			B1[prefetch_index] = value3;
+		}
+	}	
 }
 
 int main(int argc, char **argv)
