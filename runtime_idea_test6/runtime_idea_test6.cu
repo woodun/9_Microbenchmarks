@@ -162,7 +162,7 @@ __global__ void page_visitor3(long long int *A1, long long int *A2, long long in
 		}
 	}
 	
-	block.sync();
+	//block.sync();
 			
 	long long int clock_offset = 0;
     while (clock_offset < clock_count){/////////////////what's the time overhead for addition and multiplication?
@@ -182,7 +182,7 @@ __global__ void page_visitor3(long long int *A1, long long int *A2, long long in
 		}
 	}
 	
-	block.sync();
+	//block.sync();
 	
 	long long int clock_offset2 = 0;
     while (clock_offset2 < clock_count){/////////////////what's the time overhead for addition and multiplication?
@@ -195,6 +195,8 @@ __global__ void page_visitor3(long long int *A1, long long int *A2, long long in
 
 __global__ void page_visitor2(long long int *A1, long long int *A2, long long int *B1, double data_stride, long long int clock_count, long long int offset , long long int rate, long long int coverage){////vertical + horizontal
 
+	offset = 64;
+	
 	double temp = (blockIdx.x * 512 + threadIdx.x) * data_stride;
 	long long int index = __double2ll_rd(temp);
 	
