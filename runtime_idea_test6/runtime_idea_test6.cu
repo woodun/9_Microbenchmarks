@@ -244,14 +244,14 @@ int main(int argc, char **argv)
 	printf("############approach\n");
 	
 	long long int coverage2 = 0;
-	for(long long int coverage = 0; coverage <= 8192 * 8; coverage = coverage * 2){///////////////8192 is 2m.
+	for(long long int coverage = 1; coverage <= 1; coverage = coverage * 2){///////////////8192 is 2m.
 		coverage2++;
 		if(coverage2 == 2){
 			coverage = 1;
 		}
 		printf("############coverage: %llu\n", coverage);
 		
-	for(long long int rate = 1; rate <= 8192; rate = rate * 2){
+	for(long long int rate = 1; rate <= 1; rate = rate * 2){
 		printf("############rate: %llu\n", rate);
 		
 	for(long long int offset = 0; offset <= 0; offset = offset + 4){	
@@ -297,7 +297,8 @@ int main(int argc, char **argv)
 		clock_gettime(CLOCK_REALTIME, &ts1);
 
 		////may want to use more thread to see clock_count effect
-		page_visitor3<<<8192 * 512 / factor, 512>>>(CPU_data_in1, CPU_data_in2, GPU_data_out1, data_stride, clock_count, offset, rate, coverage);
+		//page_visitor3<<<8192 * 512 / factor, 512>>>(CPU_data_in1, CPU_data_in2, GPU_data_out1, data_stride, clock_count, offset, rate, coverage);
+		page_visitor<<<8192 * 512 / factor, 512>>>(CPU_data_in1, CPU_data_in2, GPU_data_out1, data_stride, clock_count);
 		///////////////////////////////////////////////////32 * 64 * 1 * 512 * 1024 = 8gb.
 		cudaDeviceSynchronize();
 				
