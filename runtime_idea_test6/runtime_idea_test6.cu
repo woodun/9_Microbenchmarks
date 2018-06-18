@@ -156,8 +156,8 @@ __global__ void page_visitor3(long long int *A1, long long int *A2, long long in
 		
 	}else{
 		value1 = A1[index];
-		if( (blockIdx.x < 4194304 - offset) && (blockIdx.x % rate == 0) ){////////////////////////
-		//if( (blockIdx.x < 4194304 - offset) ){
+		//if( (blockIdx.x < 4194304 - offset) && (blockIdx.x % rate == 0) ){////////////////////////
+		if( (blockIdx.x < 4194304 - offset) ){
 		value2 = A2[index];
 		}
 	}
@@ -176,8 +176,8 @@ __global__ void page_visitor3(long long int *A1, long long int *A2, long long in
 		value2 = A2[index];
 	}else{
 		//value2 = A2[index];
-		if( (blockIdx.x < 4194304 - offset) && (blockIdx.x % rate == 0) ){////////////////////////
-		//if( (blockIdx.x < 4194304 - offset) ){
+		//if( (blockIdx.x < 4194304 - offset) && (blockIdx.x % rate == 0) ){////////////////////////
+		if( (blockIdx.x < 4194304 - offset) ){
 		B1[prefetch_index] = 0;
 		}
 	}
@@ -318,7 +318,7 @@ int main(int argc, char **argv)
 		//if(coverage2 == 2){
 		//	coverage = 1;
 		//}
-		//printf("############coverage: %llu\n", coverage2);
+		printf("############coverage: %llu\n", coverage);
 		
 	for(long long int rate = 1; rate <= 1; rate = rate * 2){
 		printf("############rate: %llu\n", rate);
@@ -376,8 +376,8 @@ int main(int argc, char **argv)
 		clock_gettime(CLOCK_REALTIME, &ts1);
 
 		////may want to use more thread to see clock_count effect
-		//page_visitor3<<<8192 * 512 / factor, 512>>>(CPU_data_in1, CPU_data_in2, GPU_data_out1, data_stride, clock_count, offset, rate, coverage);
-		page_visitor2<<<8192 * 512 / factor, 512>>>(CPU_data_in1, CPU_data_in2, GPU_data_out1, data_stride, clock_count, offset, rate, coverage);
+		page_visitor3<<<8192 * 512 / factor, 512>>>(CPU_data_in1, CPU_data_in2, GPU_data_out1, data_stride, clock_count, offset, rate, coverage);
+		//page_visitor2<<<8192 * 512 / factor, 512>>>(CPU_data_in1, CPU_data_in2, GPU_data_out1, data_stride, clock_count, offset, rate, coverage);
 		//page_visitor<<<8192 * 512 / factor, 512>>>(CPU_data_in1, CPU_data_in2, GPU_data_out1, data_stride, clock_count);
 		///////////////////////////////////////////////////32 * 64 * 1 * 512 * 1024 = 8gb.
 		cudaDeviceSynchronize();
