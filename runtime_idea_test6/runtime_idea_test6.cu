@@ -136,7 +136,7 @@ __global__ void page_visitor(long long int *A1, long long int *A2, long long int
 	B[index] = value1 + value2;	
 }
 
-__global__ void page_visitor3(long long int *A1, long long int *A2, long long int *B1, double data_stride, long long int clock_count, long long int offset , long long int rate, long long int coverage){////vertical + horizontal
+__global__ void page_visitor3(long long int *A1, long long int *A2, long long int *B1, double data_stride, long long int clock_count, long long int offset , long long int rate, long long int coverage){////vertical
 
 	thread_block block = this_thread_block();
 
@@ -193,7 +193,7 @@ __global__ void page_visitor3(long long int *A1, long long int *A2, long long in
 	B1[index] = value1 + value2;	
 }
 
-__global__ void page_visitor2(long long int *A1, long long int *A2, long long int *B1, double data_stride, long long int clock_count, long long int offset , long long int rate, long long int coverage){////vertical + horizontal
+__global__ void page_visitor2(long long int *A1, long long int *A2, long long int *B1, double data_stride, long long int clock_count, long long int offset , long long int rate, long long int coverage){////horizontal
 
 	double temp = (blockIdx.x * 512 + threadIdx.x) * data_stride;
 	long long int index = __double2ll_rd(temp);
@@ -378,6 +378,7 @@ int main(int argc, char **argv)
 	for(long long int clock_count = 64; clock_count <= 16384; clock_count = clock_count * 2){
 	*/
 
+	/*
 	printf("############approach\n");
 	
 	long long int coverage2 = 0;
@@ -391,12 +392,13 @@ int main(int argc, char **argv)
 	for(long long int rate = 1; rate <= 1; rate = rate * 2){
 		printf("############rate: %llu\n", rate);
 		
-		long long int offset2 = 0;
-	for(long long int offset = 0; offset <= 32768; offset = offset * 2){
-		offset2++;
-		if(offset2 == 2){
-			offset = 1;
-		}
+	long long int offset2 = 0;
+	for(long long int offset = 0; offset <= 0; offset = offset + 2){
+	//for(long long int offset = 0; offset <= 32768; offset = offset * 2){
+		//offset2++;
+		//if(offset2 == 2){
+		//	offset = 1;
+		//}
 		printf("############offset: %llu\n", offset);
 
 	
@@ -444,8 +446,8 @@ int main(int argc, char **argv)
 		clock_gettime(CLOCK_REALTIME, &ts1);
 
 		////may want to use more thread to see clock_count effect
-		page_visitorx<<<8192 * 512 / factor, 512>>>(CPU_data_in1, CPU_data_in2, GPU_data_out1, data_stride, clock_count, offset, rate, coverage);
-		//page_visitor3<<<8192 * 512 / factor, 512>>>(CPU_data_in1, CPU_data_in2, GPU_data_out1, data_stride, clock_count, offset, rate, coverage);
+		//page_visitorx<<<8192 * 512 / factor, 512>>>(CPU_data_in1, CPU_data_in2, GPU_data_out1, data_stride, clock_count, offset, rate, coverage);
+		page_visitor3<<<8192 * 512 / factor, 512>>>(CPU_data_in1, CPU_data_in2, GPU_data_out1, data_stride, clock_count, offset, rate, coverage);
 		//page_visitor2<<<8192 * 512 / factor, 512>>>(CPU_data_in1, CPU_data_in2, GPU_data_out1, data_stride, clock_count, offset, rate, coverage);
 		//page_visitor<<<8192 * 512 / factor, 512>>>(CPU_data_in1, CPU_data_in2, GPU_data_out1, data_stride, clock_count);
 		///////////////////////////////////////////////////32 * 64 * 1 * 512 * 1024 = 8gb.
@@ -470,7 +472,7 @@ int main(int argc, char **argv)
 	}	
 	}
 	}
-	
+	*/
 	
 	printf("############baseline\n");
 	for(long long int factor = 1; factor <= 1; factor = factor * 2){
