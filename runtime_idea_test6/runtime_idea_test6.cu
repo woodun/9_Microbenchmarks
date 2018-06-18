@@ -324,10 +324,10 @@ int main(int argc, char **argv)
 		printf("############rate: %llu\n", rate);
 		
 		long long int offset2 = 0;
-	for(long long int offset = 0; offset <= 0; offset = offset * 2){
+	for(long long int offset = 0; offset <= 32768; offset = offset * 2){
 		offset2++;
 		if(offset2 == 2){
-			offset2 = 1;
+			offset = 1;
 		}
 		printf("############offset: %llu\n", offset2);
 
@@ -376,8 +376,8 @@ int main(int argc, char **argv)
 		clock_gettime(CLOCK_REALTIME, &ts1);
 
 		////may want to use more thread to see clock_count effect
-		//page_visitor3<<<8192 * 512 / factor, 512>>>(CPU_data_in1, CPU_data_in2, GPU_data_out1, data_stride, clock_count, offset2, rate, coverage);
-		page_visitor2<<<8192 * 512 / factor, 512>>>(CPU_data_in1, CPU_data_in2, GPU_data_out1, data_stride, clock_count, offset2, rate, coverage);
+		//page_visitor3<<<8192 * 512 / factor, 512>>>(CPU_data_in1, CPU_data_in2, GPU_data_out1, data_stride, clock_count, offset, rate, coverage);
+		page_visitor2<<<8192 * 512 / factor, 512>>>(CPU_data_in1, CPU_data_in2, GPU_data_out1, data_stride, clock_count, offset, rate, coverage);
 		//page_visitor<<<8192 * 512 / factor, 512>>>(CPU_data_in1, CPU_data_in2, GPU_data_out1, data_stride, clock_count);
 		///////////////////////////////////////////////////32 * 64 * 1 * 512 * 1024 = 8gb.
 		cudaDeviceSynchronize();
