@@ -313,7 +313,7 @@ int main(int argc, char **argv)
 	printf("############approach\n");
 	
 	long long int coverage2 = 0;
-	for(long long int coverage = 16; coverage <= 16; coverage = coverage * 2){///////////////8192 is 2m.
+	for(long long int coverage = 1; coverage <= 1; coverage = coverage * 2){///////////////8192 is 2m.
 		//coverage2++;
 		//if(coverage2 == 2){
 		//	coverage = 1;
