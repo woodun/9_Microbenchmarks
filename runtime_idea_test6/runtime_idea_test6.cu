@@ -156,8 +156,8 @@ __global__ void page_visitor3(long long int *A1, long long int *A2, long long in
 		
 	}else{
 		value1 = A1[index];
-		if( (blockIdx.x < 4194304 - offset) && (blockIdx.x % rate == 0) ){////////////////////////
-		//if( (blockIdx.x < 4194304 - offset) ){
+		//if( (blockIdx.x < 4194304 - offset) && (blockIdx.x % rate == 0) ){////////////////////////
+		if( (blockIdx.x < 4194304 - offset) ){
 		value2 = A2[prefetch_index];
 		}
 	}
@@ -176,8 +176,8 @@ __global__ void page_visitor3(long long int *A1, long long int *A2, long long in
 		value2 = A2[index];
 	}else{
 		//value2 = A2[index];
-		if( (blockIdx.x < 4194304 - offset) && (blockIdx.x % rate == 0) ){////////////////////////
-		//if( (blockIdx.x < 4194304 - offset) ){
+		//if( (blockIdx.x < 4194304 - offset) && (blockIdx.x % rate == 0) ){////////////////////////
+		if( (blockIdx.x < 4194304 - offset) ){
 		B1[prefetch_index] = 0;
 		}
 	}
@@ -393,7 +393,7 @@ int main(int argc, char **argv)
 		printf("############rate: %llu\n", rate);
 		
 	long long int offset2 = 0;
-	for(long long int offset = 64; offset <= 64; offset = offset + 2){
+	for(long long int offset = 0; offset <= 0; offset = offset + 2){
 	//for(long long int offset = 0; offset <= 32768; offset = offset * 2){
 		//offset2++;
 		//if(offset2 == 2){
