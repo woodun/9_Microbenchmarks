@@ -392,7 +392,7 @@ int main(int argc, char **argv)
 		printf("############rate: %llu\n", rate);
 		
 	long long int offset2 = 0;
-	for(long long int offset = 256; offset <= 256; offset = offset + 2){
+	for(long long int offset = 1; offset <= 1; offset = offset + 2){
 	//for(long long int offset = 0; offset <= 32768; offset = offset * 2){
 		//offset2++;
 		//if(offset2 == 2){
