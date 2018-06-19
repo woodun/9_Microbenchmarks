@@ -483,7 +483,7 @@ int main(int argc, char **argv)
 		double temp = data_stride * 512;
 		long long int data_size = (long long int) temp;
 		//data_size = data_size * 8192 * 512 / factor;
-		data_size = data_size * 1024 / factor;
+		//data_size = data_size * 1024 / factor;
 		
 		long long int *CPU_data_in1;
 		checkCudaErrors(cudaMallocManaged(&CPU_data_in1, sizeof(long long int) * data_size));/////////////using unified memory
@@ -510,11 +510,11 @@ int main(int argc, char **argv)
 			cudaDeviceSynchronize();
 			*/
 			
-			gpu_initialization<<<1024, 512>>>(GPU_data_out1, data_stride, data_size);////////////1024 per block max
+			gpu_initialization<<<1, 512>>>(GPU_data_out1, data_stride, data_size);////////////1024 per block max
 			cudaDeviceSynchronize();
-			gpu_initialization<<<1024, 512>>>(CPU_data_in1, data_stride, data_size);//////////1024 per block max
+			gpu_initialization<<<1, 512>>>(CPU_data_in1, data_stride, data_size);//////////1024 per block max
 			cudaDeviceSynchronize();
-			gpu_initialization<<<1024, 512>>>(CPU_data_in2, data_stride, data_size);//////////1024 per block max
+			gpu_initialization<<<1, 512>>>(CPU_data_in2, data_stride, data_size);//////////1024 per block max
 			cudaDeviceSynchronize();
 		}else{
 			init_cpu_data(GPU_data_out1, data_size, data_stride);
@@ -528,7 +528,7 @@ int main(int argc, char **argv)
 
 		////may want to use more thread to see clock_count effect
 		//baseline<<<8192 * 512 / factor, 512>>>(CPU_data_in1, CPU_data_in2, GPU_data_out1, data_stride, clock_count);
-		baseline<<<1024, 512>>>(CPU_data_in1, CPU_data_in2, GPU_data_out1, data_stride, clock_count);
+		baseline<<<1, 512>>>(CPU_data_in1, CPU_data_in2, GPU_data_out1, data_stride, clock_count);
 		///////////////////////////////////////////////////32 * 64 * 1 * 512 * 1024 = 8gb.
 		cudaDeviceSynchronize();
 				
