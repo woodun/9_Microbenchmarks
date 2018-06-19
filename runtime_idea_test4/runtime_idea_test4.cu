@@ -258,7 +258,7 @@ __global__ void page_visitor5(long long int *A1, long long int *B, double data_s
 
 	long long int value1;
 	
-	double temp2 = ( (blockIdx.x + offset) * 512 + threadIdx.x * 16) * data_stride;
+	double temp2 = ( (blockIdx.x + offset) * 512 + threadIdx.x * 1) * data_stride;
 	long long int prefetch_index = __double2ll_rd(temp2);
 	long long int value2;
 	
@@ -478,7 +478,6 @@ int main(int argc, char **argv)
 
 		////may want to use more thread to see clock_count effect
 		baseline<<<8192 * 512 / factor, 512>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);///1024 per block max
-		///////////////////////////////////////////////////32 * 64 * 1 * 512 * 1024 = 8gb.
 		cudaDeviceSynchronize();
 				
 		/////////////////////////////////time
@@ -497,6 +496,6 @@ int main(int argc, char **argv)
 	}
 	printf("####################%llu\n", factor);
 	}
-
+	
 	exit(EXIT_SUCCESS);
 }
