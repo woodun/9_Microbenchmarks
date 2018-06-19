@@ -378,7 +378,7 @@ int main(int argc, char **argv)
 	for(long long int clock_count = 64; clock_count <= 16384; clock_count = clock_count * 2){
 	*/
 
-	///*
+	/*
 	printf("############approach\n");
 	
 	long long int coverage2 = 0;
@@ -472,7 +472,7 @@ int main(int argc, char **argv)
 	}	
 	}
 	}
-	//*/
+	*/
 	
 	printf("############baseline\n");
 	for(long long int factor = 1; factor <= 1; factor = factor * 2){		
@@ -530,7 +530,7 @@ int main(int argc, char **argv)
 		clock_gettime(CLOCK_REALTIME, &ts1);
 
 		////may want to use more thread to see clock_count effect
-		baseline<<<8192 * 512 / factor, 512>>>(CPU_data_in1, CPU_data_in2, GPU_data_out1, data_stride, clock_count);
+		//baseline<<<8192 * 512 / factor, 512>>>(CPU_data_in1, CPU_data_in2, GPU_data_out1, data_stride, clock_count);
 		//baseline<<<16, 512>>>(CPU_data_in1, CPU_data_in2, GPU_data_out1, data_stride, clock_count);
 		///////////////////////////////////////////////////32 * 64 * 1 * 512 * 1024 = 8gb.
 		cudaDeviceSynchronize();
