@@ -197,7 +197,7 @@ int main(int argc, char **argv)
 		//printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m = 12288 cache lines, L1 16k = 128 cache lines.
 	//for(long long int mod2 = 1 * 16 * 1024; mod2 <= 2147483648; mod2 = mod2 * 2){////268435456 = 1gb, 536870912 = 2gb, 1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb.
-	for(long long int mod2 = 1 * 16 * 1024; mod2 <= 1 * 16 * 1024; mod2 = mod2 * 2){
+	for(long long int mod2 = 2147483648; mod2 <= 2147483648; mod2 = mod2 * 2){
 		counter++;
 		///////////////////////////////////////////////////////////////////CPU data begin
 		//int data_size = 2 * 256 * 1024 * 32;/////size = iteration * stride = 32 2mb pages.
