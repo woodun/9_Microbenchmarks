@@ -495,7 +495,7 @@ int main(int argc, char **argv)
 		checkCudaErrors(cudaMallocManaged(&GPU_data_out1, sizeof(long long int) * data_size));/////////////using unified memory
 		///////////////////////////////////////////////////////////////////GPU data out	end
 		
-		if(1){
+		if(0){
 			double scale = 1;
 			if(data_stride < 1){
 				scale = data_stride;/////////make sure threadIdx is smaller than data_size in the initialization
