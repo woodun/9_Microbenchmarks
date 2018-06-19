@@ -533,7 +533,7 @@ int main(int argc, char **argv)
 		baseline<<<8192 * 512 / factor, 512>>>(CPU_data_in1, CPU_data_in2, GPU_data_out1, data_stride, clock_count);
 		//baseline<<<16, 512>>>(CPU_data_in1, CPU_data_in2, GPU_data_out1, data_stride, clock_count);
 		///////////////////////////////////////////////////32 * 64 * 1 * 512 * 1024 = 8gb.
-		//cudaDeviceSynchronize();
+		cudaDeviceSynchronize();
 				
 		/////////////////////////////////time
 		struct timespec ts2;
