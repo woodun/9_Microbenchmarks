@@ -378,6 +378,7 @@ int main(int argc, char **argv)
 	for(long long int clock_count = 64; clock_count <= 16384; clock_count = clock_count * 2){
 	*/
 
+	/*
 	printf("############approach\n");
 	
 	long long int coverage2 = 0;
@@ -471,9 +472,8 @@ int main(int argc, char **argv)
 	}	
 	}
 	}
+	*/
 	
-	
-	/*
 	printf("############baseline\n");
 	for(long long int factor = 1; factor <= 1; factor = factor * 2){		
 	printf("####################factor: %llu\n", factor);
@@ -550,7 +550,6 @@ int main(int argc, char **argv)
 	printf("\n");
 	}	
 	}
-	*/
 	
 	exit(EXIT_SUCCESS);
 }
