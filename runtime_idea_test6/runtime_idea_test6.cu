@@ -378,7 +378,7 @@ int main(int argc, char **argv)
 	for(long long int clock_count = 64; clock_count <= 16384; clock_count = clock_count * 2){
 	*/
 
-	/*
+	///*
 	printf("############approach\n");
 	
 	long long int coverage2 = 0;
@@ -431,9 +431,9 @@ int main(int argc, char **argv)
 			
 			gpu_initialization<<<8192 * 512 * scale / factor, 512>>>(GPU_data_out1, data_stride, data_size);////////////1024 per block max
 			cudaDeviceSynchronize();
-			gpu_initialization<<<8192 * 512 * scale / factor, 512>>>(CPU_data_in1, data_stride, data_size);//////////1024 per block max
-			cudaDeviceSynchronize();
 			gpu_initialization<<<8192 * 512 * scale / factor, 512>>>(CPU_data_in2, data_stride, data_size);//////////1024 per block max
+			cudaDeviceSynchronize();
+			gpu_initialization<<<8192 * 512 * scale / factor, 512>>>(CPU_data_in1, data_stride, data_size);//////////1024 per block max
 			cudaDeviceSynchronize();
 		}else{
 			init_cpu_data(GPU_data_out1, data_size, data_stride);
@@ -472,7 +472,7 @@ int main(int argc, char **argv)
 	}	
 	}
 	}
-	*/
+	//*/
 	
 	printf("############baseline\n");
 	for(long long int factor = 1; factor <= 1; factor = factor * 2){
@@ -503,10 +503,11 @@ int main(int argc, char **argv)
 			
 			gpu_initialization<<<8192 * 512 * scale / factor, 512>>>(GPU_data_out1, data_stride, data_size);////////////1024 per block max
 			cudaDeviceSynchronize();
-			gpu_initialization<<<8192 * 512 * scale / factor, 512>>>(CPU_data_in1, data_stride, data_size);//////////1024 per block max
-			cudaDeviceSynchronize();
 			gpu_initialization<<<8192 * 512 * scale / factor, 512>>>(CPU_data_in2, data_stride, data_size);//////////1024 per block max
 			cudaDeviceSynchronize();
+			gpu_initialization<<<8192 * 512 * scale / factor, 512>>>(CPU_data_in1, data_stride, data_size);//////////1024 per block max
+			cudaDeviceSynchronize();
+
 			
 			/*
 			gpu_initialization<<<1, 512>>>(GPU_data_out1, data_stride, data_size);////////////1024 per block max
