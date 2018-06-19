@@ -119,10 +119,10 @@ __device__ void P_chasing2(int mark, int *A, long long int iterations, int *B, i
 	
 	B[0] = j;
 	
-	for (long long int it = 0; it < iterations; it++){		
-		C[it] = s_index[it];
-		D[it] = s_tvalue[it];
-	}
+	//for (long long int it = 0; it < iterations; it++){		
+	//	C[it] = s_index[it];
+	//	D[it] = s_tvalue[it];
+	//}
 }
 
 __global__ void tlb_latency_test(int *A, long long int iterations, int *B, int *C, long long int *D, float clock_rate, long long int mod, int data_stride){
@@ -191,11 +191,13 @@ int main(int argc, char **argv)
 	
 	int counter = 0;
 	/////////change the data stride as to observe if the latency increase is caused by iteration(cache) or stride(tlb)
-	for(int data_stride = 1 * 1 * 256; data_stride <= 2 * 256 * 1024; data_stride = data_stride * 2){/////////32mb stride
+	//for(int data_stride = 1 * 1 * 256; data_stride <= 2 * 256 * 1024; data_stride = data_stride * 2){
+	for(int data_stride = 1 * 1 * 256; data_stride <= 1 * 1 * 256; data_stride = data_stride * 2){
 		//data_stride = data_stride + 32;///offset a cache line, trying to cause L2 miss but tlb hit.
 		//printf("###################data_stride%d#########################\n", data_stride);
 	//for(int mod = 1024 * 256 * 2; mod > 0; mod = mod - 32 * 1024){/////kepler L2 1.5m = 12288 cache lines, L1 16k = 128 cache lines.
-	for(long long int mod2 = 1 * 16 * 1024; mod2 <= 2147483648; mod2 = mod2 * 2){////268435456 = 1gb, 536870912 = 2gb, 1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb.
+	//for(long long int mod2 = 1 * 16 * 1024; mod2 <= 2147483648; mod2 = mod2 * 2){////268435456 = 1gb, 536870912 = 2gb, 1073741824 = 4gb, 2147483648 = 8gb, 4294967296 = 16gb.
+	for(long long int mod2 = 1 * 16 * 1024; mod2 <= 1 * 16 * 1024; mod2 = mod2 * 2){
 		counter++;
 		///////////////////////////////////////////////////////////////////CPU data begin
 		//int data_size = 2 * 256 * 1024 * 32;/////size = iteration * stride = 32 2mb pages.
@@ -249,11 +251,11 @@ int main(int argc, char **argv)
 
 		fprintf(pFile, "###################data_stride%d#########################\n", data_stride);
 		fprintf (pFile, "###############Mod%lld##############%lld\n", mod, iterations);
-		for (long long int it = 0; it < reduced_iter; it++){		
-			fprintf (pFile, "%d %fms %lldcycles\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate, CPU_data_out_time[it]);
+		//for (long long int it = 0; it < reduced_iter; it++){		
+		//	fprintf (pFile, "%d %fms %lldcycles\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate, CPU_data_out_time[it]);
 			//fprintf (pFile, "%d %fms\n", it, CPU_data_out_time[it] / (float)clock_rate);
 			//printf ("%d %fms\n", CPU_data_out_index[it], CPU_data_out_time[it] / (float)clock_rate);
-		}
+		//}
 		
 		checkCudaErrors(cudaFree(GPU_data_out_index));
 		checkCudaErrors(cudaFree(GPU_data_out_time));
