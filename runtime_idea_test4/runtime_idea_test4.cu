@@ -266,7 +266,7 @@ __global__ void page_visitor5(long long int *A1, long long int *B, double data_s
 		value1 = A1[index];
 	}
 	
-	block.sync();
+	//block.sync();
 	
 	if(threadIdx.x < 32){
 		if(blockIdx.x < 4194304 - offset){//////////////questions: how about negative offset?
@@ -274,7 +274,7 @@ __global__ void page_visitor5(long long int *A1, long long int *B, double data_s
 		}
 	}
 	
-	//block.sync();
+	block.sync();
 	
 	if(threadIdx.x > 31){
 		//////////////////////////////////////////////loop
