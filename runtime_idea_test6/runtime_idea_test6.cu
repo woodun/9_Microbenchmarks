@@ -378,7 +378,6 @@ int main(int argc, char **argv)
 	for(long long int clock_count = 64; clock_count <= 16384; clock_count = clock_count * 2){
 	*/
 
-	/*
 	printf("############approach\n");
 	
 	long long int coverage2 = 0;
@@ -393,7 +392,7 @@ int main(int argc, char **argv)
 		printf("############rate: %llu\n", rate);
 		
 	long long int offset2 = 0;
-	for(long long int offset = 256; offset <= 256; offset = offset + 2){
+	for(long long int offset = 0; offset <= 0; offset = offset + 2){
 	//for(long long int offset = 0; offset <= 32768; offset = offset * 2){
 		//offset2++;
 		//if(offset2 == 2){
@@ -472,8 +471,8 @@ int main(int argc, char **argv)
 	}	
 	}
 	}
-	*/
 	
+	/*
 	printf("############baseline\n");
 	for(long long int factor = 1; factor <= 1; factor = factor * 2){		
 	printf("####################factor: %llu\n", factor);
@@ -550,6 +549,7 @@ int main(int argc, char **argv)
 	printf("\n");
 	}	
 	}
+	*/
 	
 	exit(EXIT_SUCCESS);
 }
