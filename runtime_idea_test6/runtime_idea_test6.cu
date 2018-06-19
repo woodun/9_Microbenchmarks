@@ -520,9 +520,9 @@ int main(int argc, char **argv)
 			cudaDeviceSynchronize();
 			*/
 		}else{
-			init_cpu_data(GPU_data_out1, data_size, data_stride);
-			init_cpu_data(CPU_data_in1, data_size, data_stride);
-			init_cpu_data(CPU_data_in2, data_size, data_stride);			
+			init_cpu_data(GPU_data_out1, data_size, data_stride);			
+			init_cpu_data(CPU_data_in2, data_size, data_stride);
+			init_cpu_data(CPU_data_in1, data_size, data_stride);			
 		}
 		
 		/////////////////////////////////time
@@ -530,7 +530,7 @@ int main(int argc, char **argv)
 		clock_gettime(CLOCK_REALTIME, &ts1);
 
 		////may want to use more thread to see clock_count effect
-		baseline<<<8192 * 512 / factor, 512>>>(CPU_data_in1, CPU_data_in2, GPU_data_out1, data_stride, clock_count);
+		//baseline<<<8192 * 512 / factor, 512>>>(CPU_data_in1, CPU_data_in2, GPU_data_out1, data_stride, clock_count);
 		//baseline<<<16, 512>>>(CPU_data_in1, CPU_data_in2, GPU_data_out1, data_stride, clock_count);
 		///////////////////////////////////////////////////32 * 64 * 1 * 512 * 1024 = 8gb.
 		cudaDeviceSynchronize();
