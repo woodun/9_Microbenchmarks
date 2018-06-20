@@ -84,7 +84,7 @@ __global__ void baseline(long long int *A1, long long int *B1, double data_strid
 
 //262144 2m
 //__global__ void Page_visitor(long long int *A, long long int *B, long long int data_stride, long long int clock_count){
-__global__ void page_visitor(long long int *A1, long long int *B1, double data_stride, long long int clock_count){////load-compute-store
+__global__ void page_visitor(long long int *A1, long long int *B1, double data_stride, long long int clock_count){////vertical
 			
 	//thread_block block = this_thread_block();	
 	
@@ -117,7 +117,7 @@ __global__ void page_visitor(long long int *A1, long long int *B1, double data_s
 	B1[index] = value1;	
 }
 
-__global__ void page_visitor2(long long int *A1, long long int *B1, double data_stride, long long int clock_count, long long int offset){////load-compute-store
+__global__ void page_visitor2(long long int *A1, long long int *B1, double data_stride, long long int clock_count, long long int offset){////horizontal
 			
 	//thread_block block = this_thread_block();	
 	
@@ -160,7 +160,7 @@ __global__ void page_visitor2(long long int *A1, long long int *B1, double data_
 	}
 }
 
-__global__ void page_visitor3(long long int *A1, long long int *B1, double data_stride, long long int clock_count, long long int offset){////load-compute-store
+__global__ void page_visitor3(long long int *A1, long long int *B1, double data_stride, long long int clock_count, long long int offset){////vertical with offset
 			
 	//thread_block block = this_thread_block();	
 	
@@ -199,7 +199,7 @@ __global__ void page_visitor3(long long int *A1, long long int *B1, double data_
 	}
 }
 
-__global__ void page_visitor4(long long int *A1, long long int *B1, double data_stride, long long int clock_count, long long int offset, long long int time){////load-compute-store
+__global__ void page_visitor4(long long int *A1, long long int *B1, double data_stride, long long int clock_count, long long int offset, long long int time){////vertical with offset and time
 			
 	thread_block block = this_thread_block();	
 	
@@ -266,7 +266,7 @@ __global__ void page_visitor5(long long int *A1, long long int *B, double data_s
 		value1 = A1[index];
 	}
 	
-	//block.sync();
+	block.sync();
 	
 	if(threadIdx.x < 32){
 		if(blockIdx.x < 4194304 - offset){//////////////questions: how about negative offset?
@@ -274,7 +274,7 @@ __global__ void page_visitor5(long long int *A1, long long int *B, double data_s
 		}
 	}
 	
-	block.sync();
+	//block.sync();
 	
 	if(threadIdx.x > 31){
 		//////////////////////////////////////////////loop
@@ -416,6 +416,7 @@ int main(int argc, char **argv)
 
 		////may want to use more thread to see clock_count effect
 		page_visitor5<<<8192 * 512 / factor, 512 + 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count, offset);
+		//page_visitor3<<<8192 * 512 / factor, 512 + 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count, offset);
 		cudaDeviceSynchronize();
 				
 		/////////////////////////////////time
