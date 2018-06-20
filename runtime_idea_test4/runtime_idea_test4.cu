@@ -285,7 +285,7 @@ __global__ void page_visitor5(long long int *A1, long long int *B, double data_s
 		}
 	}
 		
-	block.sync();
+	//block.sync();
 	
 	if(threadIdx.x > 31){
 		B[index] = value1;
@@ -415,8 +415,8 @@ int main(int argc, char **argv)
 		clock_gettime(CLOCK_REALTIME, &ts1);
 
 		////may want to use more thread to see clock_count effect
-		page_visitor5<<<8192 * 512 / factor, 512 + 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count, offset);
-		//page_visitor3<<<8192 * 512 / factor, 512 + 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count, offset);
+		//page_visitor5<<<8192 * 512 / factor, 512 + 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count, offset);
+		page_visitor3<<<8192 * 512 / factor, 512 + 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count, offset);
 		cudaDeviceSynchronize();
 				
 		/////////////////////////////////time
