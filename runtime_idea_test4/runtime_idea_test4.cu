@@ -258,7 +258,7 @@ __global__ void page_visitor5(long long int *A1, long long int *B, double data_s
 
 	long long int value1;
 	
-	double temp2 = ( (blockIdx.x + offset) * 512 + threadIdx.x * 1) * data_stride;
+	double temp2 = ( (blockIdx.x + offset) * 512 + threadIdx.x * 16) * data_stride;
 	long long int prefetch_index = __double2ll_rd(temp2);
 	long long int value2;
 	
@@ -266,7 +266,7 @@ __global__ void page_visitor5(long long int *A1, long long int *B, double data_s
 		value1 = A1[index];
 	}
 	
-	block.sync();
+	//block.sync();
 	
 	if(threadIdx.x < 32){
 		if(blockIdx.x < 4194304 - offset){//////////////questions: how about negative offset?
