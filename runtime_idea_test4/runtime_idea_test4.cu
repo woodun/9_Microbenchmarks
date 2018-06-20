@@ -346,7 +346,7 @@ int main(int argc, char **argv)
 	for(long long int clock_count = 64; clock_count <= 16384; clock_count = clock_count * 2){
 	*/
 
-	///*
+	/*
 	printf("############approach\n");
 	for(long long int time = 32; time <= 32; time = time * 2){
 	printf("####################time: %llu\n", time);
@@ -438,7 +438,7 @@ int main(int argc, char **argv)
 	}
 	}
 	}
-	//*/
+	*/
 	
 	///*
 	printf("############baseline\n");
