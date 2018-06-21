@@ -312,7 +312,7 @@ __global__ void page_visitor7(long long int *A1, long long int *B, double data_s
 	long long int prefetch_index = __double2ll_rd(temp2);
 	long long int value2;
 	
-	if(threadIdx.x > 31){
+	if(threadIdx.x > 31){//////////////////question: for non-proxy, remove thread limit?
 		value1 = A1[index];
 		
 		//__threadfence_block();
@@ -329,17 +329,17 @@ __global__ void page_visitor7(long long int *A1, long long int *B, double data_s
 		}
 	}
 	
-	if(threadIdx.x > 31 && threadIdx.x < 64){
-		signal = value1;
-	}
-	__threadfence_block();
-	
-	if(threadIdx.x < 32){//////////////////proxy
-		if(blockIdx.x < 4194304 - offset){//////////////questions: how about negative offset?		
-			B[prefetch_index] = 0;//////////////////////questions: try for horizontal using proxy.			
-			
-			//__threadfence_block();
-		}		
+	if(threadIdx.x < 33){
+		if(threadIdx.x > 31){
+			signal = value1;
+		}
+		__threadfence_block();
+		
+		if(threadIdx.x < 32){//////////////////proxy
+			if(blockIdx.x < 4194304 - offset){//////////////questions: how about negative offset?		
+				B[prefetch_index] = 0;//////////////////////questions: try for horizontal using proxy.			
+			}
+		}
 	}
 	
 	if(threadIdx.x > 31){
