@@ -329,17 +329,17 @@ __global__ void page_visitor7(long long int *A1, long long int *B, double data_s
 		}
 	}
 	
-	//signal = value1;
+	signal = value1;
 	__threadfence_block();
 	
-	if(threadIdx.x < 32){
+	if(threadIdx.x < 32){//////////////////proxy
 		if(blockIdx.x < 4194304 - offset){//////////////questions: how about negative offset?		
 			B[prefetch_index] = 0;//////////////////////questions: try for horizontal using proxy.			
 			
 			//__threadfence_block();
 		}		
-	}	
-			
+	}
+	
 	if(threadIdx.x > 31){
 		//////////////////////////////////////////////loop
 		long long int clock_offset2 = 0;
