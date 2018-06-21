@@ -476,7 +476,7 @@ int main(int argc, char **argv)
 
 	///*
 	printf("############approach\n");
-	for(long long int time = 32; time <= 8192; time = time * 2){
+	for(long long int time = 8192; time <= 8192; time = time * 2){
 	printf("\n####################time: %llu\n", time);
 	
 	long long int coverage2 = 0;
