@@ -269,7 +269,7 @@ __global__ void page_visitor5(long long int *A1, long long int *B, double data_s
 	}
 	
 	//block.sync();/////////////how to vote inside/outside blocks?
-	
+	__threadfence_block();
 	
 	if(threadIdx.x < 32){
 		if(blockIdx.x < 4194304 - offset){//////////////questions: how about negative offset?
@@ -277,9 +277,8 @@ __global__ void page_visitor5(long long int *A1, long long int *B, double data_s
 			
 			//__threadfence_block();
 		}		
-	}
+	}	
 	
-	__threadfence_block();
 	//block.sync();
 	
 	if(threadIdx.x > 31){
