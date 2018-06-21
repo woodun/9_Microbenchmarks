@@ -320,7 +320,6 @@ __global__ void page_visitor7(long long int *A1, long long int *B, double data_s
 	
 	//block.sync();/////////////how to vote inside/outside blocks?	
 	
-	/*
 	if(threadIdx.x > 31){
 		//////////////////////////////////////////////loop
 		long long int clock_offset1 = 0;
@@ -329,10 +328,9 @@ __global__ void page_visitor7(long long int *A1, long long int *B, double data_s
 			value1 = value1 + threadIdx.x;
 		}
 	}
-	*/
 	
 	//signal = value1;
-	//__threadfence_block();
+	__threadfence_block();
 	
 	if(threadIdx.x < 32){
 		if(blockIdx.x < 4194304 - offset){//////////////questions: how about negative offset?		
@@ -341,9 +339,7 @@ __global__ void page_visitor7(long long int *A1, long long int *B, double data_s
 			//__threadfence_block();
 		}		
 	}	
-		
-
-	
+			
 	if(threadIdx.x > 31){
 		//////////////////////////////////////////////loop
 		long long int clock_offset2 = 0;
@@ -478,7 +474,7 @@ int main(int argc, char **argv)
 
 	///*
 	printf("############approach\n");
-	for(long long int time = 8192; time <= 8192; time = time * 2){
+	for(long long int time = 32; time <= 8192; time = time * 2){
 	printf("\n####################time: %llu\n", time);
 	
 	long long int coverage2 = 0;
