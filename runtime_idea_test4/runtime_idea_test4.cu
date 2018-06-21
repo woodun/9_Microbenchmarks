@@ -301,6 +301,7 @@ __global__ void page_visitor5(long long int *A1, long long int *B, double data_s
 __global__ void page_visitor7(long long int *A1, long long int *B, double data_stride, long long int clock_count, long long int offset, long long int time){////load-compute-store
 			
 	//thread_block block = this_thread_block();
+	//__shared__ int signal;
 	
 	double temp = (blockIdx.x * 512 + (threadIdx.x - 32) ) * data_stride;
 	long long int index = __double2ll_rd(temp);
@@ -319,6 +320,22 @@ __global__ void page_visitor7(long long int *A1, long long int *B, double data_s
 	
 	//block.sync();/////////////how to vote inside/outside blocks?	
 		
+
+	
+	//block.sync();
+		
+	if(threadIdx.x > 31){
+		//////////////////////////////////////////////loop
+		long long int clock_offset1 = 0;
+		while (clock_offset1 < clock_count - time){/////////////////what's the time overhead for addition and multiplication?
+			clock_offset1++;
+			value1 = value1 + threadIdx.x;
+		}
+	}
+	
+	//signal = value1;
+	__threadfence_block();
+	
 	if(threadIdx.x < 32){
 		if(blockIdx.x < 4194304 - offset){//////////////questions: how about negative offset?		
 			B[prefetch_index] = 0;//////////////////////questions: try for horizontal using proxy.			
@@ -327,12 +344,10 @@ __global__ void page_visitor7(long long int *A1, long long int *B, double data_s
 		}		
 	}	
 	
-	//block.sync();
-		
 	if(threadIdx.x > 31){
 		//////////////////////////////////////////////loop
 		long long int clock_offset2 = 0;
-		while (clock_offset2 < clock_count){/////////////////what's the time overhead for addition and multiplication?
+		while (clock_offset2 < time){/////////////////what's the time overhead for addition and multiplication?
 			clock_offset2++;
 			value1 = value1 + threadIdx.x;
 		}
@@ -463,7 +478,7 @@ int main(int argc, char **argv)
 
 	///*
 	printf("############approach\n");
-	for(long long int time = 32; time <= 32; time = time * 2){
+	for(long long int time = 32; time <= 8192; time = time * 2){
 	printf("####################time: %llu\n", time);
 	
 	long long int coverage2 = 0;
@@ -478,8 +493,8 @@ int main(int argc, char **argv)
 		printf("############rate: %llu\n", rate);
 		
 	long long int offset2 = 0;
-	//for(long long int offset = 0; offset <= 0; offset = offset + 2){///////8
-	for(long long int offset = 0; offset <= 256; offset = offset + 8){
+	for(long long int offset = 0; offset <= 0; offset = offset + 2){///////8
+	//for(long long int offset = 0; offset <= 256; offset = offset + 8){
 		//offset2++;
 		//if(offset2 == 2){
 		//	offset = 1;
@@ -532,7 +547,8 @@ int main(int argc, char **argv)
 		clock_gettime(CLOCK_REALTIME, &ts1);
 
 		////may want to use more thread to see clock_count effect
-		page_visitor5<<<8192 * 512 / factor, 512 + 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count, offset);
+		page_visitor7<<<8192 * 512 / factor, 512 + 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count, offset, time);
+		//page_visitor5<<<8192 * 512 / factor, 512 + 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count, offset);
 		//page_visitor3<<<8192 * 512 / factor, 512>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count, offset);
 		//page_visitor3<<<8192 * 512 / factor, 512>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count, offset);
 		cudaDeviceSynchronize();
