@@ -175,14 +175,14 @@ __global__ void page_visitor3(long long int *A1, long long int *B1, double data_
 	//if(threadIdx.x < 480){
 	if(threadIdx.x > 31){
 	//if(0){
-		value1 = A1[index];
-		
-	}
-	
-	__threadfence_block();
+		value1 = A1[index];		
+	}	
 	
 	if(threadIdx.x < 32){
 		value1 = A1[index];
+		
+		__threadfence_block();
+		
 		if(blockIdx.x < 4194304 - offset){
 			B1[prefetch_index] = 0;			
 		}
