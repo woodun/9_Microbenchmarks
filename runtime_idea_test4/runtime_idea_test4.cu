@@ -251,7 +251,7 @@ __global__ void page_visitor4(long long int *A1, long long int *B1, double data_
 
 __global__ void page_visitor5(long long int *A1, long long int *B, double data_stride, long long int clock_count, long long int offset){////load-compute-store
 			
-	thread_block block = this_thread_block();
+	//thread_block block = this_thread_block();
 	
 	double temp = (blockIdx.x * 512 + (threadIdx.x - 32) ) * data_stride;
 	long long int index = __double2ll_rd(temp);
@@ -268,10 +268,13 @@ __global__ void page_visitor5(long long int *A1, long long int *B, double data_s
 	
 	//block.sync();/////////////how to vote inside/outside blocks?
 	
+	
 	if(threadIdx.x < 32){
 		if(blockIdx.x < 4194304 - offset){//////////////questions: how about negative offset?
 			B[prefetch_index] = 0;//////////////////////questions: try for horizontal using proxy.
 		}
+		
+		__threadfence_block();
 	}
 	
 	//block.sync();
@@ -284,7 +287,7 @@ __global__ void page_visitor5(long long int *A1, long long int *B, double data_s
 			value1 = value1 + threadIdx.x;
 		}
 	}
-		
+	
 	//block.sync();
 	
 	if(threadIdx.x > 31){
@@ -292,6 +295,67 @@ __global__ void page_visitor5(long long int *A1, long long int *B, double data_s
 	}
 }
 
+ __global__ void page_visitor6(long long int *A1, long long int *B, double data_stride, long long int clock_count, long long int offset){////load-compute-store
+		
+	__shared__ int signal;
+	__shared__ int signal2;
+	__shared__ int trigger;
+	
+	signal = 0;
+	signal2 = 0;
+	trigger = 0;
+	
+	thread_block block = this_thread_block();
+	
+	double temp = (blockIdx.x * 512 + (threadIdx.x - 32) ) * data_stride;
+	long long int index = __double2ll_rd(temp);
+
+	long long int value1;
+	
+	double temp2 = ( (blockIdx.x + offset) * 512 + threadIdx.x * 16) * data_stride;
+	long long int prefetch_index = __double2ll_rd(temp2);
+	long long int value2;
+	
+	
+	if(threadIdx.x > 31){
+		signal = 1;
+		value1 = A1[index];
+	}
+	
+	//block.sync();/////////////how to vote inside/outside blocks?
+	
+	if(threadIdx.x < 32){
+		if(blockIdx.x < 4194304 - offset){//////////////questions: how about negative offset?
+			if(signal == 1){
+				B[prefetch_index] = 0;//////////////////////questions: try for horizontal using proxy.
+				signal2 = 1;
+			}
+		}
+	}
+	
+	//block.sync();
+	
+	if(threadIdx.x > 31){
+		if(signal2 == 1){
+			//////////////////////////////////////////////loop
+			long long int clock_offset2 = 0;
+			while (clock_offset2 < clock_count){/////////////////what's the time overhead for addition and multiplication?
+				clock_offset2++;
+				value1 = value1 + threadIdx.x;
+			}
+		}
+	}
+	
+	//block.sync();
+	
+	if(threadIdx.x > 31){
+		if(signal == 1){
+			B[index] = value1;
+		}
+	}
+}
+ 
+ 
 int main(int argc, char **argv)
 {
 	printf("\n");
@@ -441,7 +505,7 @@ int main(int argc, char **argv)
 	}
 	//*/
 	
-	///*
+	/*
 	printf("\n############baseline\n");
 	for(long long int factor = 1; factor <= 1; factor = factor * 2){/////////////16384 max
 	//printf("####################factor: %llu\n", factor);
@@ -501,7 +565,7 @@ int main(int argc, char **argv)
 	}	
 	}	
 	}
-	//*/
+	*/
 	
 	exit(EXIT_SUCCESS);
 }
