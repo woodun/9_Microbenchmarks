@@ -507,7 +507,7 @@ int main(int argc, char **argv)
 	}
 	//*/
 	
-	/*
+	///*
 	printf("\n############baseline\n");
 	for(long long int factor = 1; factor <= 1; factor = factor * 2){/////////////16384 max
 	//printf("####################factor: %llu\n", factor);
@@ -567,7 +567,7 @@ int main(int argc, char **argv)
 	}	
 	}	
 	}
-	*/
+	//*/
 	printf("\n");
 	
 	exit(EXIT_SUCCESS);
