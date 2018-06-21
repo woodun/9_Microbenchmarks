@@ -340,6 +340,7 @@ __global__ void page_visitor7(long long int *A1, long long int *B, double data_s
 		}		
 	}
 	
+	/*
 	if(threadIdx.x > 31){
 		//////////////////////////////////////////////loop
 		long long int clock_offset2 = 0;
@@ -348,6 +349,7 @@ __global__ void page_visitor7(long long int *A1, long long int *B, double data_s
 			value1 = value1 + threadIdx.x;
 		}
 	}
+	*/
 	
 	//block.sync();
 	//__threadfence_block();
