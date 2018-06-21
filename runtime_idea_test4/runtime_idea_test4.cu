@@ -187,7 +187,7 @@ __global__ void page_visitor3(long long int *A1, long long int *B1, double data_
 	}
 	
 	//block.sync();
-	__threadfence_block();
+	//__threadfence_block();
 		
 	long long int clock_offset = 0;
     while (clock_offset < clock_count){/////////////////what's the time overhead for addition and multiplication?
@@ -435,7 +435,7 @@ int main(int argc, char **argv)
 		//}
 	//printf("############offset: %llu\n", offset);
 	
-	for(long long int factor = 1; factor <= 1; factor = factor * 2){/////////////16384 max
+	for(long long int factor = 16384; factor <= 16384; factor = factor * 2){/////////////16384 max
 	//printf("####################factor: %llu\n", factor);
 	
 	for(double data_stride = 1 * 1 * 1 * factor; data_stride <= 1 * 1 * 1 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
