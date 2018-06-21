@@ -273,9 +273,8 @@ __global__ void page_visitor5(long long int *A1, long long int *B, double data_s
 		
 	if(threadIdx.x < 32){
 		if(blockIdx.x < 4194304 - offset){//////////////questions: how about negative offset?		
-			B[prefetch_index] = 0;//////////////////////questions: try for horizontal using proxy.
+			B[prefetch_index] = 0;//////////////////////questions: try for horizontal using proxy.			
 			
-			//__threadfence_block();
 			//__threadfence_block();
 		}		
 	}	
@@ -292,7 +291,55 @@ __global__ void page_visitor5(long long int *A1, long long int *B, double data_s
 	}
 	
 	//block.sync();
-	__threadfence_block();
+	//__threadfence_block();
+	
+	if(threadIdx.x > 31){
+		B[index] = value1;
+	}
+}
+
+__global__ void page_visitor7(long long int *A1, long long int *B, double data_stride, long long int clock_count, long long int offset, long long int time){////load-compute-store
+			
+	//thread_block block = this_thread_block();
+	
+	double temp = (blockIdx.x * 512 + (threadIdx.x - 32) ) * data_stride;
+	long long int index = __double2ll_rd(temp);
+
+	long long int value1;
+	
+	double temp2 = ( (blockIdx.x + offset) * 512 + threadIdx.x * 16) * data_stride;
+	long long int prefetch_index = __double2ll_rd(temp2);
+	long long int value2;
+	
+	if(threadIdx.x > 31){
+		value1 = A1[index];
+		
+		//__threadfence_block();
+	}
+	
+	//block.sync();/////////////how to vote inside/outside blocks?	
+		
+	if(threadIdx.x < 32){
+		if(blockIdx.x < 4194304 - offset){//////////////questions: how about negative offset?		
+			B[prefetch_index] = 0;//////////////////////questions: try for horizontal using proxy.			
+			
+			//__threadfence_block();
+		}		
+	}	
+	
+	//block.sync();
+		
+	if(threadIdx.x > 31){
+		//////////////////////////////////////////////loop
+		long long int clock_offset2 = 0;
+		while (clock_offset2 < clock_count){/////////////////what's the time overhead for addition and multiplication?
+			clock_offset2++;
+			value1 = value1 + threadIdx.x;
+		}
+	}
+	
+	//block.sync();
+	//__threadfence_block();
 	
 	if(threadIdx.x > 31){
 		B[index] = value1;
@@ -431,15 +478,15 @@ int main(int argc, char **argv)
 		printf("############rate: %llu\n", rate);
 		
 	long long int offset2 = 0;
-	for(long long int offset = 0; offset <= 0; offset = offset + 2){///////8
-	//for(long long int offset = 0; offset <= 32768; offset = offset * 2){
+	//for(long long int offset = 0; offset <= 0; offset = offset + 2){///////8
+	for(long long int offset = 0; offset <= 256; offset = offset + 8){
 		//offset2++;
 		//if(offset2 == 2){
 		//	offset = 1;
 		//}
 	//printf("############offset: %llu\n", offset);
 	
-	for(long long int factor = 16384; factor <= 16384; factor = factor * 2){/////////////16384 max
+	for(long long int factor = 16384; factor <= 16384; factor = factor * 2){/////////////16384 (128k) max
 	//printf("####################factor: %llu\n", factor);
 	
 	for(double data_stride = 1 * 1 * 1 * factor; data_stride <= 1 * 1 * 1 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
