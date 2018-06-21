@@ -183,11 +183,13 @@ __global__ void page_visitor3(long long int *A1, long long int *B1, double data_
 		value1 = A1[index];
 		if(blockIdx.x < 4194304 - offset){
 			B1[prefetch_index] = 0;
+			
+			__threadfence_block();
 		}
 	}
 	
 	//block.sync();
-	__threadfence_block();
+	//__threadfence_block();
 		
 	long long int clock_offset = 0;
     while (clock_offset < clock_count){/////////////////what's the time overhead for addition and multiplication?
