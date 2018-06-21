@@ -301,7 +301,7 @@ __global__ void page_visitor5(long long int *A1, long long int *B, double data_s
 __global__ void page_visitor7(long long int *A1, long long int *B, double data_stride, long long int clock_count, long long int offset, long long int time){////load-compute-store
 			
 	//thread_block block = this_thread_block();
-	//__shared__ int signal;
+	__shared__ int signal;
 	
 	double temp = (blockIdx.x * 512 + (threadIdx.x - 32) ) * data_stride;
 	long long int index = __double2ll_rd(temp);
