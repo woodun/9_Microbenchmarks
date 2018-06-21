@@ -482,7 +482,8 @@ int main(int argc, char **argv)
 		clock_gettime(CLOCK_REALTIME, &ts1);
 
 		////may want to use more thread to see clock_count effect
-		page_visitor5<<<8192 * 512 / factor, 512 + 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count, offset);
+		//page_visitor5<<<8192 * 512 / factor, 512 + 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count, offset);
+		page_visitor3<<<8192 * 512 / factor, 512>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count, offset);
 		//page_visitor3<<<8192 * 512 / factor, 512>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count, offset);
 		cudaDeviceSynchronize();
 				
@@ -506,7 +507,7 @@ int main(int argc, char **argv)
 	}
 	//*/
 	
-	///*
+	/*
 	printf("\n############baseline\n");
 	for(long long int factor = 1; factor <= 1; factor = factor * 2){/////////////16384 max
 	//printf("####################factor: %llu\n", factor);
@@ -566,7 +567,7 @@ int main(int argc, char **argv)
 	}	
 	}	
 	}
-	//*/
+	*/
 	printf("\n");
 	
 	exit(EXIT_SUCCESS);
