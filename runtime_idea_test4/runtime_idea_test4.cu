@@ -265,7 +265,7 @@ __global__ void page_visitor5(long long int *A1, long long int *B, double data_s
 	if(threadIdx.x > 31){
 		value1 = A1[index];
 		
-		__threadfence_block();
+		//__threadfence_block();
 	}
 	
 	//block.sync();/////////////how to vote inside/outside blocks?
@@ -279,6 +279,7 @@ __global__ void page_visitor5(long long int *A1, long long int *B, double data_s
 		}		
 	}
 	
+	__threadfence_block();
 	//block.sync();
 	
 	if(threadIdx.x > 31){
