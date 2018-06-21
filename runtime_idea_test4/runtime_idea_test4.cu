@@ -301,7 +301,7 @@ __global__ void page_visitor5(long long int *A1, long long int *B, double data_s
 __global__ void page_visitor7(long long int *A1, long long int *B, double data_stride, long long int clock_count, long long int offset, long long int time){////load-compute-store
 			
 	//thread_block block = this_thread_block();
-	//__shared__ int signal;
+	__shared__ int signal;
 	
 	double temp = (blockIdx.x * 512 + (threadIdx.x - 32) ) * data_stride;
 	long long int index = __double2ll_rd(temp);
@@ -333,7 +333,7 @@ __global__ void page_visitor7(long long int *A1, long long int *B, double data_s
 		}
 	}
 	
-	//signal = value1;
+	signal = value1;
 	__threadfence_block();
 	
 	if(threadIdx.x < 32){
@@ -479,7 +479,7 @@ int main(int argc, char **argv)
 	///*
 	printf("############approach\n");
 	for(long long int time = 32; time <= 8192; time = time * 2){
-	printf("####################time: %llu\n", time);
+	printf("\n####################time: %llu\n", time);
 	
 	long long int coverage2 = 0;
 	for(long long int coverage = 1; coverage <= 1; coverage = coverage * 2){///////////////8192 is 2m.
@@ -564,7 +564,7 @@ int main(int argc, char **argv)
 		
 		checkCudaErrors(cudaFree(CPU_data_in1));		
 		checkCudaErrors(cudaFree(GPU_data_out1));
-	}	
+	}
 	}
 	}
 	}
