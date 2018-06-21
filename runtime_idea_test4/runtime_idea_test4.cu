@@ -289,8 +289,7 @@ __global__ void page_visitor5(long long int *A1, long long int *B, double data_s
 		}
 	}
 	
-	//block.sync();
-	__threadfence_block();
+	//block.sync();	
 	
 	if(threadIdx.x > 31){
 		B[index] = value1;
