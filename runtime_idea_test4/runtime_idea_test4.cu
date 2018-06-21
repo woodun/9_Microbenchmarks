@@ -195,7 +195,7 @@ __global__ void page_visitor3(long long int *A1, long long int *B1, double data_
 		value1 = value1 + threadIdx.x;
     }
 	
-	__threadfence_block();
+	//__threadfence_block();
 
 	B1[index] = value1;
 }
@@ -270,6 +270,7 @@ __global__ void page_visitor5(long long int *A1, long long int *B, double data_s
 	}
 	
 	//block.sync();/////////////how to vote inside/outside blocks?
+	__threadfence_block();
 		
 	if(threadIdx.x < 32){
 		if(blockIdx.x < 4194304 - offset){//////////////questions: how about negative offset?
@@ -483,8 +484,8 @@ int main(int argc, char **argv)
 		clock_gettime(CLOCK_REALTIME, &ts1);
 
 		////may want to use more thread to see clock_count effect
-		//page_visitor5<<<8192 * 512 / factor, 512 + 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count, offset);
-		page_visitor3<<<8192 * 512 / factor, 512>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count, offset);
+		page_visitor5<<<8192 * 512 / factor, 512 + 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count, offset);
+		//page_visitor3<<<8192 * 512 / factor, 512>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count, offset);
 		//page_visitor3<<<8192 * 512 / factor, 512>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count, offset);
 		cudaDeviceSynchronize();
 				
