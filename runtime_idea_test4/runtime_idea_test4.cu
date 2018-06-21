@@ -179,9 +179,7 @@ __global__ void page_visitor3(long long int *A1, long long int *B1, double data_
 	}	
 	
 	if(threadIdx.x < 32){
-		value1 = A1[index];
-		
-		__threadfence_block();
+		value1 = A1[index];		
 		
 		if(blockIdx.x < 4194304 - offset){
 			B1[prefetch_index] = 0;			
@@ -196,6 +194,8 @@ __global__ void page_visitor3(long long int *A1, long long int *B1, double data_
         clock_offset++;
 		value1 = value1 + threadIdx.x;
     }
+	
+	__threadfence_block();
 
 	B1[index] = value1;
 }
