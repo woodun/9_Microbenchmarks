@@ -481,8 +481,8 @@ int main(int argc, char **argv)
 		clock_gettime(CLOCK_REALTIME, &ts1);
 
 		////may want to use more thread to see clock_count effect
-		//page_visitor5<<<8192 * 512 / factor, 512 + 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count, offset);
-		page_visitor3<<<8192 * 512 / factor, 512>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count, offset);
+		page_visitor5<<<8192 * 512 / factor, 512 + 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count, offset);
+		//page_visitor3<<<8192 * 512 / factor, 512>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count, offset);
 		//page_visitor3<<<8192 * 512 / factor, 512>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count, offset);
 		cudaDeviceSynchronize();
 				
@@ -514,7 +514,7 @@ int main(int argc, char **argv)
 	for(double data_stride = 1 * 1 * 1 * factor; data_stride <= 1 * 1 * 1 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index) 262144 = 2m. 16384 = 128k.
 	//printf("\n");
 	
-	for(long long int clock_count = 8192; clock_count <= 8192; clock_count = clock_count * 2){
+	for(long long int clock_count = 8192; clock_count <= 8192; clock_count = clock_count * 2){///////8192 all factors variable4
 
 		///////////////////////////////////////////////////////////////////CPU data begin
 		double temp = data_stride * 512;
