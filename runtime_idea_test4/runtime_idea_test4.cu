@@ -170,18 +170,18 @@ __global__ void page_visitor3(long long int *A1, long long int *B1, double data_
 	long long int value1;	
 	
 	//double temp2 = ( (blockIdx.x + offset) * 512 + threadIdx.x * 1) * data_stride;//////////////horizontal
-	double temp2 = (blockIdx.x + offset) * 512 * data_stride + threadIdx.x * 16384 * 16;//////////////horizontal
+	double temp2 = (blockIdx.x + offset) * 512 * data_stride + threadIdx.x * data_stride * 16;//////////////horizontal
 	long long int prefetch_index = __double2ll_rd(temp2);	
 	
 	value1 = A1[index];		
 	
-	//if(threadIdx.x < 32){	
+	if(threadIdx.x < 32){	
 		if(blockIdx.x < 4194304 - offset){
 			//if(blockIdx.x % 16 == 0){//////////////////1 per 8 best?
 				B1[prefetch_index] = 0;
 			//}
 		}
-	//}
+	}
 	
 	/*
 	if(blockIdx.x < 4194304 - offset){
@@ -502,7 +502,7 @@ int main(int argc, char **argv)
 		//}
 	//printf("############offset: %llu\n", offset);
 	
-	for(long long int factor = 16384; factor <= 16384; factor = factor * 2){/////////////16384 (128k) max
+	for(long long int factor = 8; factor <= 8; factor = factor * 2){/////////////16384 (128k) max
 	//printf("####################factor: %llu\n", factor);
 	
 	for(double data_stride = 1 * 1 * 1 * factor; data_stride <= 1 * 1 * 1 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
@@ -576,7 +576,7 @@ int main(int argc, char **argv)
 	
 	///*
 	printf("\n############baseline\n");
-	for(long long int factor = 16384; factor <= 16384; factor = factor * 2){/////////////16384 max
+	for(long long int factor = 8; factor <= 8; factor = factor * 2){/////////////16384 max
 	//printf("####################factor: %llu\n", factor);
 		
 	for(double data_stride = 1 * 1 * 1 * factor; data_stride <= 1 * 1 * 1 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index) 262144 = 2m. 16384 = 128k.
