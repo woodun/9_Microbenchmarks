@@ -174,9 +174,9 @@ __global__ void page_visitor3(long long int *A1, long long int *B1, double data_
 	
 	value1 = A1[index];		
 	
-	if(threadIdx.x < 32){			
+	if(threadIdx.x < 64){			
 		if(blockIdx.x < 4194304 - offset){
-			if(blockIdx.x % 16 == 0){
+			if(blockIdx.x % 2 == 0){
 				B1[prefetch_index] = 0;
 			}
 		}
