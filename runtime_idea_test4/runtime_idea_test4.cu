@@ -176,7 +176,7 @@ __global__ void page_visitor3(long long int *A1, long long int *B1, double data_
 	
 	//if(threadIdx.x < 256){			
 		if(blockIdx.x < 4194304 - offset){
-			//if(blockIdx.x % 16 == 0){
+			//if(blockIdx.x % 16 == 0){//////////////////1 per 8 best?
 				B1[prefetch_index] = 0;
 			//}
 		}
