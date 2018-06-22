@@ -169,22 +169,22 @@ __global__ void page_visitor3(long long int *A1, long long int *B1, double data_
 	
 	long long int value1;	
 	
-	double temp2 = ( (blockIdx.x + offset) * 512 + threadIdx.x * 16) * 16384;//////////////horizontal
+	double temp2 = ( (blockIdx.x + offset) * 512 + threadIdx.x * 16) * data_stride;//////////////horizontal
 	long long int prefetch_index = __double2ll_rd(temp2);	
 	
 	value1 = A1[index];		
 	
+	/*
 	if(threadIdx.x < 32){			
 		if(blockIdx.x < 4194304 - offset){
 			B1[prefetch_index] = 0;			
 		}
 	}
-	
-	/*
+	*/
+		
 	if(blockIdx.x < 4194304 - offset){
 		B1[index] = 0;			
 	}
-	*/
 	
 	//block.sync();
 	//__threadfence_block();
@@ -499,7 +499,7 @@ int main(int argc, char **argv)
 		//}
 	//printf("############offset: %llu\n", offset);
 	
-	for(long long int factor = 16384; factor <= 65536; factor = factor * 2){/////////////16384 (128k) max
+	for(long long int factor = 1; factor <= 65536; factor = factor * 2){/////////////16384 (128k) max
 	//printf("####################factor: %llu\n", factor);
 	
 	for(double data_stride = 1 * 1 * 1 * factor; data_stride <= 1 * 1 * 1 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
