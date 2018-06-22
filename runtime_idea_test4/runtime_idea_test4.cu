@@ -172,19 +172,20 @@ __global__ void page_visitor3(long long int *A1, long long int *B1, double data_
 	double temp2 = ( (blockIdx.x + offset) * 512 + threadIdx.x * 16) * data_stride;//////////////horizontal
 	long long int prefetch_index = __double2ll_rd(temp2);	
 	
-	//if(threadIdx.x < 480){
-	if(threadIdx.x > 31){
-	//if(0){
-		value1 = A1[index];		
-	}	
+	value1 = A1[index];		
 	
-	if(threadIdx.x < 32){
-		value1 = A1[index];		
-		
+	
+	if(threadIdx.x < 32){			
 		if(blockIdx.x < 4194304 - offset){
 			B1[prefetch_index] = 0;			
 		}
 	}
+	
+	/*
+	if(blockIdx.x < 4194304 - offset){
+		B1[index] = 0;			
+	}
+	*/
 	
 	//block.sync();
 	//__threadfence_block();
