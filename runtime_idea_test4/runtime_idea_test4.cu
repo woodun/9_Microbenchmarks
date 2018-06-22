@@ -169,12 +169,12 @@ __global__ void page_visitor3(long long int *A1, long long int *B1, double data_
 	
 	long long int value1;	
 	
-	double temp2 = ( (blockIdx.x + offset) * 512 + threadIdx.x * 8) * data_stride;//////////////horizontal
+	double temp2 = ( (blockIdx.x + offset) * 512 + threadIdx.x * 4) * data_stride;//////////////horizontal
 	long long int prefetch_index = __double2ll_rd(temp2);	
 	
 	value1 = A1[index];		
 	
-	if(threadIdx.x < 64){			
+	if(threadIdx.x < 128){			
 		if(blockIdx.x < 4194304 - offset){
 			//if(blockIdx.x % 16 == 0){
 				B1[prefetch_index] = 0;
