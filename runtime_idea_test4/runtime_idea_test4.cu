@@ -176,9 +176,9 @@ __global__ void page_visitor3(long long int *A1, long long int *B1, double data_
 	
 	if(threadIdx.x < 32){			
 		if(blockIdx.x < 4194304 - offset){
-			if(blockIdx.x % rate == 0){
+			//if(blockIdx.x % rate == 0){
 				B1[prefetch_index] = 0;
-			}
+			//}
 		}
 	}
 	
@@ -489,7 +489,7 @@ int main(int argc, char **argv)
 		//}
 		printf("############coverage: %llu\n", coverage);
 		
-	for(long long int rate = 1; rate <= 8192; rate = rate * 2){
+	for(long long int rate = 1; rate <= 1; rate = rate * 2){
 		printf("############rate: %llu\n", rate);
 		
 	long long int offset2 = 0;
