@@ -161,7 +161,7 @@ __global__ void page_visitor2(long long int *A1, long long int *B1, double data_
 	}
 }
 
-__global__ void page_visitor3(long long int *A1, long long int *B1, double data_stride, long long int clock_count, long long int offset, long long int rate){////vertical with offset
+__global__ void page_visitor3(long long int *A1, long long int *B1, double data_stride, long long int clock_count, long long int offset, long long int rate, long long int coverage){////vertical with offset
 			
 	//thread_block block = this_thread_block();	
 	
