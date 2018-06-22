@@ -121,6 +121,7 @@ __global__ void page_visitor2(long long int *A1, long long int *B1, double data_
 			
 	//thread_block block = this_thread_block();	
 	
+	
 	double temp = (blockIdx.x * 512 + threadIdx.x) * data_stride;
 	long long int index = __double2ll_rd(temp);
 	
@@ -137,7 +138,7 @@ __global__ void page_visitor2(long long int *A1, long long int *B1, double data_
 		
 	}else{
 		value1 = A1[index];
-		if(blockIdx.x < 4194304 - offset){
+		if(blockIdx.x < gridDim.x - offset){////////////524288
 		value2 = A1[prefetch_index];
 		}
 	}
@@ -154,7 +155,7 @@ __global__ void page_visitor2(long long int *A1, long long int *B1, double data_
 		B1[index] = value1;	
 	}else{
 		B1[index] = value1;
-		if(blockIdx.x < 4194304 - offset){
+		if(blockIdx.x < gridDim.x - offset){
 		B1[prefetch_index] = value2;
 		}		
 	}
@@ -170,21 +171,21 @@ __global__ void page_visitor3(long long int *A1, long long int *B1, double data_
 	long long int value1;	
 	
 	//double temp2 = ( (blockIdx.x + offset) * 512 + threadIdx.x * 1) * data_stride;//////////////horizontal
-	double temp2 = (blockIdx.x + offset) * 512 * data_stride + threadIdx.x * data_stride / 1;//////////////horizontal
+	double temp2 = (blockIdx.x + offset) * 512 * data_stride + threadIdx.x * data_stride * 16;//////////////horizontal
 	long long int prefetch_index = __double2ll_rd(temp2);	
 	
 	value1 = A1[index];		
 	
-	//if(threadIdx.x < 32){	
-		if(blockIdx.x < 4194304 - offset){
+	if(threadIdx.x < 32){///////////////////////////////////question: which warp should be used?
+		if(blockIdx.x < gridDim.x - offset){
 			//if(blockIdx.x % 16 == 0){//////////////////1 per 8 best?
 				B1[prefetch_index] = 0;
 			//}
 		}
-	//}
+	}
 	
 	/*
-	if(blockIdx.x < 4194304 - offset){
+	if(blockIdx.x < gridDim.x - offset){
 		B1[index] = 0;			
 	}
 	*/
@@ -275,8 +276,8 @@ __global__ void page_visitor5(long long int *A1, long long int *B, double data_s
 	//block.sync();/////////////how to vote inside/outside blocks?	
 		
 	if(threadIdx.x < 32){
-		if(blockIdx.x < 4194304 - offset){//////////////questions: how about negative offset?		
-			B[prefetch_index] = 0;//////////////////////questions: try for horizontal using proxy.			
+		if(blockIdx.x < 4194304 - offset){//////////////question: how about negative offset?		
+			B[prefetch_index] = 0;//////////////////////question: try for horizontal using proxy.			
 			
 			//__threadfence_block();
 		}		
@@ -494,12 +495,12 @@ int main(int argc, char **argv)
 		printf("############rate: %llu\n", rate);
 		
 	long long int offset2 = 0;
-	for(long long int offset = 0; offset <= 0; offset = offset + 2){///////8
+	for(long long int offset = 0; offset <= 8192; offset = offset * 2){///////8
 	//for(long long int offset = 0; offset <= 256; offset = offset + 8){
-		//offset2++;
-		//if(offset2 == 2){
-		//	offset = 1;
-		//}
+		offset2++;
+		if(offset2 == 2){
+			offset = 1;
+		}
 	//printf("############offset: %llu\n", offset);
 	
 	for(long long int factor = 8; factor <= 8; factor = factor * 2){/////////////16384 (128k) max
