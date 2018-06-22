@@ -170,7 +170,7 @@ __global__ void page_visitor3(long long int *A1, long long int *B1, double data_
 	long long int value1;	
 	
 	//double temp2 = ( (blockIdx.x + offset) * 512 + threadIdx.x * 1) * data_stride;//////////////horizontal
-	double temp2 = (blockIdx.x + offset) * 512 * data_stride + threadIdx.x * data_stride / 8;//////////////horizontal
+	double temp2 = (blockIdx.x + offset) * 512 * data_stride + threadIdx.x * data_stride / 4;//////////////horizontal
 	long long int prefetch_index = __double2ll_rd(temp2);	
 	
 	value1 = A1[index];		
