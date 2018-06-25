@@ -196,7 +196,7 @@ int main(int argc, char **argv)
 
 		////may want to use more thread to see clock_count effect		
 		//page_visitor<<<8192 * 512 / factor, 512>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);
-		page_visitor<<<1, 64>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);		
+		page_visitor<<<1, 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);		
 		cudaDeviceSynchronize();
 				
 		/////////////////////////////////time
