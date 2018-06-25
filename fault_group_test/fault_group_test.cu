@@ -178,9 +178,9 @@ int main(int argc, char **argv)
 				scale = data_stride;/////////make sure threadIdx is smaller than data_size in the initialization
 			}
 			
-			gpu_initialization<<<8192 * 512 * scale / factor, 512>>>(GPU_data_out1, data_stride, data_size);///1024 per block max
+			gpu_initialization<<<8192 * 128 * scale / factor, 512>>>(GPU_data_out1, data_stride, data_size);///1024 per block max
 			cudaDeviceSynchronize();
-			gpu_initialization<<<8192 * 512 * scale / factor, 512>>>(CPU_data_in1, data_stride, data_size);///1024 per block max
+			gpu_initialization<<<8192 * 128 * scale / factor, 512>>>(CPU_data_in1, data_stride, data_size);///1024 per block max
 			cudaDeviceSynchronize();
 		}else{
 			init_cpu_data(GPU_data_out1, data_size, data_stride);
@@ -193,7 +193,7 @@ int main(int argc, char **argv)
 
 		////may want to use more thread to see clock_count effect		
 		//page_visitor<<<8192 * 512 / factor, 512>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);
-		page_visitor<<<1, 64>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);		
+		page_visitor<<<1, 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);		
 		cudaDeviceSynchronize();
 				
 		/////////////////////////////////time
