@@ -60,29 +60,6 @@ long long unsigned time_diff(timespec start, timespec end){
 	return time_interval_s + time_interval_ns;
 }
 
-__global__ void baseline(long long int *A1, long long int *B1, double data_stride, long long int clock_count){////load-compute-store
-			
-	//thread_block block = this_thread_block();	
-	
-	double temp = (blockIdx.x * 512 + threadIdx.x) * data_stride;
-	long long int index = __double2ll_rd(temp);
-	
-	long long int value1;
-	
-	double temp2 = (blockIdx.x * 512 + threadIdx.x * 16) * data_stride;
-	long long int prefetch_index = __double2ll_rd(temp2);
-
-	value1 = A1[index];
-		
-	long long int clock_offset = 0;
-    while (clock_offset < clock_count){/////////////////what's the time overhead for addition and multiplication?
-        clock_offset++;
-		value1 = value1 + threadIdx.x;
-    }
-
-	B1[index] = value1;	
-}
-
 __global__ void page_visitor(long long int *A1, long long int *B1, double data_stride, long long int clock_count){////vertical
 			
 	//thread_block block = this_thread_block();	
@@ -148,7 +125,7 @@ int main(int argc, char **argv)
 	for(long long int time = 32; time <= 32; time = time * 2){
 	//printf("\n####################time: %llu\n", time);
 	
-	long long int coverage2 = 0;
+	//long long int coverage2 = 0;
 	for(long long int coverage = 1; coverage <= 1; coverage = coverage * 2){///////////////8192 is 2m.
 		//coverage2++;
 		//if(coverage2 == 2){
@@ -159,9 +136,9 @@ int main(int argc, char **argv)
 	for(long long int rate = 1; rate <= 1; rate = rate * 2){
 		//printf("############rate: %llu\n", rate);
 		
-	long long int offset2 = 0;
-	for(long long int offset = 0; offset <= 0; offset = offset * 2){///////8
-	//for(long long int offset = 0; offset <= 256; offset = offset + 8){
+	//long long int offset2 = 0;
+	//for(long long int offset = 0; offset <= 0; offset = offset * 2){///////8
+	for(long long int offset = 0; offset <= 0; offset = offset + 8){
 		//offset2++;
 		//if(offset2 == 2){
 		//	offset = 1;
