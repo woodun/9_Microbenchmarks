@@ -180,7 +180,7 @@ int main(int argc, char **argv)
 		checkCudaErrors(cudaMallocManaged(&GPU_data_out1, sizeof(long long int) * data_size));/////////////using unified memory
 		///////////////////////////////////////////////////////////////////GPU data out	end
 		
-		if(1){
+		if(0){
 			double scale = 1;
 			if(data_stride < 1){
 				scale = data_stride;/////////make sure threadIdx is smaller than data_size in the initialization
@@ -188,7 +188,7 @@ int main(int argc, char **argv)
 			
 			gpu_initialization<<<8192 * 128 * scale / factor, 512>>>(GPU_data_out1, data_stride, data_size);///1024 per block max
 			cudaDeviceSynchronize();
-			if(1){
+			if(0){
 			gpu_initialization<<<8192 * 128 * scale / factor, 512>>>(CPU_data_in1, data_stride, data_size);///1024 per block max
 			cudaDeviceSynchronize();
 			}else{
