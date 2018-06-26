@@ -60,14 +60,19 @@ long long unsigned time_diff(timespec start, timespec end){
 	return time_interval_s + time_interval_ns;
 }
 
-///////////////262144 (2m)
+///////////////262144 (2m), 4194304 (32m), 8388608 (64m)
 __global__ void page_visitor(long long int *A1, long long int *B1, double data_stride, long long int clock_count){////vertical
 			
 	//thread_block block = this_thread_block();	
 	
 	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 1;
-	double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 8388608;
-	long long int index = __double2ll_rd(temp);	
+	
+	unsigned warpid; 
+    asm("mov.u32 %0, %warpid;" : "=r"(warpid));
+    
+	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 8388608;
+	double temp = warpid * 4194304 + (threadIdx.x % 16) * 262144;
+	long long int index = __double2ll_rd(temp);
 	long long int value1;
 
 	value1 = A1[index];
@@ -196,7 +201,7 @@ int main(int argc, char **argv)
 
 		////may want to use more thread to see clock_count effect		
 		//page_visitor<<<8192 * 512 / factor, 512>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);
-		page_visitor<<<1, 64>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);		
+		page_visitor<<<1, 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);		
 		cudaDeviceSynchronize();
 				
 		/////////////////////////////////time
