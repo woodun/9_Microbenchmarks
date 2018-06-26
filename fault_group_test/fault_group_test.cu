@@ -78,7 +78,9 @@ __global__ void page_visitor(long long int *A1, long long int *B1, double data_s
 	//double temp = (threadIdx.x) * 512;
 	//double temp = (threadIdx.x % 32) * 1024 + warpid * 512;
 	//double temp = (threadIdx.x) * 512;
-	double temp = (threadIdx.x % 32) * 2048 + warpid * 512;
+	//double temp = (threadIdx.x % 32) * 2048 + warpid * 512;
+	double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 512;
+	//double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * 1024 + warpid * 512;
 	long long int index = __double2ll_rd(temp);
 	long long int value1;
 
@@ -186,7 +188,7 @@ int main(int argc, char **argv)
 		checkCudaErrors(cudaMallocManaged(&GPU_data_out1, sizeof(long long int) * data_size));/////////////using unified memory
 		///////////////////////////////////////////////////////////////////GPU data out	end
 		
-		if(0){
+		if(1){
 			double scale = 1;
 			if(data_stride < 1){
 				scale = data_stride;/////////make sure threadIdx is smaller than data_size in the initialization
@@ -211,7 +213,7 @@ int main(int argc, char **argv)
 
 		////may want to use more thread to see clock_count effect		
 		//page_visitor<<<8192 * 512 / factor, 512>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);
-		page_visitor<<<1, 128>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);		
+		page_visitor<<<2, 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);		
 		cudaDeviceSynchronize();
 				
 		/////////////////////////////////time
