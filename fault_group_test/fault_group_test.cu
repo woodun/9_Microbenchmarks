@@ -71,9 +71,10 @@ __global__ void page_visitor(long long int *A1, long long int *B1, double data_s
     asm("mov.u32 %0, %warpid;" : "=r"(warpid));
     
 	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 8388608;
-	double temp = warpid * 1 * 16 + (threadIdx.x % 16) * 1;
+	//double temp = warpid * 1 * 16 + (threadIdx.x % 16) * 1;
 	//double temp = (threadIdx.x % 32) * 1;
 	//double temp = (threadIdx.x) * 1;
+	double temp = (threadIdx.x % 32) * 2 + warpid;
 	long long int index = __double2ll_rd(temp);
 	long long int value1;
 
@@ -181,7 +182,7 @@ int main(int argc, char **argv)
 		checkCudaErrors(cudaMallocManaged(&GPU_data_out1, sizeof(long long int) * data_size));/////////////using unified memory
 		///////////////////////////////////////////////////////////////////GPU data out	end
 		
-		if(0){
+		if(1){
 			double scale = 1;
 			if(data_stride < 1){
 				scale = data_stride;/////////make sure threadIdx is smaller than data_size in the initialization
