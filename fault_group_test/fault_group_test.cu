@@ -65,13 +65,13 @@ __global__ void page_visitor(long long int *A1, long long int *B1, double data_s
 			
 	//thread_block block = this_thread_block();	
 	
-	double temp = (blockIdx.x * blockDim.x + threadIdx.x) % 32 * 1;
+	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) % 32 * 1;
 	
-	//unsigned warpid; 
-    //asm("mov.u32 %0, %warpid;" : "=r"(warpid));
+	unsigned warpid; 
+    asm("mov.u32 %0, %warpid;" : "=r"(warpid));
     
 	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 8388608;
-	//double temp = warpid * 1 * 32 + (threadIdx.x % 16) * 1;
+	double temp = warpid * 1 * 32 + (threadIdx.x % 16) * 1;
 	//double temp = (threadIdx.x % 32) * 1;
 	long long int index = __double2ll_rd(temp);
 	long long int value1;
@@ -85,7 +85,7 @@ __global__ void page_visitor(long long int *A1, long long int *B1, double data_s
     }
 
 	B1[index] = value1;	
-} 
+}
 
 int main(int argc, char **argv)
 {
