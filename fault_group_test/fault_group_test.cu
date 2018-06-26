@@ -71,8 +71,8 @@ __global__ void page_visitor(long long int *A1, long long int *B1, double data_s
     asm("mov.u32 %0, %warpid;" : "=r"(warpid));
     
 	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 8388608;
-	double temp = warpid * 4096 * 32 + (threadIdx.x % 16) * 4096;
-	//double temp = (threadIdx.x % 32) * 262144;
+	//double temp = warpid * 4096 * 32 + (threadIdx.x % 16) * 4096;
+	double temp = (threadIdx.x % 32) * 4096;
 	long long int index = __double2ll_rd(temp);
 	long long int value1;
 
