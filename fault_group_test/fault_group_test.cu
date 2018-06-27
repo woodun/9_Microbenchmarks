@@ -109,6 +109,55 @@ __global__ void page_visitor(long long int *A1, long long int *B1, double data_s
 	B1[index] = value1;	
 }
 
+__global__ void page_visitor2(long long int *A1, long long int *B1, double data_stride, long long int clock_count){////vertical
+			
+	//thread_block block = this_thread_block();	
+	
+	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) % 32 * 1;
+	
+	unsigned warpid; 
+    asm("mov.u32 %0, %warpid;" : "=r"(warpid));
+    
+	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 8388608;
+	//double temp = warpid * 1 * 16 + (threadIdx.x % 16) * 1;
+	//double temp = (threadIdx.x % 32) * 1;
+	//double temp = (threadIdx.x) * 1;
+	//double temp = (threadIdx.x % 32) * 2 + warpid * 1;
+	//double temp = (threadIdx.x) * 512;
+	//double temp = (threadIdx.x % 32) * 1024 + warpid * 512;
+	//double temp = (threadIdx.x) * 512;
+	//double temp = (threadIdx.x % 32) * 2048 + warpid * 512;
+	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 512;
+	//double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * 512 + warpid * 256;
+	//double temp = (threadIdx.x) * 1;
+	//double temp = (threadIdx.x % 32) * 16 + warpid * 1;
+	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 1;
+	//double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * 2 + warpid * 1;
+	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 1;
+	double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * 2 + warpid * 1;
+	long long int index = __double2ll_rd(temp);
+	long long int value1;
+
+	value1 = A1[index];
+	
+	//if(threadIdx.x == 0){/////%tid %ntid %laneid %warpid %nwarpid %ctaid %nctaid %smid %nsmid %gridid
+	//	int smid = 1;
+	//	asm("mov.u32 %0, %smid;" : "=r"(smid) );
+	//	printf("blockIdx.x: %d, smid: %d\n", blockIdx.x, smid);
+	//}
+
+	/*
+	long long int clock_offset = 0;
+    while (clock_offset < clock_count){/////////////////what's the time overhead for addition and multiplication?
+        clock_offset++;
+		value1 = value1 + threadIdx.x;
+    }
+	*/
+
+	B1[index] = value1;	
+}
+
+
 int main(int argc, char **argv)
 {
 	printf("\n");
@@ -228,6 +277,105 @@ int main(int argc, char **argv)
 		////may want to use more thread to see clock_count effect		
 		//page_visitor<<<8192 * 512 / factor, 512>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);
 		page_visitor<<<56, 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);		
+		cudaDeviceSynchronize();
+				
+		/////////////////////////////////time
+		struct timespec ts2;
+		clock_gettime(CLOCK_REALTIME, &ts2);
+		
+		//printf("###################data_stride%lld#########################clock_count:%lld\n", data_stride, clock_count);
+		//printf("*\n*\n*\nruntime:  %lluns\n", time_diff(ts1, ts2));
+		printf("%llu ", time_diff(ts1, ts2));
+		fflush(stdout);
+		
+		checkCudaErrors(cudaFree(CPU_data_in1));		
+		checkCudaErrors(cudaFree(GPU_data_out1));
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	printf("\n");
+	
+
+	for(long long int time = 32; time <= 32; time = time * 2){
+	//printf("\n####################time: %llu\n", time);
+	
+	//long long int coverage2 = 0;
+	for(long long int coverage = 1; coverage <= 1; coverage = coverage * 2){///////////////8192 is 2m.
+		//coverage2++;
+		//if(coverage2 == 2){
+		//	coverage = 1;
+		//}
+		//printf("############coverage: %llu\n", coverage);
+		
+	for(long long int rate = 1; rate <= 1; rate = rate * 2){
+		//printf("############rate: %llu\n", rate);
+		
+	//long long int offset2 = 0;
+	//for(long long int offset = 0; offset <= 0; offset = offset * 2){///////8
+	for(long long int offset = 0; offset <= 0; offset = offset + 8){
+		//offset2++;
+		//if(offset2 == 2){
+		//	offset = 1;
+		//}
+	//printf("############offset: %llu\n", offset);
+	
+	for(long long int factor = 8; factor <= 8; factor = factor * 2){/////////////16384 (128k) max
+	//printf("####################factor: %llu\n", factor);
+	
+	for(double data_stride = 1 * 1 * 1 * factor; data_stride <= 1 * 1 * 1 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
+	//printf("\n");
+
+	for(long long int clock_count = 32; clock_count <= 32; clock_count = clock_count * 2){
+		
+	///long long int time2 = time;
+	//if(time2 > clock_count){
+	//	time2 = clock_count;
+	//}
+
+		///////////////////////////////////////////////////////////////////CPU data begin
+		double temp = data_stride * 512;
+		long long int data_size = (long long int) temp;
+		//data_size = data_size * 8192 * 512 / factor;
+		data_size = data_size * 8192 * 128 / factor;
+		
+		long long int *CPU_data_in1;
+		checkCudaErrors(cudaMallocManaged(&CPU_data_in1, sizeof(long long int) * data_size));/////////////using unified memory
+		///////////////////////////////////////////////////////////////////CPU data end
+		
+		long long int *GPU_data_out1;
+		checkCudaErrors(cudaMallocManaged(&GPU_data_out1, sizeof(long long int) * data_size));/////////////using unified memory
+		///////////////////////////////////////////////////////////////////GPU data out	end
+		
+		if(1){
+			double scale = 1;
+			if(data_stride < 1){
+				scale = data_stride;/////////make sure threadIdx is smaller than data_size in the initialization
+			}
+			
+			gpu_initialization<<<8192 * 128 * scale / factor, 512>>>(GPU_data_out1, data_stride, data_size);///1024 per block max
+			cudaDeviceSynchronize();
+			if(0){
+			gpu_initialization<<<8192 * 128 * scale / factor, 512>>>(CPU_data_in1, data_stride, data_size);///1024 per block max
+			cudaDeviceSynchronize();
+			}else{
+			init_cpu_data(CPU_data_in1, data_size, data_stride);
+			}
+		}else{
+			init_cpu_data(GPU_data_out1, data_size, data_stride);
+			init_cpu_data(CPU_data_in1, data_size, data_stride);		
+		}
+		
+		/////////////////////////////////time
+		struct timespec ts1;
+		clock_gettime(CLOCK_REALTIME, &ts1);
+
+		////may want to use more thread to see clock_count effect		
+		//page_visitor<<<8192 * 512 / factor, 512>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);
+		page_visitor2<<<56, 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);		
 		cudaDeviceSynchronize();
 				
 		/////////////////////////////////time
