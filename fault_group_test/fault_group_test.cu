@@ -253,7 +253,7 @@ int main(int argc, char **argv)
 	//printf("cudaDevAttrConcurrentManagedAccess = %d\n", value1);	
 	
 	
-	int block_num = 4;
+	int block_num = 16;
 
 	///*
 	//printf("############approach\n");
