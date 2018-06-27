@@ -190,26 +190,19 @@ __global__ void page_visitor3(long long int *A1, long long int *B1, double data_
 
 	if(blockIdx.x == 0){
 		value1 = A1[index];
+		
+		long long int clock_offset = 0;
+		while (clock_offset < 1024){/////////////////what's the time overhead for addition and multiplication?
+			clock_offset++;
+			value1 = value1 + threadIdx.x;
+		}
 	}
 	
 	block.sync();
-	
+
 	if(blockIdx.x == 1){
 		value1 = A1[index];
 	}
-	//if(threadIdx.x == 0){/////%tid %ntid %laneid %warpid %nwarpid %ctaid %nctaid %smid %nsmid %gridid
-	//	int smid = 1;
-	//	asm("mov.u32 %0, %smid;" : "=r"(smid) );
-	//	printf("blockIdx.x: %d, smid: %d\n", blockIdx.x, smid);
-	//}
-
-	/*
-	long long int clock_offset = 0;
-    while (clock_offset < clock_count){/////////////////what's the time overhead for addition and multiplication?
-        clock_offset++;
-		value1 = value1 + threadIdx.x;
-    }
-	*/
 
 	B1[index] = value1;
 }
@@ -334,7 +327,7 @@ int main(int argc, char **argv)
 
 		////may want to use more thread to see clock_count effect		
 		//page_visitor<<<8192 * 512 / factor, 512>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);
-		page_visitor2<<<2, 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);		
+		page_visitor<<<2, 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);		
 		cudaDeviceSynchronize();
 				
 		/////////////////////////////////time
