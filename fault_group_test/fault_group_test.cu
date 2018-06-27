@@ -79,12 +79,18 @@ __global__ void page_visitor(long long int *A1, long long int *B1, double data_s
 	//double temp = (threadIdx.x % 32) * 1024 + warpid * 512;
 	//double temp = (threadIdx.x) * 512;
 	//double temp = (threadIdx.x % 32) * 2048 + warpid * 512;
-	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 512;
-	double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * 512 + warpid * 256;
+	double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 512;
+	//double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * 512 + warpid * 256;
 	long long int index = __double2ll_rd(temp);
 	long long int value1;
 
 	value1 = A1[index];
+	
+	if(threadIdx.x == 0){/////%tid %ntid %laneid %warpid %nwarpid %ctaid %nctaid %smid %nsmid %gridid
+		int smid = 1;
+		asm("mov.u32 %0, %smid;" : "=r"(smid) );
+		printf("blockIdx.x: %d, smid: %d\n", blockIdx.x, smid);
+	}
 
 	long long int clock_offset = 0;
     while (clock_offset < clock_count){/////////////////what's the time overhead for addition and multiplication?
