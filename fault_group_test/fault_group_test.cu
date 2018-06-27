@@ -80,7 +80,7 @@ __global__ void page_visitor(long long int *A1, long long int *B1, double data_s
 	//double temp = (threadIdx.x) * 512;
 	//double temp = (threadIdx.x % 32) * 2048 + warpid * 512;
 	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 512;
-	double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * 1024 + warpid * 512;
+	double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * 512 + warpid * 256;
 	long long int index = __double2ll_rd(temp);
 	long long int value1;
 
