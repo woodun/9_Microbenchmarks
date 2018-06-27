@@ -201,7 +201,7 @@ int main(int argc, char **argv)
 	checkCudaErrors(cudaDeviceGetAttribute(&value1, cudaDevAttrConcurrentManagedAccess, dev_id));
 	//printf("cudaDevAttrConcurrentManagedAccess = %d\n", value1);	
 
-	/*
+	///*
 	//printf("############approach\n");
 	for(long long int time = 32; time <= 32; time = time * 2){
 	//printf("\n####################time: %llu\n", time);
@@ -300,7 +300,7 @@ int main(int argc, char **argv)
 	}
 	}
 	printf("\n");
-	*/
+	//*/
 
 	for(long long int time = 32; time <= 32; time = time * 2){
 	//printf("\n####################time: %llu\n", time);
