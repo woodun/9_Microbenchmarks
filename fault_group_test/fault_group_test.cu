@@ -85,7 +85,7 @@ __global__ void page_visitor(long long int *A1, long long int *B1, double data_s
 	//double temp = (threadIdx.x % 32) * 16 + warpid * 1;
 	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 1;
 	//double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * 2 + blockIdx.x * 1;
-	double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 256;
+	double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 16;
 	//double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * 2 + blockIdx.x * 1;
 	long long int index = __double2ll_rd(temp);
 	long long int value1;
@@ -134,7 +134,7 @@ __global__ void page_visitor2(long long int *A1, long long int *B1, double data_
 	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 1;
 	//double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * 2 + blockIdx.x * 1;
 	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 1;
-	double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * 512 + blockIdx.x * 256;
+	double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * 16 * gridDim.x + blockIdx.x * 16;
 	//double temp = (threadIdx.x) * 1;
 	long long int index = __double2ll_rd(temp);
 	long long int value1;
@@ -183,7 +183,7 @@ __global__ void page_visitor3(long long int *A1, long long int *B1, double data_
 	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 1;
 	//double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * 2 + blockIdx.x * 1;
 	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 1;
-	double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * 512 + blockIdx.x * 256;
+	double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * 16 * gridDim.x + blockIdx.x * 16;
 	//double temp = (threadIdx.x) * 1;
 	long long int index = __double2ll_rd(temp);
 	long long int value1;
@@ -251,6 +251,9 @@ int main(int argc, char **argv)
 	int value1 = 1;
 	checkCudaErrors(cudaDeviceGetAttribute(&value1, cudaDevAttrConcurrentManagedAccess, dev_id));
 	//printf("cudaDevAttrConcurrentManagedAccess = %d\n", value1);	
+	
+	
+	int block_num = 1024;
 
 	///*
 	//printf("############approach\n");
@@ -329,7 +332,7 @@ int main(int argc, char **argv)
 
 		////may want to use more thread to see clock_count effect		
 		//page_visitor<<<8192 * 512 / factor, 512>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);
-		page_visitor<<<2, 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);		
+		page_visitor<<<block_num, 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);		
 		cudaDeviceSynchronize();
 				
 		/////////////////////////////////time
@@ -428,7 +431,7 @@ int main(int argc, char **argv)
 
 		////may want to use more thread to see clock_count effect		
 		//page_visitor<<<8192 * 512 / factor, 512>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);
-		page_visitor2<<<2, 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);		
+		page_visitor2<<<block_num, 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);		
 		cudaDeviceSynchronize();
 				
 		/////////////////////////////////time
@@ -527,7 +530,7 @@ int main(int argc, char **argv)
 
 		////may want to use more thread to see clock_count effect		
 		//page_visitor<<<8192 * 512 / factor, 512>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);
-		page_visitor3<<<2, 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);		
+		page_visitor3<<<block_num, 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);		
 		cudaDeviceSynchronize();
 				
 		/////////////////////////////////time
