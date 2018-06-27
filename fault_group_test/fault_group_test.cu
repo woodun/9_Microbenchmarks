@@ -85,7 +85,7 @@ __global__ void page_visitor(long long int *A1, long long int *B1, double data_s
 	//double temp = (threadIdx.x % 32) * 16 + warpid * 1;
 	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 1;
 	//double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * 2 + blockIdx.x * 1;
-	double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 256;
+	double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 1;
 	//double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * 2 + blockIdx.x * 1;
 	long long int index = __double2ll_rd(temp);
 	long long int value1;
@@ -134,7 +134,7 @@ __global__ void page_visitor2(long long int *A1, long long int *B1, double data_
 	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 1;
 	//double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * 2 + blockIdx.x * 1;
 	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 1;
-	double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * 512 + blockIdx.x * 256;
+	double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * 2 + blockIdx.x * 1;
 	//double temp = (threadIdx.x) * 1;
 	long long int index = __double2ll_rd(temp);
 	long long int value1;
@@ -183,7 +183,7 @@ __global__ void page_visitor3(long long int *A1, long long int *B1, double data_
 	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 1;
 	//double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * 2 + blockIdx.x * 1;
 	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 1;
-	double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * 512 + blockIdx.x * 256;
+	double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * 2 + blockIdx.x * 1;
 	//double temp = (threadIdx.x) * 1;
 	long long int index = __double2ll_rd(temp);
 	long long int value1;
@@ -192,9 +192,9 @@ __global__ void page_visitor3(long long int *A1, long long int *B1, double data_
 		value1 = A1[index];
 		
 		long long int clock_offset = 0;
-		while (clock_offset < 16384){/////////////////what's the time overhead for addition and multiplication?
+		while (clock_offset < 8192){/////////////////what's the time overhead for addition and multiplication?
 			clock_offset++;
-			value1 = value1 + threadIdx.x;
+			asm("add.u64 %0, %1, 1;" : "=l"(value1) : "l"(value1));			
 		}
 	}
 	
