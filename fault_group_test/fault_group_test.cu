@@ -92,17 +92,19 @@ __global__ void page_visitor(long long int *A1, long long int *B1, double data_s
 
 	value1 = A1[index];
 	
-	if(threadIdx.x == 0){/////%tid %ntid %laneid %warpid %nwarpid %ctaid %nctaid %smid %nsmid %gridid
-		int smid = 1;
-		asm("mov.u32 %0, %smid;" : "=r"(smid) );
-		printf("blockIdx.x: %d, smid: %d\n", blockIdx.x, smid);
-	}
+	//if(threadIdx.x == 0){/////%tid %ntid %laneid %warpid %nwarpid %ctaid %nctaid %smid %nsmid %gridid
+	//	int smid = 1;
+	//	asm("mov.u32 %0, %smid;" : "=r"(smid) );
+	//	printf("blockIdx.x: %d, smid: %d\n", blockIdx.x, smid);
+	//}
 
+	/*
 	long long int clock_offset = 0;
     while (clock_offset < clock_count){/////////////////what's the time overhead for addition and multiplication?
         clock_offset++;
 		value1 = value1 + threadIdx.x;
     }
+	*/
 
 	B1[index] = value1;	
 }
@@ -179,7 +181,7 @@ int main(int argc, char **argv)
 	for(double data_stride = 1 * 1 * 1 * factor; data_stride <= 1 * 1 * 1 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
 	//printf("\n");
 
-	for(long long int clock_count = 8192; clock_count <= 8192; clock_count = clock_count * 2){
+	for(long long int clock_count = 32; clock_count <= 32; clock_count = clock_count * 2){
 		
 	///long long int time2 = time;
 	//if(time2 > clock_count){
