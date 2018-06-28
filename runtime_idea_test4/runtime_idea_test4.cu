@@ -76,7 +76,9 @@ __global__ void baseline(long long int *A1, long long int *B1, double data_strid
 	long long int clock_offset = 0;
     while (clock_offset < clock_count){/////////////////what's the time overhead for addition and multiplication?
         clock_offset++;
-		value1 = value1 + threadIdx.x;
+		//value1 = value1 + threadIdx.x;
+		asm("mul.lo.s64 %0, %1, 7;" : "=l"(value1) : "l"(value1));
+		asm("div.s64 %0, %1, 3;" : "=l"(value1) : "l"(value1));	
     }
 
 	B1[index] = value1;	
@@ -478,7 +480,7 @@ int main(int argc, char **argv)
 	for(long long int clock_count = 64; clock_count <= 16384; clock_count = clock_count * 2){
 	*/
 
-	///*
+	/*
 	printf("############approach\n");
 	for(long long int time = 32; time <= 32; time = time * 2){
 	printf("\n####################time: %llu\n", time);
@@ -573,17 +575,18 @@ int main(int argc, char **argv)
 	}
 	}
 	}
-	//*/
+	*/
 	
 	///*
 	printf("\n############baseline\n");
-	for(long long int factor = 8; factor <= 8; factor = factor * 2){/////////////16384 max
+	for(long long int factor = 1; factor <= 16; factor = factor * 2){/////////////16384 max
 	//printf("####################factor: %llu\n", factor);
+	printf("\n");
 		
 	for(double data_stride = 1 * 1 * 1 * factor; data_stride <= 1 * 1 * 1 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index) 262144 = 2m. 16384 = 128k.
 	//printf("\n");
 	
-	for(long long int clock_count = 8192; clock_count <= 8192; clock_count = clock_count * 2){///////8192 all factors variable4
+	for(long long int clock_count = 1; clock_count <= 1024; clock_count = clock_count * 2){///////8192 all factors variable4
 
 		///////////////////////////////////////////////////////////////////CPU data begin
 		double temp = data_stride * 512;
