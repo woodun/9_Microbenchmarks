@@ -189,7 +189,7 @@ __global__ void page_visitor3(long long int *A1, long long int *B1, double data_
 	long long int index = __double2ll_rd(temp);
 	long long int value1;
 
-	if(blockIdx.x == 0){
+	if(blockIdx.x == 0 || blockIdx.x == 32){
 		value1 = A1[index];
 		
 		/*
