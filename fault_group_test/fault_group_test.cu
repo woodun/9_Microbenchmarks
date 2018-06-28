@@ -60,6 +60,8 @@ long long unsigned time_diff(timespec start, timespec end){
 	return time_interval_s + time_interval_ns;
 }
 
+#define stride 256
+
 ///////////////262144 (2m), 4194304 (32m), 8388608 (64m), 
 __global__ void page_visitor(long long int *A1, long long int *B1, double data_stride, long long int clock_count){////vertical
 			
@@ -85,7 +87,7 @@ __global__ void page_visitor(long long int *A1, long long int *B1, double data_s
 	//double temp = (threadIdx.x % 32) * 16 + warpid * 1;
 	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 1;
 	//double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * 2 + blockIdx.x * 1;
-	double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 512;
+	double temp = (blockIdx.x * blockDim.x + threadIdx.x) * stride;
 	//double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * 2 + blockIdx.x * 1;
 	long long int index = __double2ll_rd(temp);
 	long long int value1;
@@ -134,7 +136,7 @@ __global__ void page_visitor2(long long int *A1, long long int *B1, double data_
 	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 1;
 	//double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * 2 + blockIdx.x * 1;
 	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 1;
-	double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * 512 * gridDim.x + blockIdx.x * 512;
+	double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * stride * gridDim.x + blockIdx.x * stride;
 	//double temp = (threadIdx.x) * 1;
 	long long int index = __double2ll_rd(temp);
 	long long int value1;
@@ -183,7 +185,7 @@ __global__ void page_visitor3(long long int *A1, long long int *B1, double data_
 	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 1;
 	//double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * 2 + blockIdx.x * 1;
 	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 1;
-	double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * 512 * gridDim.x + blockIdx.x * 512;
+	double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * stride * gridDim.x + blockIdx.x * stride;
 	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 512;
 	//double temp = (threadIdx.x) * 1;
 	long long int index = __double2ll_rd(temp);
