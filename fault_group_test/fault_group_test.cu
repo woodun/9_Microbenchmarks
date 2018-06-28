@@ -195,7 +195,7 @@ __global__ void page_visitor3(long long int *A1, long long int *B1, double data_
 		
 		
 		long long int clock_offset = 0;
-		while (clock_offset < 16384){/////////////////what's the time overhead for addition and multiplication?
+		while (clock_offset < 65536){/////////////////what's the time overhead for addition and multiplication?
 			clock_offset++;
 			//value1 = value1 * 3;
 			asm("mul.lo.s64 %0, %1, 7;" : "=l"(value1) : "l"(value1));
