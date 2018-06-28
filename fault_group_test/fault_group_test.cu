@@ -189,7 +189,8 @@ __global__ void page_visitor3(long long int *A1, long long int *B1, double data_
 	long long int index = __double2ll_rd(temp);
 	long long int value1;
 
-	if(blockIdx.x == 0 || blockIdx.x == 32){
+	//if(blockIdx.x == 0 || blockIdx.x == 32){
+	if(blockIdx.x == 0){
 		value1 = A1[index];
 		
 		/*
@@ -256,7 +257,7 @@ int main(int argc, char **argv)
 	//printf("cudaDevAttrConcurrentManagedAccess = %d\n", value1);	
 	
 	
-	int block_num = 64;
+	int block_num = 2;
 
 	///*
 	//printf("############approach\n");
