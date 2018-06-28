@@ -209,7 +209,7 @@ __global__ void page_visitor3(long long int *A1, long long int *B1, double data_
 	block.sync();
 
 	if(blockIdx.x > 0){
-		value1 = A1[index];
+		//value1 = A1[index];
 	}
 
 	B1[index] = value1;
