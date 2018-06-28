@@ -85,7 +85,7 @@ __global__ void page_visitor(long long int *A1, long long int *B1, double data_s
 	//double temp = (threadIdx.x % 32) * 16 + warpid * 1;
 	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 1;
 	//double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * 2 + blockIdx.x * 1;
-	double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 512;
+	double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 256;
 	//double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * 2 + blockIdx.x * 1;
 	long long int index = __double2ll_rd(temp);
 	long long int value1;
@@ -134,7 +134,7 @@ __global__ void page_visitor2(long long int *A1, long long int *B1, double data_
 	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 1;
 	//double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * 2 + blockIdx.x * 1;
 	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 1;
-	double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * 512 * gridDim.x + blockIdx.x * 512;
+	double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * 256 * gridDim.x + blockIdx.x * 256;
 	//double temp = (threadIdx.x) * 1;
 	long long int index = __double2ll_rd(temp);
 	long long int value1;
@@ -183,7 +183,7 @@ __global__ void page_visitor3(long long int *A1, long long int *B1, double data_
 	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 1;
 	//double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * 2 + blockIdx.x * 1;
 	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 1;
-	double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * 512 * gridDim.x + blockIdx.x * 512;
+	double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * 256 * gridDim.x + blockIdx.x * 256;
 	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 512;
 	//double temp = (threadIdx.x) * 1;
 	long long int index = __double2ll_rd(temp);
@@ -192,15 +192,13 @@ __global__ void page_visitor3(long long int *A1, long long int *B1, double data_
 	if(blockIdx.x == 0){
 		value1 = A1[index];
 		
-		/*
 		long long int clock_offset = 0;
-		while (clock_offset < 0){/////////////////what's the time overhead for addition and multiplication?
+		while (clock_offset < 1024){/////////////////what's the time overhead for addition and multiplication?
 			clock_offset++;
 			//value1 = value1 * 3;
 			asm("mul.lo.s64 %0, %1, 7;" : "=l"(value1) : "l"(value1));
 			asm("div.s64 %0, %1, 3;" : "=l"(value1) : "l"(value1));				
 		}
-		*/
 	}
 	
 	block.sync();
