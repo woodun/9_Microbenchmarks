@@ -60,10 +60,10 @@ long long unsigned time_diff(timespec start, timespec end){
 	return time_interval_s + time_interval_ns;
 }
 
-#define stride 128
+#define stride 1
 
 ///////////////262144 (2m), 4194304 (32m), 8388608 (64m), 
-__global__ void page_visitor(long long int *A1, long long int *B1, double data_stride, long long int clock_count){////vertical
+__global__ void page_visitor(long long int *A1, long long int *B1, double data_stride, long long int clock_count){////long
 			
 	//thread_block block = this_thread_block();	
 	
@@ -111,7 +111,7 @@ __global__ void page_visitor(long long int *A1, long long int *B1, double data_s
 	B1[index] = value1;	
 }
 
-__global__ void page_visitor1(long long int *A1, long long int *B1, double data_stride, long long int clock_count){////vertical
+__global__ void page_visitor1(long long int *A1, long long int *B1, double data_stride, long long int clock_count){////long half
 			
 	//thread_block block = this_thread_block();	
 	
@@ -136,7 +136,7 @@ __global__ void page_visitor1(long long int *A1, long long int *B1, double data_
 }
 
 
-__global__ void page_visitor2(long long int *A1, long long int *B1, double data_stride, long long int clock_count){////vertical
+__global__ void page_visitor2(long long int *A1, long long int *B1, double data_stride, long long int clock_count){////mixed 
 			
 	//thread_block block = this_thread_block();	
 	
@@ -159,7 +159,7 @@ __global__ void page_visitor2(long long int *A1, long long int *B1, double data_
 	B1[index] = value1;	
 }
 
-__global__ void page_visitor3(long long int *A1, long long int *B1, double data_stride, long long int clock_count){////vertical
+__global__ void page_visitor3(long long int *A1, long long int *B1, double data_stride, long long int clock_count){////mixed half
 			
 	thread_block block = this_thread_block();	
 	
@@ -183,7 +183,7 @@ __global__ void page_visitor3(long long int *A1, long long int *B1, double data_
 }
 
 
-__global__ void page_visitor4(long long int *A1, long long int *B1, double data_stride, long long int clock_count){////vertical
+__global__ void page_visitor4(long long int *A1, long long int *B1, double data_stride, long long int clock_count){////long pause
 			
 	thread_block block = this_thread_block();	
 	
@@ -220,7 +220,7 @@ __global__ void page_visitor4(long long int *A1, long long int *B1, double data_
 }
 
 
-__global__ void page_visitor5(long long int *A1, long long int *B1, double data_stride, long long int clock_count){////vertical
+__global__ void page_visitor5(long long int *A1, long long int *B1, double data_stride, long long int clock_count){////mixed pause
 			
 	thread_block block = this_thread_block();	
 	
@@ -379,22 +379,22 @@ int main(int argc, char **argv)
 
 		int block_num = 2;
 		if(time == 0){
-			page_visitor<<<block_num, 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);	
+			page_visitor<<<block_num, 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);/////long 
 		}
 		if(time == 1){
-			page_visitor1<<<block_num, 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);	
+			page_visitor1<<<block_num, 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);/////long half
 		}
 		if(time == 2){
-			page_visitor2<<<block_num, 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);	
+			page_visitor2<<<block_num, 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);//////mixed	
 		}
 		if(time == 3){
-			page_visitor3<<<block_num, 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);	
+			page_visitor3<<<block_num, 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);//////mixed	half
 		}
 		if(time == 4){
-			page_visitor4<<<block_num, 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);	
+			page_visitor4<<<block_num, 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);/////long pause
 		}
 		if(time == 5){
-			page_visitor5<<<block_num, 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);	
+			page_visitor5<<<block_num, 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);//////mixed	long
 		}
 		cudaDeviceSynchronize();
 				
