@@ -199,11 +199,11 @@ __global__ void page_visitor4(long long int *A1, long long int *B1, double data_
 	long long int value1;
 
 	//if(blockIdx.x == 0 || blockIdx.x == 32){
-	if(blockIdx.x == 0){
-		value1 = A1[index];	
-	}
+	//if(blockIdx.x == 0){
+	//	value1 = A1[index];	
+	//}
 	
-	block.sync();
+	///block.sync();//////////////how to sync across block here?
 
 	if(blockIdx.x > 0){
 		value1 = A1[index];
@@ -226,12 +226,15 @@ __global__ void page_visitor5(long long int *A1, long long int *B1, double data_
 	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 512;
 	
 	long long int index = __double2ll_rd(temp);
-	long long int value1;
+	long long int value1 = 7;
 
 	//if(blockIdx.x == 0 || blockIdx.x == 32){
 	if(blockIdx.x == 0){
 		value1 = A1[index];
+	}
 
+	if(blockIdx.x > 0){
+		
 		long long int clock_offset = 0;
 		while (clock_offset < 65536){/////////////////what's the time overhead for addition and multiplication?
 			clock_offset++;
@@ -239,11 +242,7 @@ __global__ void page_visitor5(long long int *A1, long long int *B1, double data_
 			asm("mul.lo.s64 %0, %1, 7;" : "=l"(value1) : "l"(value1));
 			asm("div.s64 %0, %1, 3;" : "=l"(value1) : "l"(value1));				
 		}
-	}
-	
-	block.sync();
-
-	if(blockIdx.x > 0){
+		
 		value1 = A1[index];
 	}
 
