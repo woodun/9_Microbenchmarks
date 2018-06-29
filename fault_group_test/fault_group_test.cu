@@ -192,20 +192,27 @@ __global__ void page_visitor4(long long int *A1, long long int *B1, double data_
 	unsigned warpid; 
     asm("mov.u32 %0, %warpid;" : "=r"(warpid));
     	
-	double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * stride * gridDim.x + blockIdx.x * stride;
-	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 512;
+	double temp = (blockIdx.x * blockDim.x + threadIdx.x) * stride;
+	//double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * stride * gridDim.x + blockIdx.x * stride;
 	
 	long long int index = __double2ll_rd(temp);
-	long long int value1;
+	long long int value1 = 7;
 
 	//if(blockIdx.x == 0 || blockIdx.x == 32){
-	//if(blockIdx.x == 0){
-	//	value1 = A1[index];	
-	//}
-	
-	///block.sync();//////////////how to sync across block here?
+	if(blockIdx.x == 0){
+		value1 = A1[index];
+	}
 
 	if(blockIdx.x > 0){
+		
+		long long int clock_offset = 0;
+		while (clock_offset < 65536){/////////////////what's the time overhead for addition and multiplication?
+			clock_offset++;
+			//value1 = value1 * 3;
+			asm("mul.lo.s64 %0, %1, 7;" : "=l"(value1) : "l"(value1));
+			asm("div.s64 %0, %1, 3;" : "=l"(value1) : "l"(value1));				
+		}
+		
 		value1 = A1[index];
 	}
 
