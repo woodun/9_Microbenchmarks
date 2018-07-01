@@ -13,7 +13,7 @@ using namespace cooperative_groups;
 
 /////////////////////////////L1 is enabled. "ALL_CCFLAGS += -Xptxas -dlcm=ca"
 //////////////large vs small data.
-//////creating 2 blocks doing exactly the same thing?
+//////creating 2 blocks doing exactly the same thing? also create larger intervals between block, E.g., sm0 and sm 32?
 
 void init_cpu_data(long long int* A, long long int size, double stride){
 	
