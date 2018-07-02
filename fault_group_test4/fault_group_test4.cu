@@ -179,7 +179,7 @@ int main(int argc, char **argv)
 	for(long long int factor = 1; factor <= 1; factor = factor * 2){/////////////16384 (128k) max
 	//printf("####################factor: %llu\n", factor);
 	
-	for(double data_stride = 1 * 1 * 1 * factor; data_stride <= 1 * 1 * 1 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
+	for(double data_stride = 512 * 8192 * 128 * factor; data_stride <= 512 * 8192 * 128 * 4 * factor; data_stride = data_stride + 512 * 8192 * 128){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
 	//printf("\n");
 
 	for(long long int clock_count = 32; clock_count <= 32; clock_count = clock_count * 2){
@@ -209,10 +209,10 @@ int main(int argc, char **argv)
 				scale = data_stride;/////////make sure threadIdx is smaller than data_size in the initialization
 			}
 			
-			gpu_initialization<<<8192 * 128 * scale / factor, 512>>>(GPU_data_out1, data_stride, data_size);///1024 per block max
+			gpu_initialization<<<8192 * scale / factor, 512>>>(GPU_data_out1, data_stride, data_size);///1024 per block max
 			cudaDeviceSynchronize();
 			if(0){
-			gpu_initialization<<<8192 * 128 * scale / factor, 512>>>(CPU_data_in1, data_stride, data_size);///1024 per block max
+			gpu_initialization<<<8192 * scale / factor, 512>>>(CPU_data_in1, data_stride, data_size);///1024 per block max
 			cudaDeviceSynchronize();
 			}else{
 			init_cpu_data(CPU_data_in1, data_size, data_stride);
@@ -280,7 +280,7 @@ int main(int argc, char **argv)
 	for(long long int factor = 1; factor <= 1; factor = factor * 2){/////////////16384 (128k) max
 	//printf("####################factor: %llu\n", factor);
 	
-	for(double data_stride = 1 * 1 * 1 * factor; data_stride <= 1 * 1 * 1 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
+	for(double data_stride = 512 * 8192 * 128 * factor; data_stride <= 512 * 8192 * 128 * 4 * factor; data_stride = data_stride + 512 * 8192 * 128){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
 	//printf("\n");
 
 	for(long long int clock_count = 32; clock_count <= 32; clock_count = clock_count * 2){
@@ -291,10 +291,11 @@ int main(int argc, char **argv)
 	//}
 
 		///////////////////////////////////////////////////////////////////CPU data begin
-		double temp = data_stride * 512;
-		long long int data_size = (long long int) temp;
-		//data_size = data_size * 8192 * 512 / factor;
-		data_size = data_size * 8192 * 128 / factor;
+		//double temp = data_stride * 512;
+		double temp = data_stride;
+		long long int data_size = (long long int) temp;		
+		//data_size = data_size * 8192 * 128 / factor;
+		data_size = data_size / factor;
 		
 		long long int *CPU_data_in1;
 		checkCudaErrors(cudaMallocManaged(&CPU_data_in1, sizeof(long long int) * data_size));/////////////using unified memory
@@ -310,10 +311,10 @@ int main(int argc, char **argv)
 				scale = data_stride;/////////make sure threadIdx is smaller than data_size in the initialization
 			}
 			
-			gpu_initialization<<<8192 * 128 * scale / factor, 512>>>(GPU_data_out1, data_stride, data_size);///1024 per block max
+			gpu_initialization<<<8192 * scale / factor, 512>>>(GPU_data_out1, data_stride, data_size);///1024 per block max
 			cudaDeviceSynchronize();
 			if(0){
-			gpu_initialization<<<8192 * 128 * scale / factor, 512>>>(CPU_data_in1, data_stride, data_size);///1024 per block max
+			gpu_initialization<<<8192 * scale / factor, 512>>>(CPU_data_in1, data_stride, data_size);///1024 per block max
 			cudaDeviceSynchronize();
 			}else{
 			init_cpu_data(CPU_data_in1, data_size, data_stride);
