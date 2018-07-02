@@ -13,6 +13,7 @@ using namespace cooperative_groups;
 
 /////////////////////////////L1 is enabled. "ALL_CCFLAGS += -Xptxas -dlcm=ca"
 //////////////large vs small data.
+////////////////note: test with correct time loop.
 
 void init_cpu_data(long long int* A, long long int size, double stride){
 	
