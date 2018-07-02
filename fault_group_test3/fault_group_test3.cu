@@ -60,7 +60,7 @@ long long unsigned time_diff(timespec start, timespec end){
 	return time_interval_s + time_interval_ns;
 }
 
-#define stride 64
+#define stride 32
 
 ///////////////262144 (2m), 4194304 (32m), 8388608 (64m), 
 __global__ void page_visitor(long long int *A1, long long int *B1, double data_stride, long long int clock_count){////long
@@ -130,9 +130,11 @@ __global__ void page_visitor1(long long int *A1, long long int *B1, double data_
 
 	if(warpid == 0){
 		value1 = A1[index];
+		
+		B1[index] = value1;
 	}	
 
-	B1[index] = value1;	
+		
 }
 
 
@@ -174,9 +176,9 @@ __global__ void page_visitor3(long long int *A1, long long int *B1, double data_
 	//if(blockIdx.x == 0 || blockIdx.x == 32){
 	if(warpid == 0){
 		value1 = A1[index];
-	}
-
-	B1[index] = value1;
+		
+		B1[index] = value1;
+	}	
 }
 
 
