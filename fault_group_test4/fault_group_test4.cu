@@ -190,10 +190,11 @@ int main(int argc, char **argv)
 	//}
 
 		///////////////////////////////////////////////////////////////////CPU data begin
-		double temp = data_stride * 512;
-		long long int data_size = (long long int) temp;
-		//data_size = data_size * 8192 * 512 / factor;
-		data_size = data_size * 8192 * 128 / factor;
+		//double temp = data_stride * 512;
+		double temp = data_stride;
+		long long int data_size = (long long int) temp;		
+		//data_size = data_size * 8192 * 128 / factor;
+		data_size = data_size / factor;
 		
 		long long int *CPU_data_in1;
 		checkCudaErrors(cudaMallocManaged(&CPU_data_in1, sizeof(long long int) * data_size));/////////////using unified memory
