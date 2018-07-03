@@ -60,7 +60,7 @@ long long unsigned time_diff(timespec start, timespec end){
 	return time_interval_s + time_interval_ns;
 }
 
-#define stride 1024
+#define stride 8
 
 ///////////////262144 (2m), 4194304 (32m), 8388608 (64m), 
 __global__ void page_visitor(long long int *A1, long long int *B1, double data_stride, long long int clock_count){////long
