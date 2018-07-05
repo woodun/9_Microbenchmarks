@@ -60,7 +60,7 @@ long long unsigned time_diff(timespec start, timespec end){
 	return time_interval_s + time_interval_ns;
 }
 
-#define stride 1
+#define stride 2
 
 ///////////////262144 (2m), 4194304 (32m), 8388608 (64m), 
 __global__ void page_visitor(long long int *A1, long long int *B1, double data_stride, long long int clock_count){////long
@@ -121,7 +121,11 @@ __global__ void page_visitor3(long long int *A1, long long int *B1, double data_
 	}
 }
 
-
+///////////long 0 - 31 same core
+///////////long 0 - 64 same core
+///////////long 0 - 64 different core
+///////////mixed 0 - 64 same core
+///////////mixed 0 - 64 different core
 
 int main(int argc, char **argv)
 {
