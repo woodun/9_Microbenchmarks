@@ -228,7 +228,7 @@ int main(int argc, char **argv)
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
 		
-		stream_thread<<512, 512>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7);
+		stream_thread<<<512, 512>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7);
 
 		cudaDeviceSynchronize();
 				
