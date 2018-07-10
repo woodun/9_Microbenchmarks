@@ -145,6 +145,13 @@ __global__ void page_visitor3(long long int *A1, long long int *B1, double data_
 	long long int value1;
 
 	if(warp_id == 0 || warp_id == 27){
+		
+		if(threadIdx.x == 0){/////%tid %ntid %laneid %warpid %nwarpid %ctaid %nctaid %smid %nsmid %gridid
+			int smid = 1;
+			asm("mov.u32 %0, %smid;" : "=r"(smid) );
+			printf("blockIdx.x: %d, smid: %d\n", blockIdx.x, smid);
+		}
+		
 		if(threadIdx.x % 32 <= clock_count){
 			value1 = A1[index];
 		
@@ -203,7 +210,7 @@ int main(int argc, char **argv)
 	
 	
 	
-
+/*
 	///*
 	//printf("############approach\n");
 	for(long long int time = 0; time <= 0; time = time + 1){
@@ -303,8 +310,7 @@ int main(int argc, char **argv)
 	}
 	}
 	}
-	printf("\n");
-	//*/
+	printf("\n");	
 	
 	
 	for(long long int time = 0; time <= 0; time = time + 1){
@@ -604,7 +610,7 @@ int main(int argc, char **argv)
 	}
 	}
 	printf("\n");
-	
+*/	
 	
 	for(long long int time = 0; time <= 0; time = time + 1){
 	//printf("\n####################time: %llu\n", time);
