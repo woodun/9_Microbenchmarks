@@ -13,7 +13,7 @@ using namespace cooperative_groups;
 
 /////////////////////////////L1 is enabled. "ALL_CCFLAGS += -Xptxas -dlcm=ca"
 //////////////large vs small data.
-//////test multiple warps. see blog trace. test blog 2 warps. blog improvement test (A, B initialized in the same way). redo idea_test4 with correct timing. real applications prefetching + triggerring.
+//////creating 2 blocks doing exactly the same thing? method in the blog simple.
 
 void init_cpu_data(long long int* A, long long int size, double stride){
 	
@@ -60,113 +60,51 @@ long long unsigned time_diff(timespec start, timespec end){
 	return time_interval_s + time_interval_ns;
 }
 
-#define stride 262144
+//#define stride 512
 
-///////////////262144 (2m), 4194304 (32m), 8388608 (64m), 
-__global__ void page_visitor(long long int *A1, long long int *B1, double data_stride, long long int clock_count){////long
-			
-	long long int warp_id = (threadIdx.x + blockIdx.x * blockDim.x) >> 5;
-	double temp = (warp_id * 32 + (threadIdx.x % 32) ) * stride;
-	//if(warp_id == 27){
-	//	temp = (1 * 32 + (threadIdx.x % 32) ) * stride;
-	//}
-	
-	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) * stride;
-	//double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * 2 + blockIdx.x * 1;
-	long long int index = __double2ll_rd(temp);
-	long long int value1;
+__global__ void stream_thread(long long int *ptr, const long long int size, 
+                              long long int *output, const long long int val) 
+{ 
+  long long int tid = threadIdx.x + blockIdx.x * blockDim.x; 
+  long long int n = size / sizeof(long long int); 
+  long long int accum = 0; 
 
-	//if(warp_id == 0 || warp_id == 27){
-		if(threadIdx.x % 32 <= clock_count){
-			value1 = A1[index];
-		
-			B1[index] = value1;	
-		}
-	//}
+  for(; tid < n; tid += blockDim.x * gridDim.x) 
+    if (1) accum += ptr[tid]; 
+      else ptr[tid] = val;  
+
+  if (1) 
+    output[threadIdx.x + blockIdx.x * blockDim.x] = accum; 
 }
 
-__global__ void page_visitor2(long long int *A1, long long int *B1, double data_stride, long long int clock_count){///mixed same core
-			
-	//thread_block block = this_thread_block();	
-	
-	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) % 32 * 1;
-	
-	int warps_per_grid = (blockDim.x * gridDim.x) >> 5; 
-	long long int warp_id = (threadIdx.x + blockIdx.x * blockDim.x) >> 5;
-	double temp = (threadIdx.x % 32) * stride * warps_per_grid + warp_id * stride;
-	//if(warp_id == 0){
-	//	temp = (threadIdx.x % 32) * stride * 2 + 0 * stride;
-	//}
-	//if(warp_id == 27){
-	//	temp = (threadIdx.x % 32) * stride * 2 + 1 * stride;
-	//}
-	
-	//unsigned warpid; 
-    //asm("mov.u32 %0, %warpid;" : "=r"(warpid));
 
-	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 1;
-	//double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * stride * (blockDim.x / 32) + warpid * stride;
-	
-	long long int index = __double2ll_rd(temp);
-	long long int value1;
+#define STRIDE_64K 65536
 
-	//if(warp_id == 0 || warp_id == 27){
-		if(threadIdx.x % 32 <= clock_count){
-			value1 = A1[index];
-		
-			B1[index] = value1;	
-		}	
-	//}
+__global__ void stream_warp(long long int *ptr, const long long int size, long long int *output, const long long int val) 
+{ 
+  int lane_id = threadIdx.x & 31; 
+  long long int warp_id = (threadIdx.x + blockIdx.x * blockDim.x) >> 5; 
+  int warps_per_grid = (blockDim.x * gridDim.x) >> 5; 
+  long long int warp_total = (size + STRIDE_64K-1) / STRIDE_64K; 
+
+  long long int n = size / sizeof(long long int); 
+  long long int accum = 0; 
+
+  for(; warp_id < warp_total; warp_id += warps_per_grid) { 
+    #pragma unroll
+    for(int rep = 0; rep < STRIDE_64K/sizeof(long long int)/32; rep++) {
+      long long int ind = warp_id * STRIDE_64K/sizeof(long long int) + rep * 32 + lane_id;
+      if (ind < n) { 
+        if (1) accum += ptr[ind]; 
+        else ptr[ind] = val; 
+      }
+    } 
+  } 
+
+  if (1) 
+    output[threadIdx.x + blockIdx.x * blockDim.x] = accum; 
 }
 
-__global__ void page_visitor3(long long int *A1, long long int *B1, double data_stride, long long int clock_count){///mixed different cores
-			
-	//thread_block block = this_thread_block();	
-	
-	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) % 32 * 1;
-	
-	int warps_per_grid = (blockDim.x * gridDim.x) >> 5; 
-	long long int warp_id = (threadIdx.x + blockIdx.x * blockDim.x) >> 5;
-	double temp = (threadIdx.x % 32) * stride * warps_per_grid + warp_id * stride;
-	//if(warp_id == 0){
-	//	temp = (threadIdx.x % 32) * stride * 2 + 0 * stride;
-	//}
-	//if(warp_id == 27){
-	//	temp = (threadIdx.x % 32) * stride * 2 + 1 * stride;
-	//}
-	
-	//unsigned warpid; 
-    //asm("mov.u32 %0, %warpid;" : "=r"(warpid));
-
-	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) * 1;
-	//double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * stride * (blockDim.x / 32) + warpid * stride;
-	
-	long long int index = __double2ll_rd(temp);
-	long long int value1;
-
-	//if(warp_id == 0 || warp_id == 27){
-		
-		/*
-		if(threadIdx.x == 0){/////%tid %ntid %laneid %warpid %nwarpid %ctaid %nctaid %smid %nsmid %gridid
-			int smid = 1;
-			asm("mov.u32 %0, %smid;" : "=r"(smid) );
-			printf("blockIdx.x: %d, smid: %d\n", blockIdx.x, smid);
-		}
-		*/
-		
-		if(threadIdx.x % 32 <= clock_count){
-			value1 = A1[index];
-		
-			B1[index] = value1;
-		}
-	//}
-}
-
-///////////long 0 - 31 same core
-///////////long 0 - 64 same core
-///////////long 0 - 64 different core
-///////////mixed 0 - 64 same core
-///////////mixed 0 - 64 different core
 
 int main(int argc, char **argv)
 {
@@ -211,6 +149,8 @@ int main(int argc, char **argv)
 	//printf("cudaDevAttrConcurrentManagedAccess = %d\n", value1);	
 	
 	
+	
+
 	///*
 	//printf("############approach\n");
 	for(long long int time = 0; time <= 0; time = time + 1){
@@ -239,10 +179,11 @@ int main(int argc, char **argv)
 	for(long long int factor = 1; factor <= 1; factor = factor * 2){/////////////16384 (128k) max
 	//printf("####################factor: %llu\n", factor);
 	
-	for(double data_stride = 1 * 1 * 1 * factor; data_stride <= 1 * 1 * 1 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
+	//for(double data_stride = 2684354560 * factor; data_stride <= 4294967296 * factor; data_stride = data_stride + 536870912){
+	for(double data_stride = 536870912 * factor; data_stride <= 536870912 * factor; data_stride = data_stride + 536870912){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
 	//printf("\n");
 
-	for(long long int clock_count = 0; clock_count <= 31; clock_count = clock_count + 1){
+	for(long long int clock_count = 32; clock_count <= 32; clock_count = clock_count * 2){
 		
 	///long long int time2 = time;
 	//if(time2 > clock_count){
@@ -250,10 +191,11 @@ int main(int argc, char **argv)
 	//}
 
 		///////////////////////////////////////////////////////////////////CPU data begin
-		double temp = data_stride * 512;
-		long long int data_size = (long long int) temp;
-		//data_size = data_size * 8192 * 512 / factor;
-		data_size = data_size * 8192 * 128 / factor;
+		//double temp = data_stride * 512;
+		double temp = data_stride;
+		long long int data_size = (long long int) temp;		
+		//data_size = data_size * 8192 * 128 / factor;
+		data_size = data_size / factor;
 		
 		long long int *CPU_data_in1;
 		checkCudaErrors(cudaMallocManaged(&CPU_data_in1, sizeof(long long int) * data_size));/////////////using unified memory
@@ -269,10 +211,10 @@ int main(int argc, char **argv)
 				scale = data_stride;/////////make sure threadIdx is smaller than data_size in the initialization
 			}
 			
-			gpu_initialization<<<8192 * 128 * scale / factor, 512>>>(GPU_data_out1, data_stride, data_size);///1024 per block max
+			gpu_initialization<<<8192 * scale / factor, 512>>>(GPU_data_out1, data_stride, data_size);///1024 per block max
 			cudaDeviceSynchronize();
 			if(0){
-			gpu_initialization<<<8192 * 128 * scale / factor, 512>>>(CPU_data_in1, data_stride, data_size);///1024 per block max
+			gpu_initialization<<<8192 * scale / factor, 512>>>(CPU_data_in1, data_stride, data_size);///1024 per block max
 			cudaDeviceSynchronize();
 			}else{
 			init_cpu_data(CPU_data_in1, data_size, data_stride);
@@ -285,11 +227,9 @@ int main(int argc, char **argv)
 		/////////////////////////////////time
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
+		
+		stream_thread<<<1, 64>>>(CPU_data_in1, 131072, GPU_data_out1, 7);
 
-		int block_num = 1;
-
-		page_visitor<<<block_num, 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);/////long 
-	
 		cudaDeviceSynchronize();
 				
 		/////////////////////////////////time
@@ -310,9 +250,12 @@ int main(int argc, char **argv)
 	}
 	}
 	}
-	printf("\n");	
+	printf("\n");
+	//*/
 	
 	
+		///*
+	//printf("############approach\n");
 	for(long long int time = 0; time <= 0; time = time + 1){
 	//printf("\n####################time: %llu\n", time);
 	
@@ -339,10 +282,11 @@ int main(int argc, char **argv)
 	for(long long int factor = 1; factor <= 1; factor = factor * 2){/////////////16384 (128k) max
 	//printf("####################factor: %llu\n", factor);
 	
-	for(double data_stride = 1 * 1 * 1 * factor; data_stride <= 1 * 1 * 1 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
+	//for(double data_stride = 2684354560 * factor; data_stride <= 4294967296 * factor; data_stride = data_stride + 536870912){
+	for(double data_stride = 536870912 * factor; data_stride <= 536870912 * factor; data_stride = data_stride + 536870912){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
 	//printf("\n");
 
-	for(long long int clock_count = 0; clock_count <= 31; clock_count = clock_count + 1){
+	for(long long int clock_count = 32; clock_count <= 32; clock_count = clock_count * 2){
 		
 	///long long int time2 = time;
 	//if(time2 > clock_count){
@@ -350,10 +294,11 @@ int main(int argc, char **argv)
 	//}
 
 		///////////////////////////////////////////////////////////////////CPU data begin
-		double temp = data_stride * 512;
-		long long int data_size = (long long int) temp;
-		//data_size = data_size * 8192 * 512 / factor;
-		data_size = data_size * 8192 * 128 / factor;
+		//double temp = data_stride * 512;
+		double temp = data_stride;
+		long long int data_size = (long long int) temp;		
+		//data_size = data_size * 8192 * 128 / factor;
+		data_size = data_size / factor;
 		
 		long long int *CPU_data_in1;
 		checkCudaErrors(cudaMallocManaged(&CPU_data_in1, sizeof(long long int) * data_size));/////////////using unified memory
@@ -369,10 +314,10 @@ int main(int argc, char **argv)
 				scale = data_stride;/////////make sure threadIdx is smaller than data_size in the initialization
 			}
 			
-			gpu_initialization<<<8192 * 128 * scale / factor, 512>>>(GPU_data_out1, data_stride, data_size);///1024 per block max
+			gpu_initialization<<<8192 * scale / factor, 512>>>(GPU_data_out1, data_stride, data_size);///1024 per block max
 			cudaDeviceSynchronize();
 			if(0){
-			gpu_initialization<<<8192 * 128 * scale / factor, 512>>>(CPU_data_in1, data_stride, data_size);///1024 per block max
+			gpu_initialization<<<8192 * scale / factor, 512>>>(CPU_data_in1, data_stride, data_size);///1024 per block max
 			cudaDeviceSynchronize();
 			}else{
 			init_cpu_data(CPU_data_in1, data_size, data_stride);
@@ -385,11 +330,9 @@ int main(int argc, char **argv)
 		/////////////////////////////////time
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
+		
+		stream_warp<<<1, 64>>>(CPU_data_in1, 131072, GPU_data_out1, 7);
 
-		int block_num = 1;
-
-		page_visitor<<<block_num, 128>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);/////long 
-	
 		cudaDeviceSynchronize();
 				
 		/////////////////////////////////time
@@ -411,106 +354,7 @@ int main(int argc, char **argv)
 	}
 	}
 	printf("\n");
-	
-	
-	for(long long int time = 0; time <= 0; time = time + 1){
-	//printf("\n####################time: %llu\n", time);
-	
-	//long long int coverage2 = 0;
-	for(long long int coverage = 1; coverage <= 1; coverage = coverage * 2){///////////////8192 is 2m.
-		//coverage2++;
-		//if(coverage2 == 2){
-		//	coverage = 1;
-		//}
-		//printf("############coverage: %llu\n", coverage);
-		
-	for(long long int rate = 1; rate <= 1; rate = rate * 2){
-		//printf("############rate: %llu\n", rate);
-		
-	//long long int offset2 = 0;
-	//for(long long int offset = 0; offset <= 0; offset = offset * 2){///////8
-	for(long long int offset = 0; offset <= 0; offset = offset + 8){
-		//offset2++;
-		//if(offset2 == 2){
-		//	offset = 1;
-		//}
-	//printf("############offset: %llu\n", offset);
-	
-	for(long long int factor = 1; factor <= 1; factor = factor * 2){/////////////16384 (128k) max
-	//printf("####################factor: %llu\n", factor);
-	
-	for(double data_stride = 1 * 1 * 1 * factor; data_stride <= 1 * 1 * 1 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
-	//printf("\n");
-
-	for(long long int clock_count = 0; clock_count <= 31; clock_count = clock_count + 1){
-		
-	///long long int time2 = time;
-	//if(time2 > clock_count){
-	//	time2 = clock_count;
-	//}
-
-		///////////////////////////////////////////////////////////////////CPU data begin
-		double temp = data_stride * 512;
-		long long int data_size = (long long int) temp;
-		//data_size = data_size * 8192 * 512 / factor;
-		data_size = data_size * 8192 * 128 / factor;
-		
-		long long int *CPU_data_in1;
-		checkCudaErrors(cudaMallocManaged(&CPU_data_in1, sizeof(long long int) * data_size));/////////////using unified memory
-		///////////////////////////////////////////////////////////////////CPU data end
-		
-		long long int *GPU_data_out1;
-		checkCudaErrors(cudaMallocManaged(&GPU_data_out1, sizeof(long long int) * data_size));/////////////using unified memory
-		///////////////////////////////////////////////////////////////////GPU data out	end
-		
-		if(1){
-			double scale = 1;
-			if(data_stride < 1){
-				scale = data_stride;/////////make sure threadIdx is smaller than data_size in the initialization
-			}
-			
-			gpu_initialization<<<8192 * 128 * scale / factor, 512>>>(GPU_data_out1, data_stride, data_size);///1024 per block max
-			cudaDeviceSynchronize();
-			if(0){
-			gpu_initialization<<<8192 * 128 * scale / factor, 512>>>(CPU_data_in1, data_stride, data_size);///1024 per block max
-			cudaDeviceSynchronize();
-			}else{
-			init_cpu_data(CPU_data_in1, data_size, data_stride);
-			}
-		}else{
-			init_cpu_data(GPU_data_out1, data_size, data_stride);
-			init_cpu_data(CPU_data_in1, data_size, data_stride);		
-		}
-		
-		/////////////////////////////////time
-		struct timespec ts1;
-		clock_gettime(CLOCK_REALTIME, &ts1);
-
-		int block_num = 4;
-
-		page_visitor<<<block_num, 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);/////long 
-	
-		cudaDeviceSynchronize();
-				
-		/////////////////////////////////time
-		struct timespec ts2;
-		clock_gettime(CLOCK_REALTIME, &ts2);
-		
-		//printf("###################data_stride%lld#########################clock_count:%lld\n", data_stride, clock_count);
-		//printf("*\n*\n*\nruntime:  %lluns\n", time_diff(ts1, ts2));
-		printf("%llu ", time_diff(ts1, ts2));
-		fflush(stdout);
-		
-		checkCudaErrors(cudaFree(CPU_data_in1));		
-		checkCudaErrors(cudaFree(GPU_data_out1));
-	}
-	}
-	}
-	}
-	}
-	}
-	}
-	printf("\n");
+	//*/
 	
 		for(long long int time = 0; time <= 0; time = time + 1){
 	//printf("\n####################time: %llu\n", time);
@@ -538,10 +382,11 @@ int main(int argc, char **argv)
 	for(long long int factor = 1; factor <= 1; factor = factor * 2){/////////////16384 (128k) max
 	//printf("####################factor: %llu\n", factor);
 	
-	for(double data_stride = 1 * 1 * 1 * factor; data_stride <= 1 * 1 * 1 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
+	//for(double data_stride = 2684354560 * factor; data_stride <= 4294967296 * factor; data_stride = data_stride + 536870912){
+	for(double data_stride = 536870912 * factor; data_stride <= 536870912 * factor; data_stride = data_stride + 536870912){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
 	//printf("\n");
 
-	for(long long int clock_count = 0; clock_count <= 31; clock_count = clock_count + 1){
+	for(long long int clock_count = 32; clock_count <= 32; clock_count = clock_count * 2){
 		
 	///long long int time2 = time;
 	//if(time2 > clock_count){
@@ -549,10 +394,11 @@ int main(int argc, char **argv)
 	//}
 
 		///////////////////////////////////////////////////////////////////CPU data begin
-		double temp = data_stride * 512;
-		long long int data_size = (long long int) temp;
-		//data_size = data_size * 8192 * 512 / factor;
-		data_size = data_size * 8192 * 128 / factor;
+		//double temp = data_stride * 512;
+		double temp = data_stride;
+		long long int data_size = (long long int) temp;		
+		//data_size = data_size * 8192 * 128 / factor;
+		data_size = data_size / factor;
 		
 		long long int *CPU_data_in1;
 		checkCudaErrors(cudaMallocManaged(&CPU_data_in1, sizeof(long long int) * data_size));/////////////using unified memory
@@ -568,10 +414,10 @@ int main(int argc, char **argv)
 				scale = data_stride;/////////make sure threadIdx is smaller than data_size in the initialization
 			}
 			
-			gpu_initialization<<<8192 * 128 * scale / factor, 512>>>(GPU_data_out1, data_stride, data_size);///1024 per block max
+			gpu_initialization<<<8192 * scale / factor, 512>>>(GPU_data_out1, data_stride, data_size);///1024 per block max
 			cudaDeviceSynchronize();
 			if(0){
-			gpu_initialization<<<8192 * 128 * scale / factor, 512>>>(CPU_data_in1, data_stride, data_size);///1024 per block max
+			gpu_initialization<<<8192 * scale / factor, 512>>>(CPU_data_in1, data_stride, data_size);///1024 per block max
 			cudaDeviceSynchronize();
 			}else{
 			init_cpu_data(CPU_data_in1, data_size, data_stride);
@@ -584,11 +430,9 @@ int main(int argc, char **argv)
 		/////////////////////////////////time
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
+		
+		stream_thread<<<2, 32>>>(CPU_data_in1, 131072, GPU_data_out1, 7);
 
-		int block_num = 1;
-
-		page_visitor2<<<block_num, 128>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);/////long 
-	
 		cudaDeviceSynchronize();
 				
 		/////////////////////////////////time
@@ -610,7 +454,7 @@ int main(int argc, char **argv)
 	}
 	}
 	printf("\n");
-
+	
 	
 	for(long long int time = 0; time <= 0; time = time + 1){
 	//printf("\n####################time: %llu\n", time);
@@ -638,10 +482,11 @@ int main(int argc, char **argv)
 	for(long long int factor = 1; factor <= 1; factor = factor * 2){/////////////16384 (128k) max
 	//printf("####################factor: %llu\n", factor);
 	
-	for(double data_stride = 1 * 1 * 1 * factor; data_stride <= 1 * 1 * 1 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
+	//for(double data_stride = 2684354560 * factor; data_stride <= 4294967296 * factor; data_stride = data_stride + 536870912){
+	for(double data_stride = 536870912 * factor; data_stride <= 536870912 * factor; data_stride = data_stride + 536870912){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
 	//printf("\n");
 
-	for(long long int clock_count = 0; clock_count <= 31; clock_count = clock_count + 1){
+	for(long long int clock_count = 32; clock_count <= 32; clock_count = clock_count * 2){
 		
 	///long long int time2 = time;
 	//if(time2 > clock_count){
@@ -649,10 +494,11 @@ int main(int argc, char **argv)
 	//}
 
 		///////////////////////////////////////////////////////////////////CPU data begin
-		double temp = data_stride * 512;
-		long long int data_size = (long long int) temp;
-		//data_size = data_size * 8192 * 512 / factor;
-		data_size = data_size * 8192 * 128 / factor;
+		//double temp = data_stride * 512;
+		double temp = data_stride;
+		long long int data_size = (long long int) temp;		
+		//data_size = data_size * 8192 * 128 / factor;
+		data_size = data_size / factor;
 		
 		long long int *CPU_data_in1;
 		checkCudaErrors(cudaMallocManaged(&CPU_data_in1, sizeof(long long int) * data_size));/////////////using unified memory
@@ -668,10 +514,10 @@ int main(int argc, char **argv)
 				scale = data_stride;/////////make sure threadIdx is smaller than data_size in the initialization
 			}
 			
-			gpu_initialization<<<8192 * 128 * scale / factor, 512>>>(GPU_data_out1, data_stride, data_size);///1024 per block max
+			gpu_initialization<<<8192 * scale / factor, 512>>>(GPU_data_out1, data_stride, data_size);///1024 per block max
 			cudaDeviceSynchronize();
 			if(0){
-			gpu_initialization<<<8192 * 128 * scale / factor, 512>>>(CPU_data_in1, data_stride, data_size);///1024 per block max
+			gpu_initialization<<<8192 * scale / factor, 512>>>(CPU_data_in1, data_stride, data_size);///1024 per block max
 			cudaDeviceSynchronize();
 			}else{
 			init_cpu_data(CPU_data_in1, data_size, data_stride);
@@ -684,11 +530,9 @@ int main(int argc, char **argv)
 		/////////////////////////////////time
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
+		
+		stream_warp<<<2, 32>>>(CPU_data_in1, 131072, GPU_data_out1, 7);
 
-		int block_num = 4;
-
-		page_visitor3<<<block_num, 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);/////mixed
-	
 		cudaDeviceSynchronize();
 				
 		/////////////////////////////////time
@@ -710,7 +554,6 @@ int main(int argc, char **argv)
 	}
 	}
 	printf("\n");
-	
 	
 	exit(EXIT_SUCCESS);
 }
