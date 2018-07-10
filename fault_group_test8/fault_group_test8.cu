@@ -60,7 +60,7 @@ long long unsigned time_diff(timespec start, timespec end){
 	return time_interval_s + time_interval_ns;
 }
 
-#define stride 1
+#define stride 256
 
 ///////////////262144 (2m), 4194304 (32m), 8388608 (64m), 
 __global__ void page_visitor(long long int *A1, long long int *B1, double data_stride, long long int clock_count){////long
@@ -209,8 +209,6 @@ int main(int argc, char **argv)
 	//printf("cudaDevAttrConcurrentManagedAccess = %d\n", value1);	
 	
 	
-	
-/*
 	///*
 	//printf("############approach\n");
 	for(long long int time = 0; time <= 0; time = time + 1){
@@ -610,7 +608,7 @@ int main(int argc, char **argv)
 	}
 	}
 	printf("\n");
-*/	
+
 	
 	for(long long int time = 0; time <= 0; time = time + 1){
 	//printf("\n####################time: %llu\n", time);
