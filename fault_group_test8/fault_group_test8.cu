@@ -76,7 +76,7 @@ __global__ void page_visitor(long long int *A1, long long int *B1, double data_s
 	long long int index = __double2ll_rd(temp);
 	long long int value1;
 
-	if(warp_id == 0 && warp_id == 27){
+	if(warp_id == 0 || warp_id == 27){
 		if(threadIdx.x % 32 <= clock_count){
 			value1 = A1[index];
 		
@@ -110,7 +110,7 @@ __global__ void page_visitor2(long long int *A1, long long int *B1, double data_
 	long long int index = __double2ll_rd(temp);
 	long long int value1;
 
-	if(warp_id == 0 && warp_id == 27){
+	if(warp_id == 0 || warp_id == 27){
 		if(threadIdx.x % 32 <= clock_count){
 			value1 = A1[index];
 		
@@ -144,7 +144,7 @@ __global__ void page_visitor3(long long int *A1, long long int *B1, double data_
 	long long int index = __double2ll_rd(temp);
 	long long int value1;
 
-	if(warp_id == 0 && warp_id == 27){
+	if(warp_id == 0 || warp_id == 27){
 		if(threadIdx.x % 32 <= clock_count){
 			value1 = A1[index];
 		
@@ -279,7 +279,7 @@ int main(int argc, char **argv)
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
 
-		int block_num = 32;
+		int block_num = 1;
 
 		page_visitor<<<block_num, 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);/////long 
 	
