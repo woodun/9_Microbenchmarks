@@ -13,7 +13,7 @@ using namespace cooperative_groups;
 
 /////////////////////////////L1 is enabled. "ALL_CCFLAGS += -Xptxas -dlcm=ca"
 //////////////large vs small data.
-//////test the intra-warp coalescing.
+//////test the intra-warp coalescing. 256 (2k). 3 * 2k = 6k makes 1 fault. However, 4 * 2k = 8k makes 2 faults, why?
 
 void init_cpu_data(long long int* A, long long int size, double stride){
 	

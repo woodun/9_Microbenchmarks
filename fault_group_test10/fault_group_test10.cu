@@ -60,29 +60,29 @@ long long unsigned time_diff(timespec start, timespec end){
 	return time_interval_s + time_interval_ns;
 }
 
-#define stride 4194304
+#define stride 262144
 
 ///////////////262144 (2m), 4194304 (32m), 8388608 (64m), 
 __global__ void page_visitor(long long int *A1, long long int *B1, double data_stride, long long int clock_count){////long
 			
 	long long int warp_id = (threadIdx.x + blockIdx.x * blockDim.x) >> 5;
 	double temp = (warp_id * 32 + (threadIdx.x % 32) ) * stride;
-	if(warp_id == 27){
-		temp = (1 * 32 + (threadIdx.x % 32) ) * stride;
-	}
+	//if(warp_id == 27){
+	//	temp = (1 * 32 + (threadIdx.x % 32) ) * stride;
+	//}
 	
 	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) * stride;
 	//double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * 2 + blockIdx.x * 1;
 	long long int index = __double2ll_rd(temp);
 	long long int value1;
 
-	if(warp_id == 0 || warp_id == 27){
+	//if(warp_id == 0 || warp_id == 27){
 		if(threadIdx.x % 32 <= clock_count){
 			value1 = A1[index];
 		
 			B1[index] = value1;	
 		}
-	}
+	//}
 }
 
 __global__ void page_visitor2(long long int *A1, long long int *B1, double data_stride, long long int clock_count){///mixed same core
@@ -94,12 +94,12 @@ __global__ void page_visitor2(long long int *A1, long long int *B1, double data_
 	int warps_per_grid = (blockDim.x * gridDim.x) >> 5; 
 	long long int warp_id = (threadIdx.x + blockIdx.x * blockDim.x) >> 5;
 	double temp = (threadIdx.x % 32) * stride * warps_per_grid + warp_id * stride;
-	if(warp_id == 0){
-		temp = (threadIdx.x % 32) * stride * 2 + 0 * stride;
-	}
-	if(warp_id == 27){
-		temp = (threadIdx.x % 32) * stride * 2 + 1 * stride;
-	}
+	//if(warp_id == 0){
+	//	temp = (threadIdx.x % 32) * stride * 2 + 0 * stride;
+	//}
+	//if(warp_id == 27){
+	//	temp = (threadIdx.x % 32) * stride * 2 + 1 * stride;
+	//}
 	
 	//unsigned warpid; 
     //asm("mov.u32 %0, %warpid;" : "=r"(warpid));
@@ -110,13 +110,13 @@ __global__ void page_visitor2(long long int *A1, long long int *B1, double data_
 	long long int index = __double2ll_rd(temp);
 	long long int value1;
 
-	if(warp_id == 0 || warp_id == 27){
+	//if(warp_id == 0 || warp_id == 27){
 		if(threadIdx.x % 32 <= clock_count){
 			value1 = A1[index];
 		
 			B1[index] = value1;	
 		}	
-	}
+	//}
 }
 
 __global__ void page_visitor3(long long int *A1, long long int *B1, double data_stride, long long int clock_count){///mixed different cores
@@ -128,12 +128,12 @@ __global__ void page_visitor3(long long int *A1, long long int *B1, double data_
 	int warps_per_grid = (blockDim.x * gridDim.x) >> 5; 
 	long long int warp_id = (threadIdx.x + blockIdx.x * blockDim.x) >> 5;
 	double temp = (threadIdx.x % 32) * stride * warps_per_grid + warp_id * stride;
-	if(warp_id == 0){
-		temp = (threadIdx.x % 32) * stride * 2 + 0 * stride;
-	}
-	if(warp_id == 27){
-		temp = (threadIdx.x % 32) * stride * 2 + 1 * stride;
-	}
+	//if(warp_id == 0){
+	//	temp = (threadIdx.x % 32) * stride * 2 + 0 * stride;
+	//}
+	//if(warp_id == 27){
+	//	temp = (threadIdx.x % 32) * stride * 2 + 1 * stride;
+	//}
 	
 	//unsigned warpid; 
     //asm("mov.u32 %0, %warpid;" : "=r"(warpid));
@@ -144,7 +144,7 @@ __global__ void page_visitor3(long long int *A1, long long int *B1, double data_
 	long long int index = __double2ll_rd(temp);
 	long long int value1;
 
-	if(warp_id == 0 || warp_id == 27){
+	//if(warp_id == 0 || warp_id == 27){
 		
 		/*
 		if(threadIdx.x == 0){/////%tid %ntid %laneid %warpid %nwarpid %ctaid %nctaid %smid %nsmid %gridid
@@ -157,9 +157,9 @@ __global__ void page_visitor3(long long int *A1, long long int *B1, double data_
 		if(threadIdx.x % 32 <= clock_count){
 			value1 = A1[index];
 		
-			B1[index] = value1;	
-		}	
-	}
+			B1[index] = value1;
+		}
+	//}
 }
 
 ///////////long 0 - 31 same core
@@ -388,7 +388,7 @@ int main(int argc, char **argv)
 
 		int block_num = 1;
 
-		page_visitor<<<block_num, 1024>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);/////long 
+		page_visitor<<<block_num, 96>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);/////long 
 	
 		cudaDeviceSynchronize();
 				
@@ -486,7 +486,7 @@ int main(int argc, char **argv)
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
 
-		int block_num = 32;
+		int block_num = 3;
 
 		page_visitor<<<block_num, 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);/////long 
 	
@@ -587,7 +587,7 @@ int main(int argc, char **argv)
 
 		int block_num = 1;
 
-		page_visitor2<<<block_num, 1024>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);/////long 
+		page_visitor2<<<block_num, 96>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);/////long 
 	
 		cudaDeviceSynchronize();
 				
@@ -685,7 +685,7 @@ int main(int argc, char **argv)
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
 
-		int block_num = 32;
+		int block_num = 3;
 
 		page_visitor3<<<block_num, 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);/////mixed
 	

@@ -13,7 +13,7 @@ using namespace cooperative_groups;
 
 /////////////////////////////L1 is enabled. "ALL_CCFLAGS += -Xptxas -dlcm=ca"
 //////////////large vs small data.
-//////test the intra-warp coalescing. also create larger intervals between block, E.g., sm0 and sm 32? & remote address
+//////test the intra-warp coalescing. also create larger intervals between block, E.g., sm0 and sm32? & remote address. No effetct.
 
 void init_cpu_data(long long int* A, long long int size, double stride){
 	
