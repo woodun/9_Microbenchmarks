@@ -67,9 +67,9 @@ __global__ void page_visitor(long long int *A1, long long int *B1, double data_s
 			
 	long long int warp_id = (threadIdx.x + blockIdx.x * blockDim.x) >> 5;
 	double temp = (warp_id * 32 + (threadIdx.x % 32) ) * stride;
-	//if(warp_id == 27){
-	//	temp = (1 * 32 + (threadIdx.x % 32) ) * stride;
-	//}
+	if(warp_id == 27){
+		temp = (512 * 32 + (threadIdx.x % 32) ) * stride;
+	}
 	
 	//double temp = (blockIdx.x * blockDim.x + threadIdx.x) * stride;
 	//double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * 2 + blockIdx.x * 1;
