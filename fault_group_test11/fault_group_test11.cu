@@ -228,7 +228,7 @@ int main(int argc, char **argv)
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
 		
-		stream_thread<<<1, 512>>>(CPU_data_in1, 1048576, GPU_data_out1, 7);
+		stream_thread<<<1, 1024>>>(CPU_data_in1, 1048576, GPU_data_out1, 7);
 
 		cudaDeviceSynchronize();
 				
@@ -331,7 +331,7 @@ int main(int argc, char **argv)
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
 		
-		stream_warp<<<1, 512>>>(CPU_data_in1, 1048576, GPU_data_out1, 7);
+		stream_warp<<<1, 1024>>>(CPU_data_in1, 1048576, GPU_data_out1, 7);
 
 		cudaDeviceSynchronize();
 				
@@ -431,7 +431,7 @@ int main(int argc, char **argv)
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
 		
-		stream_thread<<<16, 32>>>(CPU_data_in1, 1048576, GPU_data_out1, 7);
+		stream_thread<<<32, 32>>>(CPU_data_in1, 1048576, GPU_data_out1, 7);
 
 		cudaDeviceSynchronize();
 				
@@ -531,7 +531,7 @@ int main(int argc, char **argv)
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
 		
-		stream_warp<<<16, 32>>>(CPU_data_in1, 1048576, GPU_data_out1, 7);
+		stream_warp<<<32, 32>>>(CPU_data_in1, 1048576, GPU_data_out1, 7);
 
 		cudaDeviceSynchronize();
 				
