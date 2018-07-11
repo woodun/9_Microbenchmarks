@@ -60,9 +60,9 @@ long long unsigned time_diff(timespec start, timespec end){
 	return time_interval_s + time_interval_ns;
 }
 
-#define stride 1024
+#define stride 16384
 
-///////////////512(4k), 1024(8k), 8192(64k), 262144 (2m), 4194304 (32m), 8388608 (64m), 
+///////////////512(4k), 1024(8k), 8192(64k), 16384(128k), 262144 (2m), 4194304 (32m), 8388608 (64m), 
 __global__ void page_visitor(long long int *A1, long long int *B1, double data_stride, long long int clock_count){////long
 			
 	long long int warp_id = (threadIdx.x + blockIdx.x * blockDim.x) >> 5;
