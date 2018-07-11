@@ -12,8 +12,7 @@
 using namespace cooperative_groups;
 
 /////////////////////////////L1 is enabled. "ALL_CCFLAGS += -Xptxas -dlcm=ca"
-//////////////large vs small data.
-////////////////note: test with correct time loop.
+//////////////large vs small data. test with correct time loop.
 
 void init_cpu_data(long long int* A, long long int size, double stride){
 	
@@ -344,7 +343,9 @@ __global__ void page_visitor7(long long int *A1, long long int *B, double data_s
 		long long int clock_offset1 = 0;
 		while (clock_offset1 < clock_count - time){/////////////////what's the time overhead for addition and multiplication?
 			clock_offset1++;
-			value1 = value1 + threadIdx.x;
+			//value1 = value1 + threadIdx.x;
+			asm("mul.lo.s64 %0, %1, 7;" : "=l"(value1) : "l"(value1));
+			asm("div.s64 %0, %1, 3;" : "=l"(value1) : "l"(value1));	
 		}
 	}
 	
@@ -427,8 +428,8 @@ __global__ void page_visitor7(long long int *A1, long long int *B, double data_s
 			while (clock_offset2 < clock_count){/////////////////what's the time overhead for addition and multiplication?
 				clock_offset2++;
 				//value1 = value1 + threadIdx.x;
-			asm("mul.lo.s64 %0, %1, 7;" : "=l"(value1) : "l"(value1));
-			asm("div.s64 %0, %1, 3;" : "=l"(value1) : "l"(value1));	
+				asm("mul.lo.s64 %0, %1, 7;" : "=l"(value1) : "l"(value1));
+				asm("div.s64 %0, %1, 3;" : "=l"(value1) : "l"(value1));	
 			}
 		}
 	}
@@ -594,7 +595,7 @@ int main(int argc, char **argv)
 	}
 	*/
 	
-	///*
+	/*
 	printf("\n############baseline\n");
 	for(long long int factor = 1; factor <= 16; factor = factor * 2){/////////////16384 max
 	//printf("####################factor: %llu\n", factor);
@@ -639,6 +640,71 @@ int main(int argc, char **argv)
 
 		////may want to use more thread to see clock_count effect
 		baseline<<<8192 * 512 / factor, 512>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);///1024 per block max
+		cudaDeviceSynchronize();
+				
+		/////////////////////////////////time
+		struct timespec ts2;
+		clock_gettime(CLOCK_REALTIME, &ts2);
+		
+		//printf("###################data_stride%lld#########################clock_count:%lld\n", data_stride, clock_count);
+		//printf("*\n*\n*\nruntime:  %lluns\n", time_diff(ts1, ts2));
+		printf("%llu ", time_diff(ts1, ts2));
+		fflush(stdout);
+		
+		checkCudaErrors(cudaFree(CPU_data_in1));		
+		checkCudaErrors(cudaFree(GPU_data_out1));
+	}	
+	}	
+	}
+	printf("\n");
+	*/
+	
+	//printf("\n############baseline\n");
+	for(long long int factor = 1; factor <= 256; factor = factor * 2){//however, change the number of threads to increase the data size.
+	//for(long long int factor = 1; factor <= 16; factor = factor * 2){/////////////16384 max
+	//printf("####################factor: %llu\n", factor);
+	printf("\n");
+		
+	for(double data_stride = 1; data_stride <= 1; data_stride = data_stride * 2){//keep data stride the same. it needs to be small for consecutive 64k data.
+	//for(double data_stride = 1 * 1 * 1 * factor; data_stride <= 1 * 1 * 1 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index) 262144 = 2m. 16384 = 128k.
+	//printf("\n");
+	
+	for(long long int clock_count = 1; clock_count <= 1024; clock_count = clock_count * 2){///////8192 all factors variable4
+
+		///////////////////////////////////////////////////////////////////CPU data begin
+		double temp = data_stride;
+		long long int data_size = (long long int) temp;
+		data_size = data_size * 8192 * 512 * factor;
+		
+		long long int *CPU_data_in1;
+		checkCudaErrors(cudaMallocManaged(&CPU_data_in1, sizeof(long long int) * data_size));/////////////using unified memory
+		///////////////////////////////////////////////////////////////////CPU data end
+		
+		long long int *GPU_data_out1;
+		checkCudaErrors(cudaMallocManaged(&GPU_data_out1, sizeof(long long int) * data_size));/////////////using unified memory
+		///////////////////////////////////////////////////////////////////GPU data out	end
+		
+		if(0){
+			//double scale = 1;
+			//if(data_stride < 1){
+			//	scale = data_stride;/////////make sure threadIdx is smaller than data_size in the initialization
+			//}
+			
+			gpu_initialization<<<8192 * factor, 512>>>(GPU_data_out1, data_stride, data_size);////////////1024 per block max
+			cudaDeviceSynchronize();
+			gpu_initialization<<<8192 * factor, 512>>>(CPU_data_in1, data_stride, data_size);//////////1024 per block max
+			cudaDeviceSynchronize();
+		}else{
+			//init_cpu_data(GPU_data_out1, data_size, data_stride);
+			init_cpu_data(CPU_data_in1, data_size, data_stride);
+		}
+		
+		/////////////////////////////////time
+		struct timespec ts1;
+		clock_gettime(CLOCK_REALTIME, &ts1);
+
+		////may want to use more thread to see clock_count effect
+		baseline<<<8192 * factor, 512>>>(CPU_data_in1, CPU_data_in1, data_stride, clock_count);///1024 per block max
 		cudaDeviceSynchronize();
 				
 		/////////////////////////////////time

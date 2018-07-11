@@ -13,7 +13,7 @@ using namespace cooperative_groups;
 
 /////////////////////////////L1 is enabled. "ALL_CCFLAGS += -Xptxas -dlcm=ca"
 //////////////large vs small data.
-//////test multiple warps. see blog trace (not as the blog said). test blog 2 warps. blog improvement test (A, B initialized in the same way). redo idea_test4 with correct timing. real applications prefetching + triggerring.
+//////test multiple warps. see blog trace (not as the blog said). test blog 2 warps (16 warps). blog improvement test (A, B initialized in the same way). redo idea_test4 with correct timing. real applications prefetching + triggerring.
 
 void init_cpu_data(long long int* A, long long int size, double stride){
 	

@@ -13,7 +13,7 @@ using namespace cooperative_groups;
 
 /////////////////////////////L1 is enabled. "ALL_CCFLAGS += -Xptxas -dlcm=ca"
 //////////////large vs small data.
-//////creating 2 blocks doing exactly the same thing? method in the blog simple.
+//////creating 2 blocks doing exactly the same thing? method in the blog simple. Effect: reduced fault groups because of better coalescing. confirm with more warps.
 
 void init_cpu_data(long long int* A, long long int size, double stride){
 	
