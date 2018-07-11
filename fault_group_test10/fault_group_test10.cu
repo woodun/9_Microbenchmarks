@@ -13,7 +13,7 @@ using namespace cooperative_groups;
 
 /////////////////////////////L1 is enabled. "ALL_CCFLAGS += -Xptxas -dlcm=ca"
 //////////////large vs small data.
-//////test multiple warps. see blog trace. test blog 2 warps. blog improvement test (A, B initialized in the same way). redo idea_test4 with correct timing. real applications prefetching + triggerring.
+//////test multiple warps. see blog trace (not as the blog said). test blog 2 warps. blog improvement test (A, B initialized in the same way). redo idea_test4 with correct timing. real applications prefetching + triggerring.
 
 void init_cpu_data(long long int* A, long long int size, double stride){
 	
@@ -388,7 +388,7 @@ int main(int argc, char **argv)
 
 		int block_num = 1;
 
-		page_visitor<<<block_num, 128>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);/////long 
+		page_visitor<<<block_num, 512>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);/////long 
 	
 		cudaDeviceSynchronize();
 				
@@ -486,7 +486,7 @@ int main(int argc, char **argv)
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
 
-		int block_num = 4;
+		int block_num = 16;
 
 		page_visitor<<<block_num, 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);/////long 
 	
@@ -587,7 +587,7 @@ int main(int argc, char **argv)
 
 		int block_num = 1;
 
-		page_visitor2<<<block_num, 128>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);/////long 
+		page_visitor2<<<block_num, 512>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);/////long 
 	
 		cudaDeviceSynchronize();
 				
@@ -685,7 +685,7 @@ int main(int argc, char **argv)
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
 
-		int block_num = 4;
+		int block_num = 16;
 
 		page_visitor3<<<block_num, 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);/////mixed
 	

@@ -82,7 +82,7 @@ __global__ void stream_thread(long long int *ptr, const long long int size,
 
 __global__ void stream_warp(long long int *ptr, const long long int size, long long int *output, const long long int val) 
 { 
-  int lane_id = threadIdx.x & 31; 
+  int lane_id = threadIdx.x & 31;
   long long int warp_id = (threadIdx.x + blockIdx.x * blockDim.x) >> 5; 
   int warps_per_grid = (blockDim.x * gridDim.x) >> 5; 
   long long int warp_total = (size + STRIDE_64K-1) / STRIDE_64K; 
