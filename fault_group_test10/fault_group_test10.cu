@@ -13,7 +13,7 @@ using namespace cooperative_groups;
 
 /////////////////////////////L1 is enabled. "ALL_CCFLAGS += -Xptxas -dlcm=ca"
 //////////////large vs small data.
-//////test multiple warps (16 warps tested). see blog trace (not as the blog said). test blog 2 warps (16 warps tested). blog improvement test (A, B initialized in the same way). redo idea_test4 with correct timing. real applications prefetching + triggerring.
+//////test multiple warps (64k tested. how about 4k strides? and consecutive 64k?). see blog trace (not as the blog said). test blog 2 warps (16 warps tested). blog improvement test (A, B initialized in the same way). redo idea_test4 with correct timing. real applications prefetching + triggerring.
 
 void init_cpu_data(long long int* A, long long int size, double stride){
 	
@@ -60,7 +60,7 @@ long long unsigned time_diff(timespec start, timespec end){
 	return time_interval_s + time_interval_ns;
 }
 
-#define stride 262144
+#define stride 8192
 
 ///////////////262144 (2m), 4194304 (32m), 8388608 (64m), 
 __global__ void page_visitor(long long int *A1, long long int *B1, double data_stride, long long int clock_count){////long
