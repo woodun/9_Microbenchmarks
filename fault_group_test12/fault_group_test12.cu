@@ -62,8 +62,7 @@ long long unsigned time_diff(timespec start, timespec end){
 
 //#define stride 512
 
-__global__ void stream_thread(long long int *ptr, const long long int size, 
-                              long long int *output, const long long int val) 
+__global__ void stream_thread(long long int *ptr, const long long int size, long long int *output, const long long int val) 
 { 
   long long int tid = threadIdx.x + blockIdx.x * blockDim.x; 
   long long int n = size / sizeof(long long int); 
@@ -78,8 +77,7 @@ __global__ void stream_thread(long long int *ptr, const long long int size,
 }
 
 
-__global__ void stream_thread_imp(long long int *ptr, const long long int size, 
-                              long long int *output, const long long int val) 
+__global__ void stream_thread_imp(long long int *ptr, const long long int size, long long int *output, const long long int val, long long int offset, long long int coverage, long long int rate) 
 { 
   long long int tid = threadIdx.x + blockIdx.x * blockDim.x; 
   long long int n = size / sizeof(long long int); 
@@ -91,8 +89,8 @@ __global__ void stream_thread_imp(long long int *ptr, const long long int size,
 			accum += ptr[tid];
 		}else{
 			accum += ptr[tid];
-			if(blockIdx.x < gridDim.x - 64){
-				output[threadIdx.x * 16 + (blockIdx.x + 64) * blockDim.x] = 0;
+			if(blockIdx.x < gridDim.x - offset && blockIdx.x % rate == 0){
+				output[threadIdx.x * coverage + (blockIdx.x + offset) * blockDim.x] = 0;
 			}
 		}
 	}else{
@@ -131,7 +129,7 @@ __global__ void stream_warp(long long int *ptr, const long long int size, long l
 }
 
 
-__global__ void stream_warp_imp(long long int *ptr, const long long int size, long long int *output, const long long int val) 
+__global__ void stream_warp_imp(long long int *ptr, const long long int size, long long int *output, const long long int val, long long int offset, long long int coverage, long long int rate) 
 { 
   int lane_id = threadIdx.x & 31; 
   long long int warp_id = (threadIdx.x + blockIdx.x * blockDim.x) >> 5; 
@@ -151,8 +149,8 @@ __global__ void stream_warp_imp(long long int *ptr, const long long int size, lo
 			accum += ptr[ind];
 			}else{
 				accum += ptr[ind];
-				if(blockIdx.x < gridDim.x - 64){
-					output[threadIdx.x * 16 + (blockIdx.x + 64) * blockDim.x] = 0;
+				if(blockIdx.x < gridDim.x - offset && blockIdx.x % rate == 0){
+					output[threadIdx.x * coverage + (blockIdx.x + offset) * blockDim.x] = 0;
 				}
 			}
 		}else{
@@ -212,7 +210,7 @@ int main(int argc, char **argv)
 	
 
 	///*
-	//printf("############approach\n");
+	printf("############baseline\n");
 	for(long long int time = 0; time <= 0; time = time + 1){
 	//printf("\n####################time: %llu\n", time);
 	
@@ -317,7 +315,7 @@ int main(int argc, char **argv)
 	//printf("\n####################time: %llu\n", time);
 	
 	//long long int coverage2 = 0;
-	for(long long int coverage = 1; coverage <= 1; coverage = coverage * 2){///////////////8192 is 2m.
+	for(long long int coverage = 16; coverage <= 32 * 16; coverage = coverage * 2){///////////////8192 is 2m.
 		//coverage2++;
 		//if(coverage2 == 2){
 		//	coverage = 1;
@@ -329,7 +327,7 @@ int main(int argc, char **argv)
 		
 	//long long int offset2 = 0;
 	//for(long long int offset = 0; offset <= 0; offset = offset * 2){///////8
-	for(long long int offset = 0; offset <= 0; offset = offset + 8){
+	for(long long int offset = 0; offset <= 256; offset = offset + 8){
 		//offset2++;
 		//if(offset2 == 2){
 		//	offset = 1;
@@ -388,7 +386,7 @@ int main(int argc, char **argv)
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
 		
-		stream_thread_imp<<<8192, 512>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7);
+		stream_thread_imp<<<8192, 512>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7, offset, coverage, coverage/16);
 
 		cudaDeviceSynchronize();
 				
@@ -414,7 +412,7 @@ int main(int argc, char **argv)
 	
 	
 		///*
-	//printf("############approach\n");
+	printf("############baseline\n");
 	for(long long int time = 0; time <= 0; time = time + 1){
 	//printf("\n####################time: %llu\n", time);
 	
@@ -515,11 +513,11 @@ int main(int argc, char **argv)
 	printf("\n");
 	//*/
 	
-		for(long long int time = 0; time <= 0; time = time + 1){
+	for(long long int time = 0; time <= 0; time = time + 1){
 	//printf("\n####################time: %llu\n", time);
 	
 	//long long int coverage2 = 0;
-	for(long long int coverage = 1; coverage <= 1; coverage = coverage * 2){///////////////8192 is 2m.
+	for(long long int coverage = 16; coverage <= 32 * 16; coverage = coverage * 2){///////////////8192 is 2m.
 		//coverage2++;
 		//if(coverage2 == 2){
 		//	coverage = 1;
@@ -531,7 +529,7 @@ int main(int argc, char **argv)
 		
 	//long long int offset2 = 0;
 	//for(long long int offset = 0; offset <= 0; offset = offset * 2){///////8
-	for(long long int offset = 0; offset <= 0; offset = offset + 8){
+	for(long long int offset = 0; offset <= 256; offset = offset + 8){
 		//offset2++;
 		//if(offset2 == 2){
 		//	offset = 1;
@@ -590,7 +588,7 @@ int main(int argc, char **argv)
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
 		
-		stream_warp_imp<<<8192, 512>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7);
+		stream_warp_imp<<<8192, 512>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7, offset, coverage, coverage/16);
 
 		cudaDeviceSynchronize();
 				
