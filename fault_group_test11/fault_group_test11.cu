@@ -151,8 +151,8 @@ int main(int argc, char **argv)
 	
 	
 
-	long long int num_thread = 512;
-	long long int size_of_data = 1048576;
+	long long int num_thread = 256;
+	long long int size_of_data = 524288;
 	///*
 	//printf("############approach\n");
 	for(long long int time = 0; time <= 0; time = time + 1){
