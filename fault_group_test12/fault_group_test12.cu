@@ -91,10 +91,12 @@ __global__ void stream_thread_imp(long long int *ptr, const long long int size,
 			accum += ptr[tid];
 		}else{
 			accum += ptr[tid];
-			output[threadIdx.x * 16 + blockIdx.x * blockDim.x] = 0;
+			if(blockIdx.x < gridDim.x - 32){
+			output[threadIdx.x * 16 + (blockIdx.x + 32) * blockDim.x] = 0;
+			}
 		}
 	}else{
-		ptr[tid] = val;  
+		ptr[tid] = val;
 	}
   if (1) 
     output[threadIdx.x + blockIdx.x * blockDim.x] = accum; 
@@ -149,7 +151,9 @@ __global__ void stream_warp_imp(long long int *ptr, const long long int size, lo
 			accum += ptr[ind];
 			}else{
 				accum += ptr[ind];
-				output[threadIdx.x * 16 + blockIdx.x * blockDim.x] = 0;
+				if(blockIdx.x < gridDim.x - 32){
+				output[threadIdx.x * 16 + (blockIdx.x + 32) * blockDim.x] = 0;
+				}
 			}
 		}else{
 			ptr[ind] = val;
