@@ -88,9 +88,9 @@ __global__ void stream_thread_imp(long long int *ptr, const long long int size,
   for(; tid < n; tid += blockDim.x * gridDim.x) 
     if (1){
 		if(threadIdx.x > 31){
-			accum += ptr[ind];
+			accum += ptr[tid];
 		}else{
-			accum += ptr[ind];
+			accum += ptr[tid];
 			output[threadIdx.x * 16 + blockIdx.x * blockDim.x] = 0;
 		}
 	}else{
