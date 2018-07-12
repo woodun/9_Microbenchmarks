@@ -13,7 +13,12 @@ using namespace cooperative_groups;
 
 /////////////////////////////L1 is enabled. "ALL_CCFLAGS += -Xptxas -dlcm=ca"
 //////////////large vs small data.
-//////test multiple warps (64k tested. how about 4k strides? and consecutive 64k?). see blog trace (not as the blog said). test blog 2 warps (16 warps tested). blog improvement test (A, B initialized in the same way). redo idea_test4 with correct timing. real applications prefetching + triggerring.
+/////test multiple warps (64k truncates. 4k merges. different SMs increase concurrency interfere merging between pages and truncate more. 64k 14 per SM. 4k no limit per SM? non-consecutive 4k cause fragmentation. consecutive 4k poorly merged also cause fragmentation. too many 4ks may cause both con and non-con poorly merged. 4ks from different SMs can also be merged. concurrency release the burden on each SM so it merges more 4ks better. But it loads larger page with redundant data?).
+/////see blog trace (not as the blog said).
+/////test blog 2 warps (16 warps tested. more options?). 
+/////blog improvement test (A, B initialized in the same way). 
+/////redo idea_test4 with correct timing. 
+/////real applications prefetching + triggerring.
 
 void init_cpu_data(long long int* A, long long int size, double stride){
 	
