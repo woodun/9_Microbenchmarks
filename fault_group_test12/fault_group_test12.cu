@@ -102,9 +102,9 @@ __global__ void stream_thread_imp(long long int *ptr, const long long int size, 
 }
 
 
-#define STRIDE_64K 65536
+//#define STRIDE_64K 65536
 
-__global__ void stream_warp(long long int *ptr, const long long int size, long long int *output, const long long int val) 
+__global__ void stream_warp(long long int *ptr, const long long int size, long long int *output, const long long int val, long long int STRIDE_64K) 
 { 
   int lane_id = threadIdx.x & 31; 
   long long int warp_id = (threadIdx.x + blockIdx.x * blockDim.x) >> 5; 
@@ -208,11 +208,7 @@ int main(int argc, char **argv)
 	checkCudaErrors(cudaDeviceGetAttribute(&value1, cudaDevAttrConcurrentManagedAccess, dev_id));
 	//printf("cudaDevAttrConcurrentManagedAccess = %d\n", value1);	
 	
-	
-	
-
-	/*
-	printf("############baseline\n");
+	printf("############baseline stream_thread\n");
 	for(long long int time = 0; time <= 0; time = time + 1){
 	//printf("\n####################time: %llu\n", time);
 	
@@ -312,7 +308,7 @@ int main(int argc, char **argv)
 	}
 	printf("\n");
 	
-	
+	/*
 	for(long long int time = 0; time <= 0; time = time + 1){
 	//printf("\n####################time: %llu\n", time);
 	
@@ -414,7 +410,10 @@ int main(int argc, char **argv)
 	printf("\n");
 	*/
 	
-	printf("############baseline\n");
+
+	printf("############baseline stream_warp\n");
+	for(long long int STRIDE_64K = 256; STRIDE_64K <= 131072; STRIDE_64K = STRIDE_64K * 2){
+		
 	for(long long int time = 0; time <= 0; time = time + 1){
 	//printf("\n####################time: %llu\n", time);
 	
@@ -512,9 +511,10 @@ int main(int argc, char **argv)
 	}
 	}
 	}
+	}
 	printf("\n");
 	
-		
+	/*
 	for(long long int time = 0; time <= 0; time = time + 1){
 	//printf("\n####################time: %llu\n", time);
 	
@@ -614,6 +614,7 @@ int main(int argc, char **argv)
 	}
 	}
 	printf("\n");
+	*/
 	
 	exit(EXIT_SUCCESS);
 }
