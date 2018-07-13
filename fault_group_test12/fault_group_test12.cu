@@ -208,6 +208,7 @@ int main(int argc, char **argv)
 	checkCudaErrors(cudaDeviceGetAttribute(&value1, cudaDevAttrConcurrentManagedAccess, dev_id));
 	//printf("cudaDevAttrConcurrentManagedAccess = %d\n", value1);	
 	
+	/*
 	printf("############baseline stream_thread\n");
 	for(long long int time = 0; time <= 0; time = time + 1){
 	//printf("\n####################time: %llu\n", time);
@@ -307,6 +308,7 @@ int main(int argc, char **argv)
 	}
 	}
 	printf("\n");
+	*/
 	
 	/*
 	for(long long int time = 0; time <= 0; time = time + 1){
@@ -412,7 +414,7 @@ int main(int argc, char **argv)
 	
 
 	printf("############baseline stream_warp\n");
-	for(long long int STRIDE_64K = 256; STRIDE_64K <= 131072; STRIDE_64K = STRIDE_64K * 2){
+	for(long long int STRIDE_64K = 262144; STRIDE_64K <= 2097152; STRIDE_64K = STRIDE_64K * 2){
 		
 	for(long long int time = 0; time <= 0; time = time + 1){
 	//printf("\n####################time: %llu\n", time);
