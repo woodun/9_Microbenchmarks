@@ -520,7 +520,7 @@ int main(int argc, char **argv)
 	//printf("\n####################time: %llu\n", time);
 	
 	//long long int coverage2 = 0;
-	for(long long int coverage = 16; coverage <= 32 * 16; coverage = coverage * 2){///////////////8192 is 2m.
+	for(long long int coverage = 16; coverage <= 1 * 16; coverage = coverage * 2){///////////////8192 is 2m.
 	printf("\n");
 		//coverage2++;
 		//if(coverage2 == 2){
