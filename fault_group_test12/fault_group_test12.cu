@@ -328,13 +328,13 @@ int main(int argc, char **argv)
 	for(long long int rate = 1; rate <= 1; rate = rate * 2){
 		//printf("############rate: %llu\n", rate);
 		
-	//long long int offset2 = 0;
-	//for(long long int offset = 0; offset <= 0; offset = offset * 2){///////8
-	for(long long int offset = 0; offset <= 256; offset = offset + 8){
-		//offset2++;
-		//if(offset2 == 2){
-		//	offset = 1;
-		//}
+	long long int offset2 = 0;
+	for(long long int offset = 0; offset <= 512; offset = offset * 2){///////8
+	//for(long long int offset = 0; offset <= 256; offset = offset + 8){
+		offset2++;
+		if(offset2 == 2){
+			offset = 1;
+		}
 	//printf("############offset: %llu\n", offset);
 	
 	for(long long int factor = 1; factor <= 1; factor = factor * 2){/////////////16384 (128k) max
