@@ -498,9 +498,9 @@ int main(int argc, char **argv)
 	for(long long int clock_count = 64; clock_count <= 16384; clock_count = clock_count * 2){
 	*/
 
-	
+	/*
 	printf("############approach\n");
-	for(long long int time = 0; time <= 1024; time = time * 2){
+	for(long long int time = 1; time <= 128; time = time * 2){
 	printf("\n####################time: %llu\n", time);
 	
 	long long int coverage2 = 0;
@@ -530,7 +530,7 @@ int main(int argc, char **argv)
 	for(double data_stride = 1 * 1 * 1 * factor; data_stride <= 1 * 1 * 1 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
 	//printf("\n");
 
-	for(long long int clock_count = 1; clock_count <= 1024; clock_count = clock_count * 2){
+	for(long long int clock_count = 1; clock_count <= 128; clock_count = clock_count * 2){
 		
 	long long int time2 = time;
 	if(time2 > clock_count){
@@ -595,7 +595,7 @@ int main(int argc, char **argv)
 	}
 	}
 	printf("\n");
-	
+	*/
 		
 	printf("\n############baseline\n");
 	for(long long int factor = 1; factor <= 16; factor = factor * 2){/////////////16384 max
@@ -605,7 +605,7 @@ int main(int argc, char **argv)
 	for(double data_stride = 1 * 1 * 1 * factor; data_stride <= 1 * 1 * 1 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index) 262144 = 2m. 16384 = 128k.
 	//printf("\n");
 	
-	for(long long int clock_count = 1; clock_count <= 1024; clock_count = clock_count * 2){///////8192 all factors variable4
+	for(long long int clock_count = 1; clock_count <= 128; clock_count = clock_count * 2){///////8192 all factors variable4
 
 		///////////////////////////////////////////////////////////////////CPU data begin
 		double temp = data_stride * 512;
