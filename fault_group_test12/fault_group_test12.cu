@@ -130,7 +130,7 @@ __global__ void stream_warp(long long int *ptr, const long long int size, long l
 }
 
 
-__global__ void stream_warp_imp(long long int *ptr, const long long int size, long long int *output, const long long int val, long long int offset, long long int coverage, long long int rate) 
+__global__ void stream_warp_imp(long long int *ptr, const long long int size, long long int *output, const long long int val, long long int STRIDE_64K, long long int offset, long long int coverage, long long int rate) 
 { 
   int lane_id = threadIdx.x & 31; 
   long long int warp_id = (threadIdx.x + blockIdx.x * blockDim.x) >> 5; 
@@ -489,7 +489,7 @@ int main(int argc, char **argv)
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
 		
-		stream_warp<<<8192, 512>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7);
+		stream_warp<<<8192, 512>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7, STRIDE_64K);
 
 		cudaDeviceSynchronize();
 				
