@@ -89,8 +89,9 @@ __global__ void stream_thread_imp(long long int *ptr, const long long int size, 
 			accum += ptr[tid];
 		}else{
 			accum += ptr[tid];
-			if(blockIdx.x < gridDim.x - offset && blockIdx.x % rate == 0){
-				output[threadIdx.x * coverage + (blockIdx.x + offset) * blockDim.x] = 0;
+			//if(blockIdx.x < gridDim.x - offset && blockIdx.x % rate == 0){
+			if(blockIdx.x < gridDim.x - offset){
+				output[threadIdx.x * 16 + (blockIdx.x + offset) * blockDim.x] = 0;
 			}
 		}
 	}else{
@@ -149,8 +150,9 @@ __global__ void stream_warp_imp(long long int *ptr, const long long int size, lo
 			accum += ptr[ind];
 			}else{
 				accum += ptr[ind];
-				if(blockIdx.x < gridDim.x - offset && blockIdx.x % rate == 0){
-					output[threadIdx.x * coverage + (blockIdx.x + offset) * blockDim.x] = 0;
+				if(blockIdx.x < gridDim.x - offset){
+				//if(blockIdx.x < gridDim.x - offset && blockIdx.x % rate == 0){
+					output[threadIdx.x * 16 + (blockIdx.x + offset) * blockDim.x] = 0;
 				}
 			}
 		}else{
@@ -315,7 +317,7 @@ int main(int argc, char **argv)
 	//printf("\n####################time: %llu\n", time);
 	
 	//long long int coverage2 = 0;
-	for(long long int coverage = 16; coverage <= 32 * 16; coverage = coverage * 2){///////////////8192 is 2m.
+	for(long long int coverage = 16; coverage <= 1 * 16; coverage = coverage * 2){///////////////8192 is 2m.
 	printf("\n");
 		//coverage2++;
 		//if(coverage2 == 2){

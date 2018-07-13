@@ -247,7 +247,7 @@ __global__ void page_visitor4(long long int *A1, long long int *B1, double data_
 		}
 	}
 	
-	block.sync();////////////////////////////////////try to sync here?
+	//block.sync();////////////////////////////////////try to sync here?
 	
 	clock_offset = 0;
     while (clock_offset < time){/////////////////what's the time overhead for addition and multiplication?
