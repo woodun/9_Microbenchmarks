@@ -459,13 +459,14 @@ int main(int argc, char **argv)
 		long long int data_size = (long long int) temp;		
 		//data_size = data_size * 8192 * 128 / factor;
 		data_size = data_size / factor;
+		long long int data_size2 = 512 * 512 ;	
 		
 		long long int *CPU_data_in1;
 		checkCudaErrors(cudaMallocManaged(&CPU_data_in1, sizeof(long long int) * data_size));/////////////using unified memory
 		///////////////////////////////////////////////////////////////////CPU data end
 		
 		long long int *GPU_data_out1;
-		checkCudaErrors(cudaMallocManaged(&GPU_data_out1, sizeof(long long int) * data_size));/////////////using unified memory
+		checkCudaErrors(cudaMallocManaged(&GPU_data_out1, sizeof(long long int) * data_size2));/////////////using unified memory
 		///////////////////////////////////////////////////////////////////GPU data out	end
 		
 		if(1){
@@ -474,7 +475,7 @@ int main(int argc, char **argv)
 				scale = data_stride;/////////make sure threadIdx is smaller than data_size in the initialization
 			}
 			
-			gpu_initialization<<<8192 * scale / factor, 512>>>(GPU_data_out1, data_stride, data_size);///1024 per block max
+			gpu_initialization<<<8192 * scale / factor, 512>>>(GPU_data_out1, data_stride, data_size2);///1024 per block max
 			cudaDeviceSynchronize();
 			if(0){
 			gpu_initialization<<<8192 * scale / factor, 512>>>(CPU_data_in1, data_stride, data_size);///1024 per block max
@@ -483,7 +484,7 @@ int main(int argc, char **argv)
 			init_cpu_data(CPU_data_in1, data_size, data_stride);
 			}
 		}else{
-			init_cpu_data(GPU_data_out1, data_size, data_stride);
+			init_cpu_data(GPU_data_out1, data_size2, data_stride);
 			init_cpu_data(CPU_data_in1, data_size, data_stride);		
 		}
 		
