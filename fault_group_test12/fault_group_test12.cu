@@ -414,7 +414,7 @@ int main(int argc, char **argv)
 	
 
 	printf("############baseline stream_warp\n");
-	for(long long int STRIDE_64K = 256; STRIDE_64K <= 256; STRIDE_64K = STRIDE_64K * 2){
+	for(long long int STRIDE_64K = 256; STRIDE_64K <= 2097152; STRIDE_64K = STRIDE_64K * 2){
 		
 	for(long long int time = 0; time <= 0; time = time + 1){
 	//printf("\n####################time: %llu\n", time);
@@ -443,7 +443,7 @@ int main(int argc, char **argv)
 	//printf("####################factor: %llu\n", factor);
 	
 	//for(double data_stride = 2684354560 * factor; data_stride <= 4294967296 * factor; data_stride = data_stride + 536870912){
-	for(double data_stride = 2147483648 * factor; data_stride <= 2147483648 * factor; data_stride = data_stride + 536870912){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
+	for(double data_stride = 1073741824 * factor; data_stride <= 1073741824 * factor; data_stride = data_stride + 536870912){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
 	//printf("\n");
 
 	for(long long int clock_count = 32; clock_count <= 32; clock_count = clock_count * 2){
@@ -476,7 +476,7 @@ int main(int argc, char **argv)
 			
 			gpu_initialization<<<8192 * scale / factor, 512>>>(GPU_data_out1, data_stride, data_size);///1024 per block max
 			cudaDeviceSynchronize();
-			if(1){
+			if(0){
 			gpu_initialization<<<8192 * scale / factor, 512>>>(CPU_data_in1, data_stride, data_size);///1024 per block max
 			cudaDeviceSynchronize();
 			}else{
@@ -491,7 +491,7 @@ int main(int argc, char **argv)
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
 		
-		stream_warp<<<8192, 512>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7, STRIDE_64K);
+		stream_warp<<<512, 512>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7, STRIDE_64K);
 
 		cudaDeviceSynchronize();
 				
