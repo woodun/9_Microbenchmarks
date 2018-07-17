@@ -626,5 +626,7 @@ int main(int argc, char **argv)
 	printf("\n");
 	*/
 	
+	cudaProfilerStop();
+	
 	exit(EXIT_SUCCESS);
 }
