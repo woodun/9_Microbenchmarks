@@ -19,7 +19,7 @@ using namespace cooperative_groups;
 void init_cpu_data(long long int* A, long long int size, double stride){
 	
 	for (long long int i = 0; i < size; i++){
-		A[i]=1;
+		A[i]=i;
 	}
 	
 	/*
@@ -39,7 +39,7 @@ __global__ void gpu_initialization(long long int *A, double data_stride, long lo
 	long long int thread_num =  gridDim.x * blockDim.x;
 	
 	for(long long int it = 0; it < data_size; it = it + thread_num){
-		A[index + it]=23;
+		A[index + it]=index + it;
 	}
 }
 
@@ -500,9 +500,9 @@ int main(int argc, char **argv)
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
 		
-		stream_warp<<<512, 512>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7, STRIDE_64K);
+		//stream_warp<<<512, 512>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7, STRIDE_64K);
 		//stream_thread<<<8192, 512>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7);
-		//gpu_initialization<<<8192, 512>>>(CPU_data_in1, data_stride, data_size);///1024 per block max
+		gpu_initialization<<<512, 512>>>(CPU_data_in1, data_stride, data_size);///1024 per block max
 		cudaDeviceSynchronize();
 				
 		/////////////////////////////////time
