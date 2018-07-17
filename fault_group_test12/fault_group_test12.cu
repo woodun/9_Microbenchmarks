@@ -467,7 +467,11 @@ int main(int argc, char **argv)
 		///////////////////////////////////////////////////////////////////CPU data end
 		
 		long long int *GPU_data_out1;
-		checkCudaErrors(cudaMallocManaged(&GPU_data_out1, sizeof(long long int) * data_size2));/////////////using unified memory
+		if(0){
+			checkCudaErrors(cudaMallocManaged(&GPU_data_out1, sizeof(long long int) * data_size2));/////////////using unified memory
+		}else{
+			checkCudaErrors(cudaMalloc(&GPU_data_out1, sizeof(long long int) * data_size2));/////////////using unified memory
+		}
 		///////////////////////////////////////////////////////////////////GPU data out	end
 		
 		if(1){
