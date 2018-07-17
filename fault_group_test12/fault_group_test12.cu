@@ -416,7 +416,7 @@ int main(int argc, char **argv)
 	
 ////256	512	1024	2048	4096	8192	16384	32768	65536	131072	262144	524288	1048576	2097152
 	printf("############baseline stream_warp\n");
-	for(long long int STRIDE_64K = 256; STRIDE_64K <= 256; STRIDE_64K = STRIDE_64K * 2){
+	for(long long int STRIDE_64K = 512; STRIDE_64K <= 512; STRIDE_64K = STRIDE_64K * 2){
 		
 	for(long long int time = 0; time <= 0; time = time + 1){
 	//printf("\n####################time: %llu\n", time);
@@ -475,9 +475,7 @@ int main(int argc, char **argv)
 			checkCudaErrors(cudaMalloc(&GPU_data_out1, sizeof(long long int) * data_size2));/////////////not using unified memory
 		}
 		///////////////////////////////////////////////////////////////////GPU data out	end
-		
-		cudaProfilerStart();
-		
+				
 		if(1){
 			double scale = 1;
 			if(data_stride < 1){
@@ -497,7 +495,7 @@ int main(int argc, char **argv)
 			init_cpu_data(CPU_data_in1, data_size, data_stride);		
 		}
 		
-		//cudaProfilerStart();
+		cudaProfilerStart();
 		/////////////////////////////////time
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
