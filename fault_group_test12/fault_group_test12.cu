@@ -8,6 +8,7 @@
 #include <time.h>
 #include <sys/time.h>
 #include <cooperative_groups.h>
+#include <cuda_profiler_api.h>
 
 using namespace cooperative_groups;
 
@@ -494,6 +495,7 @@ int main(int argc, char **argv)
 			init_cpu_data(CPU_data_in1, data_size, data_stride);		
 		}
 		
+		cudaProfilerStart();
 		/////////////////////////////////time
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
@@ -506,6 +508,7 @@ int main(int argc, char **argv)
 		/////////////////////////////////time
 		struct timespec ts2;
 		clock_gettime(CLOCK_REALTIME, &ts2);
+		cudaProfilerStop();
 		
 		//printf("###################data_stride%lld#########################clock_count:%lld\n", data_stride, clock_count);
 		//printf("*\n*\n*\nruntime:  %lluns\n", time_diff(ts1, ts2));
@@ -624,9 +627,7 @@ int main(int argc, char **argv)
 	}
 	}
 	printf("\n");
-	*/
-	
-	//cudaProfilerStop();
+	*/	
 	
 	exit(EXIT_SUCCESS);
 }
