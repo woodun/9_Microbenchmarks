@@ -500,7 +500,7 @@ int main(int argc, char **argv)
 		
 		//stream_warp<<<512, 512>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7, STRIDE_64K);
 		//stream_thread<<<8192, 512>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7);
-		gpu_initialization<<<8192 * scale / factor, 512>>>(CPU_data_in1, data_stride, data_size);///1024 per block max
+		gpu_initialization<<<8192, 512>>>(CPU_data_in1, data_stride, data_size);///1024 per block max
 		cudaDeviceSynchronize();
 				
 		/////////////////////////////////time
