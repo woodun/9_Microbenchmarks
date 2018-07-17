@@ -482,9 +482,9 @@ int main(int argc, char **argv)
 				scale = data_stride;/////////make sure threadIdx is smaller than data_size in the initialization
 			}
 			
-			gpu_initialization<<<8192, 512>>>(GPU_data_out1, data_stride, data_size2);///1024 per block max
-			cudaDeviceSynchronize();
-			if(0){
+			//gpu_initialization<<<8192, 512>>>(GPU_data_out1, data_stride, data_size2);///1024 per block max
+			//cudaDeviceSynchronize();
+			if(1){
 			gpu_initialization<<<8192 * scale / factor, 512>>>(CPU_data_in1, data_stride, data_size);///1024 per block max
 			cudaDeviceSynchronize();
 			}else{
@@ -502,8 +502,8 @@ int main(int argc, char **argv)
 		
 		//stream_warp<<<512, 512>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7, STRIDE_64K);
 		//stream_thread<<<8192, 512>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7);
-		gpu_initialization<<<512, 512>>>(CPU_data_in1, data_stride, data_size);///1024 per block max
-		gpu_initialization<<<512, 512>>>(CPU_data_in1, data_stride, data_size);///1024 per block max
+		//gpu_initialization<<<512, 512>>>(CPU_data_in1, data_stride, data_size);///1024 per block max
+		init_cpu_data(CPU_data_in1, data_size, data_stride);
 		cudaDeviceSynchronize();
 				
 		/////////////////////////////////time
