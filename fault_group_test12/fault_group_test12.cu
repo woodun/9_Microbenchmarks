@@ -458,7 +458,7 @@ int main(int argc, char **argv)
 		//double temp = data_stride * 512;
 		//double temp = data_stride;
 		//long long int data_size = (long long int) temp;		
-		long long int data_size = 536870912;
+		long long int data_size = 1073741824;
 		//data_size = data_size * 8192 * 128 / factor;
 		data_size = data_size / factor;
 		long long int data_size2 = 512 * 8192 ;	
@@ -498,9 +498,9 @@ int main(int argc, char **argv)
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
 		
-		stream_warp<<<512, 512>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7, STRIDE_64K);
+		//stream_warp<<<512, 512>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7, STRIDE_64K);
 		//stream_thread<<<8192, 512>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7);
-
+		gpu_initialization<<<8192 * scale / factor, 512>>>(CPU_data_in1, data_stride, data_size);///1024 per block max
 		cudaDeviceSynchronize();
 				
 		/////////////////////////////////time
