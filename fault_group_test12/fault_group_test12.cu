@@ -414,7 +414,7 @@ int main(int argc, char **argv)
 	
 
 	printf("############baseline stream_warp\n");
-	for(long long int STRIDE_64K = 512; STRIDE_64K <= 512; STRIDE_64K = STRIDE_64K * 2){
+	for(long long int STRIDE_64K = 256; STRIDE_64K <= 256; STRIDE_64K = STRIDE_64K * 2){
 		
 	for(long long int time = 0; time <= 0; time = time + 1){
 	//printf("\n####################time: %llu\n", time);
