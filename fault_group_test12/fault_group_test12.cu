@@ -414,9 +414,9 @@ int main(int argc, char **argv)
 	printf("\n");
 	*/
 	
-
+////256	512	1024	2048	4096	8192	16384	32768	65536	131072	262144	524288	1048576	2097152
 	printf("############baseline stream_warp\n");
-	for(long long int STRIDE_64K = 256; STRIDE_64K <= 2097152; STRIDE_64K = STRIDE_64K * 2){
+	for(long long int STRIDE_64K = 256; STRIDE_64K <= 256; STRIDE_64K = STRIDE_64K * 2){
 		
 	for(long long int time = 0; time <= 0; time = time + 1){
 	//printf("\n####################time: %llu\n", time);
@@ -507,8 +507,7 @@ int main(int argc, char **argv)
 				
 		/////////////////////////////////time
 		struct timespec ts2;
-		clock_gettime(CLOCK_REALTIME, &ts2);
-		
+		clock_gettime(CLOCK_REALTIME, &ts2);		
 		
 		//printf("###################data_stride%lld#########################clock_count:%lld\n", data_stride, clock_count);
 		//printf("*\n*\n*\nruntime:  %lluns\n", time_diff(ts1, ts2));
