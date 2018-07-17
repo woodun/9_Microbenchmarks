@@ -482,8 +482,8 @@ int main(int argc, char **argv)
 				scale = data_stride;/////////make sure threadIdx is smaller than data_size in the initialization
 			}
 			
-			gpu_initialization<<<8192, 512>>>(GPU_data_out1, data_stride, data_size2);///1024 per block max
-			cudaDeviceSynchronize();
+			//gpu_initialization<<<8192, 512>>>(GPU_data_out1, data_stride, data_size2);///1024 per block max
+			//cudaDeviceSynchronize();
 			if(0){
 			gpu_initialization<<<8192 * scale / factor, 512>>>(CPU_data_in1, data_stride, data_size);///1024 per block max
 			cudaDeviceSynchronize();
