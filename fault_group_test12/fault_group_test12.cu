@@ -476,6 +476,8 @@ int main(int argc, char **argv)
 		}
 		///////////////////////////////////////////////////////////////////GPU data out	end
 		
+		cudaProfilerStart();
+		
 		if(1){
 			double scale = 1;
 			if(data_stride < 1){
@@ -495,7 +497,7 @@ int main(int argc, char **argv)
 			init_cpu_data(CPU_data_in1, data_size, data_stride);		
 		}
 		
-		cudaProfilerStart();
+		//cudaProfilerStart();
 		/////////////////////////////////time
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
