@@ -109,7 +109,8 @@ __global__ void stream_warp(long long int *ptr, const long long int size, long l
   int lane_id = threadIdx.x & 31; 
   long long int warp_id = (threadIdx.x + blockIdx.x * blockDim.x) >> 5; 
   int warps_per_grid = (blockDim.x * gridDim.x) >> 5; 
-  long long int warp_total = (size + STRIDE_64K-1) / STRIDE_64K; 
+  //long long int warp_total = (size + STRIDE_64K-1) / STRIDE_64K;
+  long long int warp_total = size / STRIDE_64K; 
 
   long long int n = size / sizeof(long long int); 
   long long int accum = 0; 
@@ -470,7 +471,7 @@ int main(int argc, char **argv)
 		if(0){
 			checkCudaErrors(cudaMallocManaged(&GPU_data_out1, sizeof(long long int) * data_size2));/////////////using unified memory
 		}else{
-			checkCudaErrors(cudaMalloc(&GPU_data_out1, sizeof(long long int) * data_size2));/////////////using unified memory
+			checkCudaErrors(cudaMalloc(&GPU_data_out1, sizeof(long long int) * data_size2));/////////////not using unified memory
 		}
 		///////////////////////////////////////////////////////////////////GPU data out	end
 		
