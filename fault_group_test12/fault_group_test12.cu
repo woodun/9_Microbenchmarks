@@ -495,7 +495,7 @@ int main(int argc, char **argv)
 			init_cpu_data(CPU_data_in1, data_size, data_stride);		
 		}
 		
-		cudaProfilerStart();
+		cudaProfilerStart();////////////////////////////////start
 		/////////////////////////////////time
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
@@ -516,7 +516,7 @@ int main(int argc, char **argv)
 		
 		checkCudaErrors(cudaFree(CPU_data_in1));		
 		checkCudaErrors(cudaFree(GPU_data_out1));
-		cudaProfilerStop();
+		cudaProfilerStop();/////////////////////////////////stop
 	}
 	}
 	}
