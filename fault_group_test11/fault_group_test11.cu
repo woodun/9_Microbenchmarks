@@ -8,6 +8,7 @@
 #include <time.h>
 #include <sys/time.h>
 #include <cooperative_groups.h>
+#include <cuda_profiler_api.h>
 
 using namespace cooperative_groups;
 
@@ -63,8 +64,8 @@ long long unsigned time_diff(timespec start, timespec end){
 //#define stride 512
 
 __global__ void stream_thread(long long int *ptr, const long long int size, 
-                              long long int *output, const long long int val) 
-{ 
+                              long long int *output, const long long int val){
+								  
   long long int tid = threadIdx.x + blockIdx.x * blockDim.x; 
   long long int n = size / sizeof(long long int); 
   long long int accum = 0; 
@@ -78,10 +79,10 @@ __global__ void stream_thread(long long int *ptr, const long long int size,
 }
 
 
-#define STRIDE_64K 65536
+//#define STRIDE_64K 65536
 
-__global__ void stream_warp(long long int *ptr, const long long int size, long long int *output, const long long int val) 
-{ 
+__global__ void stream_warp(long long int *ptr, const long long int size, long long int *output, const long long int val, long long int STRIDE_64K){
+	
   int lane_id = threadIdx.x & 31;
   long long int warp_id = (threadIdx.x + blockIdx.x * blockDim.x) >> 5; 
   int warps_per_grid = (blockDim.x * gridDim.x) >> 5; 
@@ -153,7 +154,8 @@ int main(int argc, char **argv)
 
 	long long int num_thread = 128;
 	long long int size_of_data = 262144;
-	///*
+	
+	/*	
 	//printf("############approach\n");
 	for(long long int time = 0; time <= 0; time = time + 1){
 	//printf("\n####################time: %llu\n", time);
@@ -253,11 +255,12 @@ int main(int argc, char **argv)
 	}
 	}
 	printf("\n");
-	//*/
+	*/
 	
 	
-		///*
-	//printf("############approach\n");
+	///*
+	printf("############same core:\n");
+	for(long long int STRIDE_64K = 256; STRIDE_64K <= 65536; STRIDE_64K = STRIDE_64K * 2){
 	for(long long int time = 0; time <= 0; time = time + 1){
 	//printf("\n####################time: %llu\n", time);
 	
@@ -307,7 +310,7 @@ int main(int argc, char **argv)
 		///////////////////////////////////////////////////////////////////CPU data end
 		
 		long long int *GPU_data_out1;
-		checkCudaErrors(cudaMallocManaged(&GPU_data_out1, sizeof(long long int) * data_size));/////////////using unified memory
+		checkCudaErrors(cudaMalloc(&GPU_data_out1, sizeof(long long int) * data_size));/////////////using unified memory
 		///////////////////////////////////////////////////////////////////GPU data out	end
 		
 		if(1){
@@ -316,8 +319,8 @@ int main(int argc, char **argv)
 				scale = data_stride;/////////make sure threadIdx is smaller than data_size in the initialization
 			}
 			
-			gpu_initialization<<<8192 * scale / factor, 512>>>(GPU_data_out1, data_stride, data_size);///1024 per block max
-			cudaDeviceSynchronize();
+			//gpu_initialization<<<8192 * scale / factor, 512>>>(GPU_data_out1, data_stride, data_size);///1024 per block max
+			//cudaDeviceSynchronize();
 			if(0){
 			gpu_initialization<<<8192 * scale / factor, 512>>>(CPU_data_in1, data_stride, data_size);///1024 per block max
 			cudaDeviceSynchronize();
@@ -329,11 +332,12 @@ int main(int argc, char **argv)
 			init_cpu_data(CPU_data_in1, data_size, data_stride);		
 		}
 		
+		cudaProfilerStart();////////////////////////////////start
 		/////////////////////////////////time
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
 		
-		stream_warp<<<1, num_thread>>>(CPU_data_in1, size_of_data, GPU_data_out1, 7);
+		stream_warp<<<1, num_thread>>>(CPU_data_in1, size_of_data, GPU_data_out1, 7, STRIDE_64K);
 
 		cudaDeviceSynchronize();
 				
@@ -348,6 +352,8 @@ int main(int argc, char **argv)
 		
 		checkCudaErrors(cudaFree(CPU_data_in1));		
 		checkCudaErrors(cudaFree(GPU_data_out1));
+		cudaProfilerStop();/////////////////////////////////stop
+	}
 	}
 	}
 	}
@@ -358,7 +364,8 @@ int main(int argc, char **argv)
 	printf("\n");
 	//*/
 	
-		for(long long int time = 0; time <= 0; time = time + 1){
+	/*
+	for(long long int time = 0; time <= 0; time = time + 1){
 	//printf("\n####################time: %llu\n", time);
 	
 	//long long int coverage2 = 0;
@@ -456,8 +463,11 @@ int main(int argc, char **argv)
 	}
 	}
 	printf("\n");
+	*/
 	
-	
+	printf("############different core:\n");
+	for(long long int STRIDE_64K = 256; STRIDE_64K <= 131072; STRIDE_64K = STRIDE_64K * 2){
+		
 	for(long long int time = 0; time <= 0; time = time + 1){
 	//printf("\n####################time: %llu\n", time);
 	
@@ -507,7 +517,7 @@ int main(int argc, char **argv)
 		///////////////////////////////////////////////////////////////////CPU data end
 		
 		long long int *GPU_data_out1;
-		checkCudaErrors(cudaMallocManaged(&GPU_data_out1, sizeof(long long int) * data_size));/////////////using unified memory
+		checkCudaErrors(cudaMalloc(&GPU_data_out1, sizeof(long long int) * data_size));/////////////using unified memory
 		///////////////////////////////////////////////////////////////////GPU data out	end
 		
 		if(1){
@@ -516,8 +526,8 @@ int main(int argc, char **argv)
 				scale = data_stride;/////////make sure threadIdx is smaller than data_size in the initialization
 			}
 			
-			gpu_initialization<<<8192 * scale / factor, 512>>>(GPU_data_out1, data_stride, data_size);///1024 per block max
-			cudaDeviceSynchronize();
+			//gpu_initialization<<<8192 * scale / factor, 512>>>(GPU_data_out1, data_stride, data_size);///1024 per block max
+			//cudaDeviceSynchronize();
 			if(0){
 			gpu_initialization<<<8192 * scale / factor, 512>>>(CPU_data_in1, data_stride, data_size);///1024 per block max
 			cudaDeviceSynchronize();
@@ -529,11 +539,12 @@ int main(int argc, char **argv)
 			init_cpu_data(CPU_data_in1, data_size, data_stride);		
 		}
 		
+		cudaProfilerStart();////////////////////////////////start
 		/////////////////////////////////time
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
 		
-		stream_warp<<<num_thread/32, 32>>>(CPU_data_in1, size_of_data, GPU_data_out1, 7);
+		stream_warp<<<num_thread/32, 32>>>(CPU_data_in1, size_of_data, GPU_data_out1, 7, STRIDE_64K);
 
 		cudaDeviceSynchronize();
 				
@@ -548,6 +559,8 @@ int main(int argc, char **argv)
 		
 		checkCudaErrors(cudaFree(CPU_data_in1));		
 		checkCudaErrors(cudaFree(GPU_data_out1));
+		cudaProfilerStop();/////////////////////////////////stop
+	}
 	}
 	}
 	}

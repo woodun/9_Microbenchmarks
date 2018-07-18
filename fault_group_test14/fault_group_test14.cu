@@ -14,7 +14,7 @@ using namespace cooperative_groups;
 
 /////////////////////////////L1 is enabled. "ALL_CCFLAGS += -Xptxas -dlcm=ca"
 //////////////large vs small data.
-//////test nvprof result and trace result correspondance
+//////test nvprof result and trace result correspondance. result: number of migration and number of page fault group is shown. fault number is not shown in the summary mode. 
 
 void init_cpu_data(long long int* A, long long int size, double stride){
 	
