@@ -8,6 +8,7 @@
 #include <time.h>
 #include <sys/time.h>
 #include <cooperative_groups.h>
+#include <cuda_profiler_api.h>
 
 using namespace cooperative_groups;
 
