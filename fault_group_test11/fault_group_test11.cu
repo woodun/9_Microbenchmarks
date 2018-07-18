@@ -152,8 +152,8 @@ int main(int argc, char **argv)
 	
 	
 
-	long long int num_thread = 64;
-	long long int size_of_data = 131072;
+	long long int num_thread = 256;
+	long long int size_of_data = 524288;
 	////256	512	1024	2048	4096(5)	8192	16384	32768	65536(9)	131072	262144	524288	1048576	2097152(not index)
 	
 	/*	
