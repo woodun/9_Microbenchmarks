@@ -107,7 +107,7 @@ __global__ void page_visitor2(long long int *A1, long long int *B1, double data_
 }
 */
 
-#define stride 1
+#define stride 2
 
 ///////////////512(4k), 1024(8k), 8192(64k), 16384(128k), 262144 (2m), 4194304 (32m), 8388608 (64m), 
 __global__ void page_visitor4(long long int *A1, long long int *B1, double data_stride, long long int clock_count){////1 thread 1 data / 1 warp 1 data
