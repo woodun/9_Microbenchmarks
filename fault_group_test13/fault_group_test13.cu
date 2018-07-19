@@ -500,7 +500,7 @@ int main(int argc, char **argv)
 
 		int block_num = 1;
 
-		page_visitor4<<<block_num, 256>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);///////1 warp 1 data
+		page_visitor4<<<block_num, 1024>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);///////1 warp 1 data
 
 		cudaDeviceSynchronize();
 		
@@ -599,7 +599,7 @@ int main(int argc, char **argv)
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
 
-		int block_num = 8;
+		int block_num = 32;
 
 		page_visitor4<<<block_num, 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);///////1 warp 1 data
 
@@ -655,7 +655,7 @@ int main(int argc, char **argv)
 	for(double data_stride = 1 * 1 * 1 * factor; data_stride <= 1 * 1 * 1 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
 	//printf("\n");
 
-	for(long long int clock_count = 7; clock_count <= 7; clock_count = clock_count + 1){
+	for(long long int clock_count = 31; clock_count <= 31; clock_count = clock_count + 1){
 		
 	///long long int time2 = time;
 	//if(time2 > clock_count){
