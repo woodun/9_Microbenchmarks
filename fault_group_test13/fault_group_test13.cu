@@ -15,6 +15,7 @@ using namespace cooperative_groups;
 /////////////////////////////L1 is enabled. "ALL_CCFLAGS += -Xptxas -dlcm=ca"
 //////////////large vs small data.
 /////test concurrent vs loop accesses fault number. concurrent warp vs concurrent thread.
+/////more: concurrent warp on the same core vs different cores (observation:)
 
 void init_cpu_data(long long int* A, long long int size, double stride){
 	

@@ -14,7 +14,7 @@ using namespace cooperative_groups;
 
 /////////////////////////////L1 is enabled. "ALL_CCFLAGS += -Xptxas -dlcm=ca"
 //////////////large vs small data.
-//////creating 2 blocks doing exactly the same thing? method in the blog. imrovement + baseline.
+//////creating 2 blocks doing exactly the same thing? method in the blog. runnahead imrovement + baseline.
 
 void init_cpu_data(long long int* A, long long int size, double stride){
 	
