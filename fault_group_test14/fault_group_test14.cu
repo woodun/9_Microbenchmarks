@@ -372,8 +372,8 @@ int main(int argc, char **argv)
 			//gpu_initialization<<<8192 * 128 * scale / factor, 512>>>(GPU_data_out1, data_stride, data_size);///1024 per block max
 			//cudaDeviceSynchronize();
 			if(0){
-			gpu_initialization<<<8192 * 128 * scale / factor, 512>>>(CPU_data_in1, data_stride, data_size);///1024 per block max
-			cudaDeviceSynchronize();
+			//gpu_initialization<<<8192 * 128 * scale / factor, 512>>>(CPU_data_in1, data_stride, data_size);///1024 per block max
+			//cudaDeviceSynchronize();
 			}else{
 			init_cpu_data_int(CPU_data_in1, data_size, data_stride);
 			}
