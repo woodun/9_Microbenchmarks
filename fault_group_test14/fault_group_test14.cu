@@ -34,6 +34,23 @@ void init_cpu_data(long long int* A, long long int size, double stride){
 	*/
 }
 
+void init_cpu_data_int(int* A, int size, double stride){
+	
+	for (int i = 0; i < size; i++){
+		A[i]=1;
+	}
+	
+	/*
+	for (long long int i = 0; i < size - stride; i++){
+		A[i]=(i + stride);
+	}
+			
+	for (long long int i = size - stride; i < size; i++){
+		A[i]=0;
+	}
+	*/
+}
+
 __global__ void gpu_initialization(long long int *A, double data_stride, long long int data_size){			
 
 	long long int index = (blockIdx.x * blockDim.x + threadIdx.x);
@@ -358,11 +375,11 @@ int main(int argc, char **argv)
 			gpu_initialization<<<8192 * 128 * scale / factor, 512>>>(CPU_data_in1, data_stride, data_size);///1024 per block max
 			cudaDeviceSynchronize();
 			}else{
-			init_cpu_data(CPU_data_in1, data_size, data_stride);
+			init_cpu_data_int(CPU_data_in1, data_size, data_stride);
 			}
 		}else{
-			init_cpu_data(GPU_data_out1, data_size, data_stride);
-			init_cpu_data(CPU_data_in1, data_size, data_stride);		
+			init_cpu_data_int(GPU_data_out1, data_size, data_stride);
+			init_cpu_data_int(CPU_data_in1, data_size, data_stride);		
 		}
 		
 		cudaProfilerStart();////////////////////////////////start
