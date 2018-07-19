@@ -80,12 +80,12 @@ __global__ void page_visitor(long long int *A1, long long int *B1, double data_s
 }
 
 
-__global__ void page_visitor(long long int *A1, long long int *B1, double data_stride, long long int clock_count){////long
+__global__ void page_visitor_int(int *A1, int *B1, double data_stride, int clock_count){////long
 			
 	double temp = (blockIdx.x * blockDim.x + threadIdx.x) * stride;
 	//double temp = ((blockIdx.x * blockDim.x + threadIdx.x) % 32) * 2 + blockIdx.x * 1;
 	long long int index = __double2ll_rd(temp);
-	long long int value1;
+	int value1;
 
 	if(threadIdx.x % 32 <= clock_count){
 		value1 = A1[index];
@@ -325,7 +325,7 @@ int main(int argc, char **argv)
 	for(double data_stride = 1 * 1 * 1 * factor; data_stride <= 1 * 1 * 1 * factor; data_stride = data_stride * 2){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
 	//printf("\n");
 
-	for(long long int clock_count = 0; clock_count <= 31; clock_count = clock_count + 1){
+	for(int clock_count = 0; clock_count <= 31; clock_count = clock_count + 1){
 		
 	///long long int time2 = time;
 	//if(time2 > clock_count){
@@ -338,12 +338,12 @@ int main(int argc, char **argv)
 		//data_size = data_size * 8192 * 512 / factor;
 		data_size = data_size * 8192 * 128 / factor;
 		
-		int *CPU_data_in1;////////last edited
-		checkCudaErrors(cudaMallocManaged(&CPU_data_in1, sizeof(long long int) * data_size));/////////////using unified memory
+		int *CPU_data_in1;
+		checkCudaErrors(cudaMallocManaged(&CPU_data_in1, sizeof(int) * data_size));/////////////using unified memory
 		///////////////////////////////////////////////////////////////////CPU data end
 		
-		long long int *GPU_data_out1;
-		checkCudaErrors(cudaMalloc(&GPU_data_out1, sizeof(long long int) * data_size));/////////////using unified memory
+		int *GPU_data_out1;
+		checkCudaErrors(cudaMalloc(&GPU_data_out1, sizeof(int) * data_size));/////////////using unified memory
 		///////////////////////////////////////////////////////////////////GPU data out	end
 		
 		if(1){
