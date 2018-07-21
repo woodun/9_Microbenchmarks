@@ -16,6 +16,7 @@ using namespace cooperative_groups;
 //////////////large vs small data.
 //////creating 2 blocks doing exactly the same thing? method in the blog simple. Effect: reduced fault groups because of better coalescing. confirm with more warps.
 //////more: changed page size and number of warps(observation:)
+//////nvprof --profile-from-start off --print-gpu-trace --log-file 4warpsall.txt --csv ./fault_group_test15
 
 void init_cpu_data(long long int* A, long long int size, double stride){
 	

@@ -14,8 +14,8 @@ using namespace cooperative_groups;
 
 /////////////////////////////L1 is enabled. "ALL_CCFLAGS += -Xptxas -dlcm=ca"
 //////////////large vs small data.
-//////test nvprof result and trace result correspondance. result: number of migration and number of page fault group is shown. fault number is not shown in the summary mode. (show the 4k's results as the fragmentation example)
-//////more: try with different strides int data type (observations:).
+//////test the scenario when inter-warp concurrency is not changed but intra-warp concurrency is changed (all warps access 1 page but the stride within it is changing).
+//////nvprof --profile-from-start off --print-gpu-trace --log-file 4warpsall.txt --csv ./fault_group_test15
 
 void init_cpu_data(long long int* A, long long int size, double stride){
 	

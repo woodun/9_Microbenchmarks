@@ -8,12 +8,14 @@
 #include <time.h>
 #include <sys/time.h>
 #include <cooperative_groups.h>
+#include <cuda_profiler_api.h>
 
 using namespace cooperative_groups;
 
 /////////////////////////////L1 is enabled. "ALL_CCFLAGS += -Xptxas -dlcm=ca"
 //////////////large vs small data.
 //////creating 2 blocks doing exactly the same thing? method in the blog.
+//////nvprof --profile-from-start off --print-gpu-trace --log-file 4warpsall.txt --csv ./fault_group_test15
 
 void init_cpu_data(long long int* A, long long int size, double stride){
 	
@@ -78,9 +80,9 @@ __global__ void stream_thread(long long int *ptr, const long long int size,
 }
 
 
-#define STRIDE_64K 65536
+//#define STRIDE_64K 65536
 
-__global__ void stream_warp(long long int *ptr, const long long int size, long long int *output, const long long int val) 
+__global__ void stream_warp(long long int *ptr, const long long int size, long long int *output, const long long int val, long long int STRIDE_64K) 
 { 
   int lane_id = threadIdx.x & 31; 
   long long int warp_id = (threadIdx.x + blockIdx.x * blockDim.x) >> 5; 
@@ -147,11 +149,10 @@ int main(int argc, char **argv)
 	int value1 = 1;
 	checkCudaErrors(cudaDeviceGetAttribute(&value1, cudaDevAttrConcurrentManagedAccess, dev_id));
 	//printf("cudaDevAttrConcurrentManagedAccess = %d\n", value1);	
-	
-	
+		
 	
 
-	///*
+	/*
 	//printf("############approach\n");
 	for(long long int time = 0; time <= 0; time = time + 1){
 	//printf("\n####################time: %llu\n", time);
@@ -251,10 +252,11 @@ int main(int argc, char **argv)
 	}
 	}
 	printf("\n");
-	//*/
+	*/
 	
 	
-		///*
+	///*
+	for(long long int STRIDE_64K = 256; STRIDE_64K <= 256; STRIDE_64K = STRIDE_64K * 2){
 	//printf("############approach\n");
 	for(long long int time = 0; time <= 0; time = time + 1){
 	//printf("\n####################time: %llu\n", time);
@@ -283,7 +285,7 @@ int main(int argc, char **argv)
 	//printf("####################factor: %llu\n", factor);
 	
 	//for(double data_stride = 2684354560 * factor; data_stride <= 4294967296 * factor; data_stride = data_stride + 536870912){
-	for(double data_stride = 536870912 * factor; data_stride <= 2147483648 * factor; data_stride = data_stride + 536870912){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
+	for(double data_stride = 1073741824 * factor; data_stride <= 1073741824 * factor; data_stride = data_stride + 536870912){///134217728 = 1gb, 268435456 = 2gb, 536870912 = 4gb, 1073741824 = 8gb, 2147483648 = 16gb, 4294967296 = 32gb, 8589934592 = 64gb. (index)
 	//printf("\n");
 
 	for(long long int clock_count = 32; clock_count <= 32; clock_count = clock_count * 2){
@@ -299,13 +301,18 @@ int main(int argc, char **argv)
 		long long int data_size = (long long int) temp;		
 		//data_size = data_size * 8192 * 128 / factor;
 		data_size = data_size / factor;
+		long long int data_size2 = 512 * 8192 ;	
 		
 		long long int *CPU_data_in1;
 		checkCudaErrors(cudaMallocManaged(&CPU_data_in1, sizeof(long long int) * data_size));/////////////using unified memory
 		///////////////////////////////////////////////////////////////////CPU data end
 		
 		long long int *GPU_data_out1;
-		checkCudaErrors(cudaMallocManaged(&GPU_data_out1, sizeof(long long int) * data_size));/////////////using unified memory
+		if(0){
+			checkCudaErrors(cudaMallocManaged(&GPU_data_out1, sizeof(long long int) * data_size2));/////////////using unified memory
+		}else{
+			checkCudaErrors(cudaMalloc(&GPU_data_out1, sizeof(long long int) * data_size2));/////////////not using unified memory
+		}
 		///////////////////////////////////////////////////////////////////GPU data out	end
 		
 		if(1){
@@ -314,8 +321,8 @@ int main(int argc, char **argv)
 				scale = data_stride;/////////make sure threadIdx is smaller than data_size in the initialization
 			}
 			
-			gpu_initialization<<<8192 * scale / factor, 512>>>(GPU_data_out1, data_stride, data_size);///1024 per block max
-			cudaDeviceSynchronize();
+			//gpu_initialization<<<8192 * scale / factor, 512>>>(GPU_data_out1, data_stride, data_size);///1024 per block max
+			//cudaDeviceSynchronize();
 			if(0){
 			gpu_initialization<<<8192 * scale / factor, 512>>>(CPU_data_in1, data_stride, data_size);///1024 per block max
 			cudaDeviceSynchronize();
@@ -323,15 +330,16 @@ int main(int argc, char **argv)
 			init_cpu_data(CPU_data_in1, data_size, data_stride);
 			}
 		}else{
-			init_cpu_data(GPU_data_out1, data_size, data_stride);
+			init_cpu_data(GPU_data_out1, data_size2, data_stride);
 			init_cpu_data(CPU_data_in1, data_size, data_stride);		
 		}
 		
+		cudaProfilerStart();////////////////////////////////start
 		/////////////////////////////////time
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
 		
-		stream_warp<<<512, 512>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7);
+		stream_warp<<<512, 512>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7, STRIDE_64K);
 
 		cudaDeviceSynchronize();
 				
@@ -346,6 +354,8 @@ int main(int argc, char **argv)
 		
 		checkCudaErrors(cudaFree(CPU_data_in1));		
 		checkCudaErrors(cudaFree(GPU_data_out1));
+		cudaProfilerStop();/////////////////////////////////stop
+	}
 	}
 	}
 	}

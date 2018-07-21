@@ -16,6 +16,7 @@ using namespace cooperative_groups;
 //////////////large vs small data.
 /////test concurrent vs loop accesses fault number. concurrent warp vs concurrent thread.
 /////more: concurrent warp on the same core vs different cores (observation:)
+//////nvprof --profile-from-start off --print-gpu-trace --log-file 4warpsall.txt --csv ./fault_group_test15
 
 void init_cpu_data(long long int* A, long long int size, double stride){
 	
