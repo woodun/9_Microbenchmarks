@@ -254,7 +254,7 @@ int main(int argc, char **argv)
 	printf("\n");
 	*/
 	
-	printf("%d\n",argv[1]);
+	printf("%d\n",atoi(argv[1]));
 	///*
 	//////nvprof --profile-from-start off --print-gpu-trace --log-file prof512512size8gpage256.txt --csv ./fault_group_test4
 	///also do for less than 16 warps same/diff cores
