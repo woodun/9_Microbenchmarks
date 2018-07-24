@@ -10,7 +10,7 @@ v2=`cat temp_faults.txt | awk '{ SUM += $1} END { print SUM }'`
 #number of page migration
 v3=`cat temp_migrations.txt | wc -l`
 
-printf "%d %d %d\n" v1 v2 v3
+printf "%d %d %d\n" $v1 $v2 $v3
 
 rm temp_faults.txt
 rm temp_migrations.txt
