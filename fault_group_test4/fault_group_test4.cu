@@ -254,13 +254,14 @@ int main(int argc, char **argv)
 	printf("\n");
 	*/
 	
-	printf("%d\n",atoi(argv[1]));
+	//printf("%d\n",atoll(argv[1]));
 	///*
 	//////nvprof --profile-from-start off --print-gpu-trace --log-file prof512512size8gpage256.txt --csv ./fault_group_test4
 	///also do for less than 16 warps same/diff cores
 	////256	512	1024	2048	4096(5)	8192	16384	32768	65536(9)	131072	262144	524288	1048576	2097152(not index but real size)
 	////1694768538 1363231797 1252858568 1227351872 1240169346 1272947382 1233840312 1203557761 1113896111 1339415345 1362196167 1236045906 (512 512)
-	for(long long int STRIDE_64K = 1024; STRIDE_64K <= 1024; STRIDE_64K = STRIDE_64K * 2){
+	//for(long long int STRIDE_64K = 1024; STRIDE_64K <= 1024; STRIDE_64K = STRIDE_64K * 2){
+	for(long long int STRIDE_64K = atoll(argv[1]); STRIDE_64K <= atoll(argv[1]); STRIDE_64K = STRIDE_64K * 2){
 	//printf("############approach\n");
 	for(long long int time = 0; time <= 0; time = time + 1){
 	//printf("\n####################time: %llu\n", time);
