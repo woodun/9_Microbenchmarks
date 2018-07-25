@@ -268,8 +268,8 @@ int main(int argc, char **argv)
 	////4104063378 4184730646 3189396480 3005161192 2883182901 2699462209 2709909614 3610128080 3875286731 3876505935 3562113597 3241507431 (1 256)
 	////
 	////4104063378 4184730646 3189396480 3005161192 2883182901 2699462209 2709909614 3610128080 3875286731 3876505935 3562113597 3241507431 (8 32)
-	//for(long long int STRIDE_64K = 256; STRIDE_64K <= 524288; STRIDE_64K = STRIDE_64K * 2){
-	for(long long int STRIDE_64K = atoll(argv[1]); STRIDE_64K <= atoll(argv[1]); STRIDE_64K = STRIDE_64K * 2){
+	for(long long int STRIDE_64K = 256; STRIDE_64K <= 524288; STRIDE_64K = STRIDE_64K * 2){
+	//for(long long int STRIDE_64K = atoll(argv[1]); STRIDE_64K <= atoll(argv[1]); STRIDE_64K = STRIDE_64K * 2){
 	//printf("############approach\n");
 	for(long long int time = 0; time <= 0; time = time + 1){
 	//printf("\n####################time: %llu\n", time);
