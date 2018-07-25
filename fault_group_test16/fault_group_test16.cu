@@ -127,7 +127,7 @@ __global__ void page_visitor7(long long int *A1, long long int *B1, double data_
 	
 	int warps_per_grid = (blockDim.x * gridDim.x) >> 5; 
 	long long int warp_id = (threadIdx.x + blockIdx.x * blockDim.x) >> 5;
-	double temp = (threadIdx.x % 32) * stride * warps_per_grid + warp_id * stride;
+	//double temp = (threadIdx.x % 32) * stride * warps_per_grid + warp_id * stride;
 	double temp = (threadIdx.x + blockIdx.x * blockDim.x) * stride;
 
 	long long int index = __double2ll_rd(temp);
