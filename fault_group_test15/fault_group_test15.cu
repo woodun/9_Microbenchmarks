@@ -77,11 +77,12 @@ __global__ void stream_warp(long long int *ptr, const long long int size, long l
     #pragma unroll
     for(int rep = 0; rep < STRIDE_64K/sizeof(long long int)/32; rep++) {
       long long int ind = warp_id * STRIDE_64K/sizeof(long long int) + rep * 32 + lane_id;
-      if (ind < n) { 
+      if (ind < n) {
         if (1) accum += ptr[ind]; 
         else ptr[ind] = val; 
       }
-    } 
+	  
+    }
   } 
 
   if (1) 
@@ -137,7 +138,7 @@ int main(int argc, char **argv)
 	///also do for less than 16 warps same/diff cores
 	////256	512	1024	2048	4096(5)	8192	16384	32768	65536(9)	131072	262144	524288	1048576	2097152(not index but real size)
 	for(long long int STRIDE_64K = atoll(argv[1]); STRIDE_64K <= atoll(argv[1]); STRIDE_64K = STRIDE_64K * 2){
-	for(long long int STRIDE_64K = 256; STRIDE_64K <= 524288; STRIDE_64K = STRIDE_64K * 2){
+	//for(long long int STRIDE_64K = 256; STRIDE_64K <= 524288; STRIDE_64K = STRIDE_64K * 2){
 	//printf("############approach\n");
 	for(long long int time = 0; time <= 0; time = time + 1){
 	//printf("\n####################time: %llu\n", time);
@@ -220,7 +221,7 @@ int main(int argc, char **argv)
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
 		
-		stream_warp<<<1, 512>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7, STRIDE_64K);
+		stream_warp<<<8, 32>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7, STRIDE_64K);
 
 		cudaDeviceSynchronize();
 				
@@ -244,7 +245,7 @@ int main(int argc, char **argv)
 	}
 	}
 	}
-	printf("\n");
+	//printf("\n");
 	//*/
 	
 	exit(EXIT_SUCCESS);

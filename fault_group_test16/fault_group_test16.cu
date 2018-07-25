@@ -468,7 +468,7 @@ int main(int argc, char **argv)
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
 
-		long long int block_num = 16;
+		long long int block_num = 64;
 
 		page_visitor7<<<block_num, 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);///////1 warp all data 
 	
