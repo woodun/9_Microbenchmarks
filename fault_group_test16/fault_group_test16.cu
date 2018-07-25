@@ -368,7 +368,7 @@ int main(int argc, char **argv)
 
 		int block_num = 1;
 
-		page_visitor7<<<block_num, 512>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);///////1 warp 1 data dif cores
+		page_visitor7<<<block_num, 1024>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);///////1 warp 1 data dif cores
 
 		cudaDeviceSynchronize();
 		

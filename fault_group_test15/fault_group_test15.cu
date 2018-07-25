@@ -71,19 +71,19 @@ __global__ void stream_warp(long long int *ptr, const long long int size, long l
   long long int warp_total = (size + STRIDE_64K-1) / STRIDE_64K; 
 
   long long int n = size / sizeof(long long int); 
-  long long int accum = 0; 
+  long long int accum = 0;
 
   for(; warp_id < warp_total; warp_id += warps_per_grid) { 
     #pragma unroll
-    for(int rep = 0; rep < STRIDE_64K/sizeof(long long int)/32; rep++) {
+    for(int rep = 0; rep < STRIDE_64K/sizeof(long long int)/32; rep++) {////////intra-warp loop
       long long int ind = warp_id * STRIDE_64K/sizeof(long long int) + rep * 32 + lane_id;
       if (ind < n) {
         if (1) accum += ptr[ind]; 
         else ptr[ind] = val; 
       }
-	  
+	  break;////////only do the first rep.
     }
-  } 
+  }
 
   if (1) 
     output[threadIdx.x + blockIdx.x * blockDim.x] = accum; 
