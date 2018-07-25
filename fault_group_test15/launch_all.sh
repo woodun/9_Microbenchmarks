@@ -12,5 +12,7 @@ do
 nvprof --profile-from-start off --print-gpu-trace --log-file prof832size8gpage$i.txt --csv ./fault_group_test15 $i
 done
 
+echo " "
+
 sh batch_prof.sh
 
