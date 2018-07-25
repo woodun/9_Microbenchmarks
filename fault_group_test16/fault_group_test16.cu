@@ -15,7 +15,8 @@ using namespace cooperative_groups;
 /////////////////////////////L1 is enabled. "ALL_CCFLAGS += -Xptxas -dlcm=ca"
 //////////////large vs small data.
 /////test if l1/l2 hit can still cause page faults?
-//////nvprof --profile-from-start off --print-gpu-trace --log-file 4warpsall.txt --csv ./fault_group_test15
+//////nvprof --profile-from-start off --print-gpu-trace --log-file test1.txt --csv ./fault_group_test15
+//////result: L2(different SM) won't catch it (multiple faults).
 
 void init_cpu_data(long long int* A, long long int size, double stride){
 	
