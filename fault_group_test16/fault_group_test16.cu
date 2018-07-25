@@ -266,7 +266,7 @@ int main(int argc, char **argv)
 
 		int block_num = 1;
 
-		page_visitor4<<<block_num, 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);///////1 warp 1 data same core
+		page_visitor7<<<block_num, 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);///////1 warp 1 data same core
 
 		cudaDeviceSynchronize();
 		
@@ -367,7 +367,7 @@ int main(int argc, char **argv)
 
 		int block_num = 1;
 
-		page_visitor4<<<block_num, 512>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);///////1 warp 1 data dif cores
+		page_visitor7<<<block_num, 512>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);///////1 warp 1 data dif cores
 
 		cudaDeviceSynchronize();
 		
@@ -469,7 +469,7 @@ int main(int argc, char **argv)
 
 		long long int block_num = 16;
 
-		page_visitor6<<<block_num, 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);///////1 warp all data 
+		page_visitor7<<<block_num, 32>>>(CPU_data_in1, GPU_data_out1, data_stride, clock_count);///////1 warp all data 
 	
 		cudaDeviceSynchronize();
 				
