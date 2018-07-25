@@ -45,7 +45,7 @@ void init_cpu_data_int(int* A, int size, double stride){
 	for (long long int i = 0; i < size - stride; i++){
 		A[i]=(i + stride);
 	}
-			
+
 	for (long long int i = size - stride; i < size; i++){
 		A[i]=0;
 	}
