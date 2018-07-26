@@ -16,6 +16,7 @@ using namespace cooperative_groups;
 //////////////large vs small data.
 //////test the scenario when inter-warp concurrency is not changed but intra-warp concurrency is changed (all warps access 1 page but the stride within it is changing).
 //////nvprof --profile-from-start off --print-gpu-trace --log-file 4warpsall.txt --csv ./fault_group_test15
+//////this is actually not fair. the number of iterations is changing.
 
 void init_cpu_data(long long int* A, long long int size, double stride){
 	
