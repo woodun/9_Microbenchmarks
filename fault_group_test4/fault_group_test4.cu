@@ -72,7 +72,8 @@ __global__ void stream_thread(long long int *ptr, const long long int size,
   long long int accum = 0; 
 
   #pragma unroll
-  for(; tid < n; tid += blockDim.x * gridDim.x) 
+  //for(; tid < n; tid += blockDim.x * gridDim.x) 
+  for(; tid < n; tid += 32)
     if (1) accum += ptr[tid]; 
       else ptr[tid] = val;  
 
@@ -81,7 +82,7 @@ __global__ void stream_thread(long long int *ptr, const long long int size,
 }
 
 
-#define STRIDE_64K 256
+#define STRIDE_64K 65536
 
 __global__ void stream_warp(long long int *ptr, const long long int size, long long int *output, const long long int val, long long int xSTRIDE_64K) 
 { 
@@ -102,7 +103,7 @@ __global__ void stream_warp(long long int *ptr, const long long int size, long l
         else ptr[ind] = val;
       }
     } 
-  } 
+  }
 
   if (1) 
     output[threadIdx.x + blockIdx.x * blockDim.x] = accum; 
