@@ -81,9 +81,9 @@ __global__ void stream_thread(long long int *ptr, const long long int size,
 }
 
 
-//#define STRIDE_64K 65536
+#define STRIDE_64K 256
 
-__global__ void stream_warp(long long int *ptr, const long long int size, long long int *output, const long long int val, long long int STRIDE_64K) 
+__global__ void stream_warp(long long int *ptr, const long long int size, long long int *output, const long long int val, long long int xSTRIDE_64K) 
 { 
   int lane_id = threadIdx.x & 31; 
   long long int warp_id = (threadIdx.x + blockIdx.x * blockDim.x) >> 5; 
@@ -270,7 +270,7 @@ int main(int argc, char **argv)
 	////
 	////4104063378 4184730646 3189396480 3005161192 2883182901 2699462209 2709909614 3610128080 3875286731 3876505935 3562113597 3241507431 (8 32)
 	//for(long long int STRIDE_64K = 256; STRIDE_64K <= 524288; STRIDE_64K = STRIDE_64K * 2){
-	for(long long int STRIDE_64K = 256; STRIDE_64K <= 256; STRIDE_64K = STRIDE_64K * 2){
+	for(long long int xSTRIDE_64K = 256; xSTRIDE_64K <= 256; xSTRIDE_64K = xSTRIDE_64K * 2){
 	//printf("############approach\n");
 	for(long long int time = 0; time <= 0; time = time + 1){
 	//printf("\n####################time: %llu\n", time);
@@ -353,7 +353,7 @@ int main(int argc, char **argv)
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
 		
-		stream_warp<<<1, 32>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7, STRIDE_64K);
+		stream_warp<<<1, 32>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7, xSTRIDE_64K);
 
 		cudaDeviceSynchronize();
 				
@@ -380,7 +380,7 @@ int main(int argc, char **argv)
 	//printf("\n");
 	//*/
 	
-	for(long long int STRIDE_64K = 256; STRIDE_64K <= 256; STRIDE_64K = STRIDE_64K * 2){
+	for(long long int xSTRIDE_64K = 256; xSTRIDE_64K <= 256; xSTRIDE_64K = xSTRIDE_64K * 2){
 	//printf("############approach\n");
 	for(long long int time = 0; time <= 0; time = time + 1){
 	//printf("\n####################time: %llu\n", time);
