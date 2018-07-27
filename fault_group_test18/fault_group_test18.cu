@@ -14,7 +14,7 @@ using namespace cooperative_groups;
 
 /////////////////////////////L1 is enabled. "ALL_CCFLAGS += -Xptxas -dlcm=ca"
 //////////////large vs small data.
-//////creating 2 blocks doing exactly the same thing? method in the blog.
+//////creating 2 blocks doing exactly the same thing? method in the blog. test the unroll and define.
 //////nvprof --profile-from-start off --print-gpu-trace --log-file 4warpsall.txt --csv ./fault_group_test15
 
 void init_cpu_data(long long int* A, long long int size, double stride){
@@ -72,8 +72,8 @@ __global__ void stream_thread(long long int *ptr, const long long int size,
   long long int accum = 0; 
 
   #pragma unroll
-  //for(; tid < n; tid += blockDim.x * gridDim.x) 
-  for(; tid < 1073741824; tid += 32)
+  for(; tid < n; tid += blockDim.x * gridDim.x) 
+  //for(; tid < 1073741824; tid += 32)
     if (1) accum += ptr[tid]; 
       else ptr[tid] = val;  
 
@@ -95,7 +95,8 @@ __global__ void stream_warp(long long int *ptr, const long long int size, long l
   //long long int n = size / sizeof(long long int);  
   long long int accum = 0; 
 
-  //for(; warp_id < warp_total; warp_id += warps_per_grid) { 
+  //for(; warp_id < warp_total; warp_id += warps_per_grid) {
+  #pragma unroll
   for(; warp_id < 131072; warp_id += 1) {
     #pragma unroll
     for(int rep = 0; rep < STRIDE_64K/sizeof(long long int)/32; rep++) {
