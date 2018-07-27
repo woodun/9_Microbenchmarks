@@ -93,7 +93,7 @@ __global__ void stream_warp(long long int *ptr, const long long int size, long l
   long long int accum = 0; 
 
   for(; warp_id < warp_total; warp_id += warps_per_grid) { 
-    #pragma unroll
+    //#pragma unroll
     for(int rep = 0; rep < STRIDE_64K/sizeof(long long int)/32; rep++) {
       long long int ind = warp_id * STRIDE_64K/sizeof(long long int) + rep * 32 + lane_id;
       if (ind < n) { 
@@ -352,7 +352,7 @@ int main(int argc, char **argv)
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
 		
-		stream_warp<<<8192, 512>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7, STRIDE_64K);
+		stream_warp<<<1, 32>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7, STRIDE_64K);
 
 		cudaDeviceSynchronize();
 				
