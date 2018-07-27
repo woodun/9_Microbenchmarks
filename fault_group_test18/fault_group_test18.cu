@@ -68,7 +68,8 @@ __global__ void stream_thread(long long int *ptr, const long long int size,
                               long long int *output, const long long int val) 
 { 
   long long int tid = threadIdx.x + blockIdx.x * blockDim.x; 
-  long long int n = size / sizeof(long long int); 
+  //long long int n = size / sizeof(long long int);
+  long long int n = 1073741824;
   long long int accum = 0; 
 
   #pragma unroll
@@ -82,7 +83,7 @@ __global__ void stream_thread(long long int *ptr, const long long int size,
 }
 
 
-#define STRIDE_64K 65536
+#define STRIDE_64K 256
 
 __global__ void stream_warp(long long int *ptr, const long long int size, long long int *output, const long long int val, long long int xSTRIDE_64K) 
 { 
@@ -97,7 +98,7 @@ __global__ void stream_warp(long long int *ptr, const long long int size, long l
 
   //for(; warp_id < warp_total; warp_id += warps_per_grid) {
   #pragma unroll
-  for(; warp_id < 131072; warp_id += 1) {
+  for(; warp_id < 33554432; warp_id += 1) {
     #pragma unroll
     for(int rep = 0; rep < STRIDE_64K/sizeof(long long int)/32; rep++) {
       long long int ind = warp_id * STRIDE_64K/sizeof(long long int) + rep * 32 + lane_id;
