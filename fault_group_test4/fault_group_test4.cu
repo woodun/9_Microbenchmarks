@@ -93,12 +93,12 @@ __global__ void stream_warp(long long int *ptr, const long long int size, long l
   long long int accum = 0; 
 
   for(; warp_id < warp_total; warp_id += warps_per_grid) { 
-    //#pragma unroll
+    #pragma unroll
     for(int rep = 0; rep < STRIDE_64K/sizeof(long long int)/32; rep++) {
       long long int ind = warp_id * STRIDE_64K/sizeof(long long int) + rep * 32 + lane_id;
       if (ind < n) { 
         if (1) accum += ptr[ind]; 
-        else ptr[ind] = val; 
+        else ptr[ind] = val;
       }
     } 
   } 
