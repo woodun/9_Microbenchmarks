@@ -71,9 +71,9 @@ __global__ void stream_thread(long long int *ptr, const long long int size,
   long long int n = size / sizeof(long long int); 
   long long int accum = 0; 
 
-  //#pragma unroll
-  for(; tid < n; tid += blockDim.x * gridDim.x) 
-  //for(; tid < 1073741824; tid += 32)
+  #pragma unroll
+  //for(; tid < n; tid += blockDim.x * gridDim.x) 
+  for(; tid < 1073741824; tid += 32)
     if (1) accum += ptr[tid]; 
       else ptr[tid] = val;  
 
@@ -82,26 +82,26 @@ __global__ void stream_thread(long long int *ptr, const long long int size,
 }
 
 
-//#define STRIDE_64K 65536
+#define STRIDE_64K 65536
 
-__global__ void stream_warp(long long int *ptr, const long long int size, long long int *output, const long long int val, long long int STRIDE_64K) 
+__global__ void stream_warp(long long int *ptr, const long long int size, long long int *output, const long long int val, long long int xSTRIDE_64K) 
 { 
   int lane_id = threadIdx.x & 31; 
   long long int warp_id = (threadIdx.x + blockIdx.x * blockDim.x) >> 5; 
   int warps_per_grid = (blockDim.x * gridDim.x) >> 5; 
-  long long int warp_total = (size + STRIDE_64K-1) / STRIDE_64K; 
+  //long long int warp_total = (size + STRIDE_64K-1) / STRIDE_64K; 
   //long long int warp_total = (8589934592 + STRIDE_64K-1) / STRIDE_64K; 
 
-  long long int n = size / sizeof(long long int);  
+  //long long int n = size / sizeof(long long int);  
   long long int accum = 0; 
 
-  for(; warp_id < warp_total; warp_id += warps_per_grid) { 
-  //for(; warp_id < 131072; warp_id += 1) {
-   // #pragma unroll
+  //for(; warp_id < warp_total; warp_id += warps_per_grid) { 
+  for(; warp_id < 131072; warp_id += 1) {
+    #pragma unroll
     for(int rep = 0; rep < STRIDE_64K/sizeof(long long int)/32; rep++) {
       long long int ind = warp_id * STRIDE_64K/sizeof(long long int) + rep * 32 + lane_id;
-      if (ind < n) {
-      //if (ind < 1073741824) {		  
+      //if (ind < n) {
+      if (ind < 1073741824) {		  
         if (1) accum += ptr[ind]; 
         else ptr[ind] = val;
       }
