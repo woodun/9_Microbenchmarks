@@ -72,9 +72,9 @@ __global__ void stream_thread(long long int *ptr, const long long int size,
   //long long int n = 1073741824;
   long long int accum = 0; 
 
-  //#pragma unroll
-  for(; tid < n; tid += blockDim.x * gridDim.x) 
-  //for(; tid < 1073741824; tid += 32)
+  #pragma unroll
+  //for(; tid < n; tid += blockDim.x * gridDim.x) 
+  for(; tid < 1073741824; tid += 512 * 512)
     if (1) accum += ptr[tid]; 
       else ptr[tid] = val;  
 
