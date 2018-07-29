@@ -62,6 +62,7 @@ long long unsigned time_diff(timespec start, timespec end){
 	return time_interval_s + time_interval_ns;
 }
 
+#define STRIDE_64K 256
 //#define stride 512
 #define dimx 512
 #define dimy 512
@@ -168,7 +169,7 @@ __global__ void stream_thread4(long long int *ptr, const long long int size,
 }
 
 
-#define STRIDE_64K 256
+/////////////////////////////////////////////////////////stream_warp:
 
 __global__ void stream_warp(long long int *ptr, const long long int size, long long int *output, const long long int val, long long int xSTRIDE_64K) 
 { 
@@ -341,6 +342,37 @@ __global__ void stream_warp5(long long int *ptr, const long long int size, long 
   //for(; warp_id < warp_total; warp_id += dimx * dimy / 32) {/////8192 warps (512 * 512 / 32)
   //for(; warp_id < 8589934592/STRIDE_64K; warp_id += warps_per_grid) {
   for(; warp_id < 8589934592/STRIDE_64K; warp_id += dimx * dimy / 32) {
+    //#pragma unroll
+    for(int rep = 0; rep < STRIDE_64K/sizeof(long long int)/32; rep++) {
+      long long int ind = warp_id * STRIDE_64K/sizeof(long long int) + rep * 32 + lane_id;
+      //if (ind < n) {
+      if (ind < 1073741824) {
+        if (1) accum += ptr[ind]; 
+        else ptr[ind] = val;
+      }
+    } 
+  }
+
+  if (1) 
+    output[threadIdx.x + blockIdx.x * blockDim.x] = accum; 
+}
+
+__global__ void stream_warp6(long long int *ptr, const long long int size, long long int *output, const long long int val, long long int xSTRIDE_64K) 
+{ 
+  int lane_id = threadIdx.x & 31; 
+  long long int warp_id = (threadIdx.x + blockIdx.x * blockDim.x) >> 5; 
+  int warps_per_grid = (blockDim.x * gridDim.x) >> 5; 
+  long long int warp_total = (size + STRIDE_64K-1) / STRIDE_64K; 
+  //long long int warp_total = (8589934592 + STRIDE_64K-1) / STRIDE_64K;//////////33554432 (256, 1 32) 512 
+
+  //long long int n = size / sizeof(long long int);  
+  long long int accum = 0; 
+
+  #pragma unroll
+  //for(; warp_id < warp_total; warp_id += warps_per_grid) {
+  //for(; warp_id < warp_total; warp_id += dimx * dimy / 32) {/////8192 warps (512 * 512 / 32)
+  //for(; warp_id < 8589934592/STRIDE_64K; warp_id += warps_per_grid) {
+  for(; warp_id < 8589934592/STRIDE_64K; warp_id += dimx * dimy / 32) {
     #pragma unroll
     for(int rep = 0; rep < STRIDE_64K/sizeof(long long int)/32; rep++) {
       long long int ind = warp_id * STRIDE_64K/sizeof(long long int) + rep * 32 + lane_id;
@@ -399,6 +431,7 @@ int main(int argc, char **argv)
 	//printf("cudaDevAttrConcurrentManagedAccess = %d\n", value1);	
 	
 	
+	printf("stream_warp:\n");
 	//printf("%d\n",atoll(argv[1]));
 	///*
 	//////nvprof --profile-from-start off --print-gpu-trace --log-file prof512512size8gpage256.txt --csv ./fault_group_test4
@@ -416,7 +449,7 @@ int main(int argc, char **argv)
 	//for(long long int STRIDE_64K = 256; STRIDE_64K <= 524288; STRIDE_64K = STRIDE_64K * 2){
 	for(long long int xSTRIDE_64K = 256; xSTRIDE_64K <= 256; xSTRIDE_64K = xSTRIDE_64K * 2){
 	//printf("############approach\n");
-	for(long long int time = 0; time <= 0; time = time + 1){
+	for(long long int time = 0; time <= 6; time = time + 1){
 	//printf("\n####################time: %llu\n", time);
 	
 	//long long int coverage2 = 0;
@@ -497,8 +530,22 @@ int main(int argc, char **argv)
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
 		
-		stream_warp<<<512, 512>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7, xSTRIDE_64K);
-
+		if(time == 0){
+		stream_warp<<<dimx, dimy>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7, xSTRIDE_64K);
+		}else if(time == 1){
+		stream_warp1<<<dimx, dimy>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7, xSTRIDE_64K);
+		}else if(time == 2){
+		stream_warp2<<<dimx, dimy>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7, xSTRIDE_64K);
+		}else if(time == 3){
+		stream_warp3<<<dimx, dimy>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7, xSTRIDE_64K);
+		}else if(time == 4){
+		stream_warp4<<<dimx, dimy>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7, xSTRIDE_64K);
+		}else if(time == 5){
+		stream_warp5<<<dimx, dimy>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7, xSTRIDE_64K);
+		}else if(time == 6){
+		stream_warp6<<<dimx, dimy>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7, xSTRIDE_64K);
+		}
+		
 		cudaDeviceSynchronize();
 				
 		/////////////////////////////////time
@@ -521,12 +568,13 @@ int main(int argc, char **argv)
 	}
 	}
 	}
-	//printf("\n");
+	printf("\n");
 	//*/
 	
+	printf("stream_thread:\n");
 	for(long long int xSTRIDE_64K = 256; xSTRIDE_64K <= 256; xSTRIDE_64K = xSTRIDE_64K * 2){
 	//printf("############approach\n");
-	for(long long int time = 0; time <= 0; time = time + 1){
+	for(long long int time = 0; time <= 4; time = time + 1){
 	//printf("\n####################time: %llu\n", time);
 	
 	//long long int coverage2 = 0;
@@ -607,7 +655,17 @@ int main(int argc, char **argv)
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
 		
-		stream_thread<<<512, 512>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7);
+		if(time == 0){ 
+			stream_thread<<<dimx, dimy>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7);
+		}else if(time == 1){ 
+			stream_thread1<<<dimx, dimy>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7);
+		}else if(time == 2){ 
+			stream_thread2<<<dimx, dimy>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7);
+		}else if(time == 3){ 
+			stream_thread3<<<dimx, dimy>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7);
+		}else if(time == 4){ 
+			stream_thread4<<<dimx, dimy>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7);
+		}
 
 		cudaDeviceSynchronize();
 				
