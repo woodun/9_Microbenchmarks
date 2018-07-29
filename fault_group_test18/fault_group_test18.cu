@@ -62,7 +62,7 @@ long long unsigned time_diff(timespec start, timespec end){
 	return time_interval_s + time_interval_ns;
 }
 
-#define STRIDE_64K 256
+#define STRIDE_64K 65536
 //#define stride 512
 #define dimx 8192
 #define dimy 512
