@@ -62,10 +62,10 @@ long long unsigned time_diff(timespec start, timespec end){
 	return time_interval_s + time_interval_ns;
 }
 
-#define STRIDE_64K 65536
+#define STRIDE_64K 256
 //#define stride 512
-#define dimx 8192
-#define dimy 512
+#define dimx 1
+#define dimy 32
 
 __global__ void stream_thread(long long int *ptr, const long long int size, 
                               long long int *output, const long long int val) 
