@@ -14,7 +14,7 @@ using namespace cooperative_groups;
 
 /////////////////////////////L1 is enabled. "ALL_CCFLAGS += -Xptxas -dlcm=ca"
 //////////////large vs small data.
-//////creating 2 blocks doing exactly the same thing? method in the blog. test the unroll and define.
+//////method in the blog. test the unroll and define.
 //////nvprof --profile-from-start off --print-gpu-trace --log-file 4warpsall.txt --csv ./fault_group_test15
 
 void init_cpu_data(long long int* A, long long int size, double stride){
