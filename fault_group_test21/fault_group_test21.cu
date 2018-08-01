@@ -64,8 +64,8 @@ long long unsigned time_diff(timespec start, timespec end){
 
 #define STRIDE_64K 256
 //#define stride 512
-#define dimx 1
-#define dimy 32
+#define dimx 512
+#define dimy 512
 
 __global__ void stream_thread(long long int *ptr, const long long int size, 
                               long long int *output, const long long int val) 
@@ -449,7 +449,7 @@ int main(int argc, char **argv)
 	//for(long long int STRIDE_64K = 256; STRIDE_64K <= 524288; STRIDE_64K = STRIDE_64K * 2){
 	for(long long int xSTRIDE_64K = 256; xSTRIDE_64K <= 256; xSTRIDE_64K = xSTRIDE_64K * 2){
 	//printf("############approach\n");
-	for(long long int time = 0; time <= 6; time = time + 1){
+	for(long long int time = 6; time <= 6; time = time + 1){
 	//printf("\n####################time: %llu\n", time);
 	
 	//long long int coverage2 = 0;
@@ -571,10 +571,11 @@ int main(int argc, char **argv)
 	printf("\n");
 	//*/
 	
+	/*
 	printf("stream_thread:\n");
 	for(long long int xSTRIDE_64K = 256; xSTRIDE_64K <= 256; xSTRIDE_64K = xSTRIDE_64K * 2){
 	//printf("############approach\n");
-	for(long long int time = 0; time <= 4; time = time + 1){
+	for(long long int time = 4; time <= 4; time = time + 1){
 	//printf("\n####################time: %llu\n", time);
 	
 	//long long int coverage2 = 0;
@@ -690,6 +691,7 @@ int main(int argc, char **argv)
 	}
 	}
 	printf("\n");
+	*/
 	
 	exit(EXIT_SUCCESS);
 }
