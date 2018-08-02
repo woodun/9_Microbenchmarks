@@ -431,7 +431,7 @@ int main(int argc, char **argv)
 	//printf("cudaDevAttrConcurrentManagedAccess = %d\n", value1);	
 	
 	
-	printf("stream_warp:\n");
+	//printf("stream_warp:\n");
 	//printf("%d\n",atoll(argv[1]));
 	///*
 	//////nvprof --profile-from-start off --print-gpu-trace --log-file prof512512size8gpage256.txt --csv ./fault_group_test4
@@ -568,7 +568,7 @@ int main(int argc, char **argv)
 	}
 	}
 	}
-	printf("\n");
+	//printf("\n");
 	//*/
 	
 	/*
