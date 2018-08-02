@@ -64,8 +64,8 @@ long long unsigned time_diff(timespec start, timespec end){
 
 #define STRIDE_64K 256
 //#define stride 512
-#define dimx 1
-#define dimy 32
+#define dimx 512
+#define dimy 512
 
 __global__ void stream_thread(long long int *ptr, const long long int size, 
                               long long int *output, const long long int val) 
@@ -431,9 +431,9 @@ int main(int argc, char **argv)
 	//printf("cudaDevAttrConcurrentManagedAccess = %d\n", value1);	
 	
 	
-	printf("stream_warp:\n");
+	//printf("stream_warp:\n");
 	//printf("%d\n",atoll(argv[1]));
-	///*
+	/*
 	//////nvprof --profile-from-start off --print-gpu-trace --log-file prof512512size8gpage256.txt --csv ./fault_group_test4
 	///also do for less than 16 warps same/diff cores
 	////256	512	1024	2048	4096(5)	8192	16384	32768	65536(9)	131072	262144	524288	1048576	2097152(not index but real size)
@@ -569,12 +569,12 @@ int main(int argc, char **argv)
 	}
 	}
 	printf("\n");
-	//*/
+	*/
 	
-	printf("stream_thread:\n");
+	//printf("stream_thread:\n");
 	for(long long int xSTRIDE_64K = 256; xSTRIDE_64K <= 256; xSTRIDE_64K = xSTRIDE_64K * 2){
 	//printf("############approach\n");
-	for(long long int time = 0; time <= 4; time = time + 1){
+	for(long long int time = 4; time <= 4; time = time + 1){
 	//printf("\n####################time: %llu\n", time);
 	
 	//long long int coverage2 = 0;
@@ -689,7 +689,7 @@ int main(int argc, char **argv)
 	}
 	}
 	}
-	printf("\n");
+	//printf("\n");
 	
 	exit(EXIT_SUCCESS);
 }

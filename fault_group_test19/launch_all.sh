@@ -1,19 +1,61 @@
 #!/bin/sh
 
-for i in 256 512 1024 2048 4096 8192 16384 32768 65536 131072 262144 524288 1048576	2097152 4194304 8388608 16777216 33554432 67108864 134217728
-do
-./fault_group_test18 $i
-cat fault_group_test18.cu | sed "s/#define STRIDE_64K 256/#define STRIDE_64K $i/" > temp_fault_group_test18.txt
-done
+dimx=8192
+dimy=512
+cat temp_fault_group_test19.cu | sed "s/#define dimx 512/#define dimx $dimx/" | sed "s/#define dimy 512/#define dimy $dimy/" > fault_group_test19.cu
+make > dump_make.txt
+./fault_group_test19
+nvprof --profile-from-start off --print-gpu-trace --log-file prof$dimx${dimy}size8gpage$i.txt --csv ./fault_group_test19 > dump_profile.txt
+
+dimx=512
+dimy=512
+cat temp_fault_group_test19.cu | sed "s/#define dimx 512/#define dimx $dimx/" | sed "s/#define dimy 512/#define dimy $dimy/" > fault_group_test19.cu
+make > dump_make.txt
+./fault_group_test19
+nvprof --profile-from-start off --print-gpu-trace --log-file prof$dimx${dimy}size8gpage$i.txt --csv ./fault_group_test19 > dump_profile.txt
+
+dimx=1
+dimy=32
+cat temp_fault_group_test19.cu | sed "s/#define dimx 512/#define dimx $dimx/" | sed "s/#define dimy 512/#define dimy $dimy/" > fault_group_test19.cu
+make > dump_make.txt
+./fault_group_test19
+nvprof --profile-from-start off --print-gpu-trace --log-file prof$dimx${dimy}size8gpage$i.txt --csv ./fault_group_test19 > dump_profile.txt
+
+dimx=1
+dimy=64
+cat temp_fault_group_test19.cu | sed "s/#define dimx 512/#define dimx $dimx/" | sed "s/#define dimy 512/#define dimy $dimy/" > fault_group_test19.cu
+make > dump_make.txt
+./fault_group_test19
+nvprof --profile-from-start off --print-gpu-trace --log-file prof$dimx${dimy}size8gpage$i.txt --csv ./fault_group_test19 > dump_profile.txt
+
+dimx=2
+dimy=32
+cat temp_fault_group_test19.cu | sed "s/#define dimx 512/#define dimx $dimx/" | sed "s/#define dimy 512/#define dimy $dimy/" > fault_group_test19.cu
+make > dump_make.txt
+./fault_group_test19
+nvprof --profile-from-start off --print-gpu-trace --log-file prof$dimx${dimy}size8gpage$i.txt --csv ./fault_group_test19 > dump_profile.txt
 
 echo " "
 
-for i in 256 512 1024 2048 4096 8192 16384 32768 65536 131072 262144 524288 1048576	2097152 4194304 8388608 16777216 33554432 67108864 134217728
-do
-nvprof --profile-from-start off --print-gpu-trace --log-file prof132size8gpage$i.txt --csv ./fault_group_test4 $i
-done
+dimx=8192
+dimy=512
+sh profhandler.sh prof$dimx${dimy}size8gpage$i.txt
 
-echo " "
+dimx=512
+dimy=512
+sh profhandler.sh prof$dimx${dimy}size8gpage$i.txt
 
-sh batch_prof.sh
+dimx=1
+dimy=32
+sh profhandler.sh prof$dimx${dimy}size8gpage$i.txt
 
+dimx=1
+dimy=64
+sh profhandler.sh prof$dimx${dimy}size8gpage$i.txt
+
+dimx=2
+dimy=32
+sh profhandler.sh prof$dimx${dimy}size8gpage$i.txt
+
+
+#sh batch_prof.sh
