@@ -14,7 +14,7 @@ using namespace cooperative_groups;
 
 /////////////////////////////L1 is enabled. "ALL_CCFLAGS += -Xptxas -dlcm=ca"
 //////////////large vs small data.
-//////method in the blog. get the time and faults of fully unrolled stream_warp only. (half unrolled and non unrolled as well?)
+//////method in the blog. get the time and faults of fully unrolled stream_warp only. (half unrolled and non unrolled as well? maybe for 8192 512 only)
 //////nvprof --profile-from-start off --print-gpu-trace --log-file 4warpsall.txt --csv ./fault_group_test15
 
 void init_cpu_data(long long int* A, long long int size, double stride){
