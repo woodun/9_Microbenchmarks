@@ -108,21 +108,36 @@ __global__ void stream_warp1(long long int *ptr, const long long int size, long 
   //long long int n = size / sizeof(long long int); 
   long long int accum = 0;
   
-  if(warps_per_grid * STRIDE_64K < 65536){
-	  warps_per_grid = 65536 / STRIDE_64K;
-  }
-   
-  #pragma unroll
-  for(; warp_id < 8589934592/STRIDE_64K; warp_id += dimx * dimy / 32) {
-    #pragma unroll
-    for(int rep = 0; rep < STRIDE_64K/sizeof(long long int)/32; rep++) {////////intra-warp loop
-      long long int ind = warp_id * STRIDE_64K/sizeof(long long int) + rep * 32 + lane_id;
-      if (ind < 1073741824) {
-        if (1) accum += ptr[ind];
-        else ptr[ind] = val;
-      }
-	  break;////////only do the first rep.
-    }
+  if(dimx * dimy / 32 * STRIDE_64K < 65536){
+  
+	  #pragma unroll
+	  for(; warp_id < 8589934592/STRIDE_64K; warp_id += 65536 / STRIDE_64K) {
+		#pragma unroll
+		for(int rep = 0; rep < STRIDE_64K/sizeof(long long int)/32; rep++) {////////intra-warp loop
+		  long long int ind = warp_id * STRIDE_64K/sizeof(long long int) + rep * 32 + lane_id;
+		  if (ind < 1073741824) {
+			if (1) accum += ptr[ind];
+			else ptr[ind] = val;
+		  }
+		  break;////////only do the first rep.
+		}
+	  }
+  
+  }else{
+	  
+	  #pragma unroll
+	  for(; warp_id < warp_total; warp_id += dimx * dimy / 32) {
+		#pragma unroll
+		for(int rep = 0; rep < STRIDE_64K/sizeof(long long int)/32; rep++) {////////intra-warp loop
+		  long long int ind = warp_id * STRIDE_64K/sizeof(long long int) + rep * 32 + lane_id;
+		  if (ind < 1073741824) {
+			if (1) accum += ptr[ind]; 
+			else ptr[ind] = val; 
+		  }
+		  break;////////only do the first rep.
+		}
+	  }
+	  
   }
 
   if (1) 
