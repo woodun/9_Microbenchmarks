@@ -275,7 +275,7 @@ int main(int argc, char **argv)
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
 		
-		stream_warp1<<<dimx, dimy>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7, STRIDE_64Kx);
+		stream_warp<<<dimx, dimy>>>(CPU_data_in1, 8 * data_size, GPU_data_out1, 7, STRIDE_64Kx);
 
 		cudaDeviceSynchronize();
 				
