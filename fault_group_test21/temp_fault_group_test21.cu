@@ -357,8 +357,7 @@ __global__ void stream_warp5(long long int *ptr, const long long int size, long 
     output[threadIdx.x + blockIdx.x * blockDim.x] = accum; 
 }
 
-__global__ void stream_warp6(long long int *ptr, const long long int size, long long int *output, const long long int val, long long int xSTRIDE_64K) 
-{ 
+__global__ void stream_warp6(long long int *ptr, const long long int size, long long int *output, const long long int val, long long int xSTRIDE_64K){ 
   int lane_id = threadIdx.x & 31; 
   long long int warp_id = (threadIdx.x + blockIdx.x * blockDim.x) >> 5; 
   int warps_per_grid = (blockDim.x * gridDim.x) >> 5; 
