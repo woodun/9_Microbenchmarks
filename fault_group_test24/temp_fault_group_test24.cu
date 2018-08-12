@@ -18,6 +18,8 @@ using namespace cooperative_groups;
 //////in fault15 the number of iterations is changing. here 64k at most have one iteration.
 //////nvprof --profile-from-start off --print-gpu-trace --log-file 4warpsall.txt --csv ./fault_group_test15
 //////using unroll here. unroll is effective here.
+//////more: reading the same data from different cores and increase the core number can actually change the intra-warp concurrency and not access more data. L1 and computation is parallel and should not increase the runtime.
+//////more: check if the driver's prefetching needs to access every 64k pages in previous migration (128, 256, 512, 1024) or just one 64k of it.
 
 void init_cpu_data(long long int* A, long long int size, double stride){
 	
