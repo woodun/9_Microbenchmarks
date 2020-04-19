@@ -221,7 +221,7 @@ int main(int argc, char **argv)
 			init_cpu_data(CPU_data_in1, data_size, data_stride);		
 		}
 		
-		cudaProfilerStart();////////////////////////////////start
+		cudaProfilerStart();/////////////////////////////////////////////////************************start profile
 		/////////////////////////////////time
 		struct timespec ts1;
 		clock_gettime(CLOCK_REALTIME, &ts1);
